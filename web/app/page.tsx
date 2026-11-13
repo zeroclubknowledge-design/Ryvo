@@ -1,2 +1,2 @@
-import { RyvoApp } from "@/components/ryvo-app";
-export default function Home() { return <RyvoApp initialView="explore" />; }
+import { LandingPage } from "@/components/welcome-pages";
+export default function Home(){return <LandingPage/>;}

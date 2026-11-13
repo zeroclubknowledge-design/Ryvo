@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { CollectionViewSwitch } from "@/components/collection-view-switch";
 import { Artwork, Icon } from "@/components/collection-art";
-import { money, type Competition, type DemoState } from "@/lib/demo";
+import { type Competition, type DemoState } from "@/lib/demo";
 
 type Props = {
  competition:Competition; state:DemoState; ready:boolean; busy:boolean; error:string;
@@ -23,7 +23,7 @@ export function CollectionDetails({competition:c,state,ready,busy,error,saved,on
  const progress=owned?.length??0;
  const status=c.status==="open"?"Open to join":c.status==="upcoming"?"Up next":c.status==="grace"?"Grace period":"In progress";
  return <div className="collection-page">
-  <nav className="collection-breadcrumb" aria-label="Breadcrumb"><Link href="/">Explore</Link><span>/</span><span>Collections</span><span>/</span><b>{c.title}</b></nav>
+  <nav className="collection-breadcrumb" aria-label="Breadcrumb"><Link href="/explore">Explore</Link><span>/</span><span>Collections</span><span>/</span><b>{c.title}</b></nav>
   <div className="collection-page-heading"><div className="collection-series"><span className="live-dot"/> THE RYVO COLLECTIONS <span>VOL. {String(c.total).padStart(2,"0")}</span></div><CollectionViewSwitch id={c.id} view="collectible"/></div>
   <div className="collection-intro-grid">
    <section className="collection-gallery" aria-label="Collection artwork">
@@ -44,11 +44,11 @@ export function CollectionDetails({competition:c,state,ready,busy,error,saved,on
       <Link className="primary collection-cta" href={`/board/${c.id}`}>Explore your board <Icon name="arrow" size={18}/></Link>
      </>:<>
       <div className="entry-card-heading"><span>START YOUR COLLECTION</span><span>{c.capacity-c.joined} places available</span></div>
-      <h2>{money(c.fee)}<small> entry fee</small></h2>
+      <h2>{(c.fee*10).toLocaleString()} r/<small> entry fee</small></h2>
       <p className="entry-card-description">One entry. Your first piece. A whole new possibility.</p>
-      <div className="collection-benefits"><span><Icon name="check" size={15}/> 1 unique collectible piece</span><span><Icon name="check" size={15}/> {(c.fee*10).toLocaleString()} RYVO credit</span></div>
-      <button className="primary collection-cta" disabled={!ready||busy||c.status!=="open"} onClick={onJoin}>{busy?"Starting your board…":c.status==="open"?`Pay ${money(c.fee)} in demo naira`:c.status==="upcoming"?"Next in the registration queue":"Registration closed"}<Icon name="arrow" size={18}/></button>
-      <p className="collection-demo-note">Entry is paid from your demo naira wallet. No real money is charged.</p>
+      <div className="collection-benefits"><span><Icon name="check" size={15}/> 1 unique collectible piece</span><span><Icon name="check" size={15}/> Paid with RYVO credits</span></div>
+      <button className="primary collection-cta" disabled={!ready||busy||c.status!=="open"} onClick={onJoin}>{busy?"Starting your board…":c.status==="open"?`Join for ${(c.fee*10).toLocaleString()} r/`:c.status==="upcoming"?"Next in the registration queue":"Registration closed"}<Icon name="arrow" size={18}/></button>
+      <p className="collection-demo-note">Entry is paid from your RYVO credit balance. No real money is charged.</p>
      </>}
     </div>
     <div className="collection-assurance"><Icon name="help" size={16}/><p>Collect the full artwork to qualify within the winner limit.<br/><span>Explore the competition rules below before joining.</span></p></div>
@@ -58,10 +58,10 @@ export function CollectionDetails({competition:c,state,ready,busy,error,saved,on
   <section className="collection-content" id="collection-content">
    <div className="collection-detail-tabs" role="tablist" aria-label="Collection information">{["Overview","Competition rules"].map(t=><button role="tab" aria-selected={tab===t} aria-controls="collection-tab-panel" id={`tab-${t.replaceAll(" ","-")}`} className={tab===t?"active":""} key={t} onClick={()=>setTab(t)}>{t}</button>)}</div>
    <div role="tabpanel" id="collection-tab-panel" aria-labelledby={`tab-${tab.replaceAll(" ","-")}`}>
-    {tab==="Overview"&&<div className="collection-overview"><div><p className="eyebrow">THE STORY BEHIND THE PIECES</p><h2>A different way to<br/>own the bigger picture.</h2><p>{stories[c.id]}</p><p>Each piece belongs to a specific place in this artwork. Start with one, find the missing pieces, and watch your own picture come together.</p></div><div className="collection-facts"><h3>Collection details</h3>{[["Creator",c.artist],["Art category",c.category],["Artwork fragments",`${c.total} pieces`],["Registration",`${c.joined} / ${c.capacity} places filled`],["Entry credit",`${(c.fee*10).toLocaleString()} RYVO`]].map(([label,value])=><div key={label}><span>{label}</span><b>{value}</b></div>)}<p>RYVO is in-app credit. It is not cash and cannot be withdrawn.</p></div></div>}
-    {tab==="Competition rules"&&<div className="collection-rules">{[["01","Build your own board",`Entry gives you one unique piece and ${(c.fee*10).toLocaleString()} RYVO credit. Collect the ${c.total} required artwork fragments to complete your personal board.`],["02","Watch the winner limit",`This competition has ${c.winners} winner slots. It closes early when the configured winner count is reached through valid completed boards.`],["03","Know the timeline","A one-month primary period is followed by a one-month grace period. The maximum competition duration is two months."],["04","Understand refunds","If no participant completes a board within the full two-month period, participant entry payments and the creator launch fee are refunded. With at least one completed board, that no-winner refund rule does not apply."]].map(([n,title,text])=><article key={n}><span>{n}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}<p className="notice">Development preview: competition figures are sample data. Payment processing, winner validation and refunds are not live.</p></div>}
+    {tab==="Overview"&&<div className="collection-overview"><div><p className="eyebrow">THE STORY BEHIND THE PIECES</p><h2>A different way to<br/>own the bigger picture.</h2><p>{stories[c.id]}</p><p>Each piece belongs to a specific place in this artwork. Start with one, find the missing pieces, and watch your own picture come together.</p></div><div className="collection-facts"><h3>Collection details</h3>{[["Creator",c.artist],["Art category",c.category],["Artwork fragments",`${c.total} pieces`],["Registration",`${c.joined} / ${c.capacity} places filled`],["Entry fee",`${(c.fee*10).toLocaleString()} r/`]].map(([label,value])=><div key={label}><span>{label}</span><b>{value}</b></div>)}<p>Swap RYVO to naira or sell to a P2P merchant from your wallet.</p></div></div>}
+    {tab==="Competition rules"&&<div className="collection-rules">{[["01","Build your own board",`Entry costs ${(c.fee*10).toLocaleString()} r/ and gives you one unique piece. Collect the ${c.total} required artwork fragments to complete your personal board.`],["02","Watch the winner limit",`This competition has ${c.winners} winner slots. It closes early when the configured winner count is reached through valid completed boards.`],["03","Know the timeline","A one-month primary period is followed by a one-month grace period. The maximum competition duration is two months."],["04","Understand refunds","If no participant completes a board within the full two-month period, participant entry payments and the creator launch fee are refunded. With at least one completed board, that no-winner refund rule does not apply."]].map(([n,title,text])=><article key={n}><span>{n}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}<p className="notice">Development preview: competition figures are sample data. Payment processing, winner validation and refunds are not live.</p></div>}
    </div>
   </section>
-  <div className="collection-next"><span>THERE’S ALWAYS ANOTHER POSSIBILITY</span><Link href="/">Discover more collections <Icon name="arrow" size={19}/></Link></div>
+  <div className="collection-next"><span>THERE’S ALWAYS ANOTHER POSSIBILITY</span><Link href="/explore">Discover more collections <Icon name="arrow" size={19}/></Link></div>
  </div>;
 }
