@@ -9,9 +9,12 @@ From `web`, run `npm run dev` and open http://localhost:3000. `npm run build` cr
 ## Implemented
 
 - A rounded Collectible / My board switch links `/collection/[id]` (overview and competition rules) to `/board/[id]` (large interactive board, collection marketplace, and demo leaderboard).
-- Wallet redesign with a purple balance card, Fund, Withdraw, Bank account, and Activity actions.
+- Wallet redesign using pink (#F828F8), green (#60B800), and charcoal (#202020) sampled from the Ryvo logo, with a branded balance card, Fund, Withdraw, Bank account, and Activity actions.
 - `/wallet/p2p` provides searchable demo merchant offers, rate/limit comparison, quote review, and idempotent funding confirmation.
 - Test bank accounts and withdrawals from a separate sample earnings balance, with a persisted two-minute simulated payout and status history.
+- Centered wallet, funding, bank-account and help dialogs on desktop and mobile.
+- Sidebar links use native client navigation, preload pages during idle time, and show pending feedback with an immediate route fallback. The standalone marketplace route is removed in favour of collection-specific marketplaces.
+- The bell opens `/notifications`, with wallet/collection updates derived from demo activity, unread filters, and persistent mark-as-read controls. The avatar opens `/profile`, with an artwork cover, overlapping portrait, real collection stats/gallery, recent activity, and an editable browser-saved demo profile.
 - Hidden scrollbars with normal scrolling preserved.
 - Responsive discovery with collection details, category and creator search, sorting, and saved collections.
 - Individual boards showing owned and missing artwork fragments.
@@ -20,7 +23,7 @@ From `web`, run `npm run dev` and open http://localhost:3000. `npm run build` cr
 - Demo marketplace purchases debit cash and update piece ownership and the ledger together.
 - Distinct RYVO, demo spending money, withdrawable demo earnings, and Universal Piece balances, plus dated transaction history.
 - Server-side validation rejects duplicate entries, duplicate purchases, invalid pieces, and insufficient funds. Demo operations are stateless and never write to the deployment filesystem. Wallet snapshots are saved in browser local storage; Web Locks serialize same-origin payments across browser tabs where supported.
-- Direct routes for boards, marketplace, wallet, referrals and individual boards.
+- Direct routes for boards, wallet, P2P funding, referrals, collectibles and their individual boards.
 
 ## Development boundary
 
