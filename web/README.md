@@ -8,6 +8,8 @@ From `web`, run `npm run dev` and open http://localhost:3000. `npm run build` cr
 
 ## Implemented
 
+- Dedicated `/collection/[id]` pages with artwork, creator details, board progress, collection rules, and shareable URLs.
+- Hidden scrollbars with normal scrolling preserved.
 - Responsive discovery with collection details, category and creator search, sorting, and saved collections.
 - Individual boards showing owned and missing artwork fragments.
 - Demo entry creates a board with one piece and credits 10 RYVO per naira of entry value.

@@ -11,5 +11,5 @@ if(before.boards['harbour-lights'])assert.equal((await post({action:'join',id:'h
 const results=await Promise.all(Array.from({length:5},()=>post({action:'buy',id:'night-bloom',index:0})));
 assert.ok(results.every(r=>r.status===400));
 assert.deepEqual(await read(),before,'Rejected requests must never mutate balances, boards or ledger');
-for(const route of ['/','/boards','/marketplace','/wallet','/referrals','/board/night-bloom'])assert.equal((await fetch(base+route)).status,200,route);
+for(const route of ['/','/boards','/marketplace','/wallet','/referrals','/board/night-bloom','/collection/harbour-lights','/collection/night-bloom','/collection/salt-flats','/collection/paper-lanterns'])assert.equal((await fetch(base+route)).status,200,route);
 console.log('Passed: state shape, invalid actions, duplicate ownership, invalid indexes, closed registration, cross-origin guard, concurrent rejection, ledger integrity, and all main routes.');

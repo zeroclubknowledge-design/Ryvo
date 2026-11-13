@@ -1,0 +1,70 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Artwork, Icon } from "@/components/collection-art";
+import { money, type Competition, type DemoState } from "@/lib/demo";
+
+type Props = {
+ competition:Competition; state:DemoState; ready:boolean; busy:boolean; error:string;
+ selected:number|null; onSelect:(index:number|null)=>void; saved:boolean; onFavorite:()=>void;
+ onJoin:()=>void; onBuy:(index:number)=>void;
+};
+const stories:Record<string,string>={
+ "harbour-lights":"Somewhere between the familiar and the unknown, a new world takes shape. The Other Side is an exploration of identity through sculptural silhouettes, reflective surfaces and a flash of unexpected light.",
+ "night-bloom":"A quiet celebration of things that come alive after dark. Soft violet forms unfold around a golden centre, bringing a little wonder to the space between light and shadow.",
+ "salt-flats":"Fluid forms. Unexpected reflections. Chrome Dreams turns a familiar material into something almost impossible, inviting you to look again with every piece you collect.",
+ "paper-lanterns":"A small universe of warm colour and gentle movement. Soft Orbit finds beauty in the way separate things can belong together, even from a distance."
+};
+export function CollectionDetails({competition:c,state,ready,busy,error,selected,onSelect,saved,onFavorite,onJoin,onBuy}:Props){
+ const [tab,setTab]=useState("Overview");
+ const owned=state.boards[c.id];
+ const progress=owned?.length??0;
+ const piece=selected!==null&&selected>=0&&selected<c.total?selected:null;
+ const isOwned=piece!==null&&owned?.includes(piece);
+ const status=c.status==="open"?"Open to join":c.status==="upcoming"?"Up next":c.status==="grace"?"Grace period":"In progress";
+ useEffect(()=>{if(piece!==null)setTab("Your board")},[piece]);
+ return <div className="collection-page">
+  <nav className="collection-breadcrumb" aria-label="Breadcrumb"><Link href="/">Explore</Link><span>/</span><span>Collections</span><span>/</span><b>{c.title}</b></nav>
+  <div className="collection-page-heading"><div className="collection-series"><span className="live-dot"/> THE RYVO COLLECTIONS <span>VOL. {String(c.total).padStart(2,"0")}</span></div><Link href="/" className="collection-back">← Back to explore</Link></div>
+  <div className="collection-intro-grid">
+   <section className="collection-gallery" aria-label="Collection artwork">
+    <div className="collection-main-art"><Artwork theme={c.theme}/><span className="gallery-category">{c.category} <span>↗</span></span><button className={`gallery-favorite ${saved?"is-saved":""}`} onClick={onFavorite} aria-label={`${saved?"Unsave":"Save"} ${c.title}`} aria-pressed={saved}><Icon name="heart" size={20}/></button><div className="artwork-signature"><span>THE COMPLETE PICTURE</span><b>{c.title}</b><small>{c.total} pieces. One extraordinary whole.</small></div><span className="gallery-edition">01 / 01</span></div>
+    <div className="gallery-caption"><span><Icon name="explore" size={15}/> Original collection artwork</span><span>{c.total} collectible pieces <span>↗</span></span></div>
+   </section>
+   <section className="collection-summary">
+    <div className="summary-topline"><span className={`collection-status ${c.status}`}><i/>{status}</span><span className="collection-category">{c.category}</span></div>
+    <h1>{c.title}<span>.</span></h1>
+    <div className="collection-creator"><span className="creator-avatar">{c.artist.split(" ").map(s=>s[0]).join("")}</span><div><small>Created by</small><span>{c.artist} <b className="verified">✳</b></span></div></div>
+    <p className="collection-description">{stories[c.id]}</p>
+    <div className="collection-numbers"><div><Icon name="boards" size={16}/><b>{c.total}</b><span>Unique pieces</span></div><div><Icon name="spark" size={16}/><b>{c.remaining}<small> / {c.winners}</small></b><span>Winner slots left</span></div><div><Icon name="time" size={16}/><b>{c.days}<small> days</small></b><span>{c.status==="grace"?"In grace period":c.status==="upcoming"?"Primary period":"Remaining"}</span></div></div>
+    <div className="collection-entry-card">
+     {owned?<>
+      <div className="entry-card-heading"><span>YOUR COLLECTION</span><span className="positive">{Math.round(progress/c.total*100)}% complete</span></div>
+      <h2>{progress}<small> / {c.total} pieces collected</small></h2><div className="progress"><i style={{width:`${progress/c.total*100}%`}}/></div>
+      <p className="entry-card-description">{progress===c.total?"All pieces collected. Winner qualification is not enabled in this demo.":`${c.total-progress} more pieces to complete the picture. Keep your collection moving.`}</p>
+      <button className="primary collection-cta" onClick={()=>{setTab("Your board");document.getElementById("collection-content")?.scrollIntoView({behavior:"smooth",block:"start"})}}>Explore your board <Icon name="arrow" size={18}/></button>
+     </>:<>
+      <div className="entry-card-heading"><span>START YOUR COLLECTION</span><span>{c.capacity-c.joined} places available</span></div>
+      <h2>{money(c.fee)}<small> entry fee</small></h2>
+      <p className="entry-card-description">One entry. Your first piece. A whole new possibility.</p>
+      <div className="collection-benefits"><span><Icon name="check" size={15}/> 1 unique collectible piece</span><span><Icon name="check" size={15}/> {(c.fee*10).toLocaleString()} RYVO credit</span></div>
+      <button className="primary collection-cta" disabled={!ready||busy||c.status!=="open"} onClick={onJoin}>{busy?"Starting your board…":c.status==="open"?"Start demo collection":c.status==="upcoming"?"Next in the registration queue":"Registration closed"}<Icon name="arrow" size={18}/></button>
+      <p className="collection-demo-note">Demo entry · no real payment is taken.</p>
+     </>}
+    </div>
+    <div className="collection-assurance"><Icon name="help" size={16}/><p>Collect the full artwork to qualify within the winner limit.<br/><span>Explore the competition rules below before joining.</span></p></div>
+    {error&&<p className="error" role="alert">{error}</p>}
+   </section>
+  </div>
+  <section className="collection-content" id="collection-content">
+   <div className="collection-detail-tabs" role="tablist" aria-label="Collection information">{["Overview","Your board","Competition rules"].map(t=><button role="tab" aria-selected={tab===t} aria-controls="collection-tab-panel" id={`tab-${t.replaceAll(" ","-")}`} className={tab===t?"active":""} key={t} onClick={()=>{setTab(t);if(t!=="Your board")onSelect(null)}}>{t}{t==="Your board"&&owned&&<span>{progress}/{c.total}</span>}</button>)}</div>
+   <div role="tabpanel" id="collection-tab-panel" aria-labelledby={`tab-${tab.replaceAll(" ","-")}`}>
+    {tab==="Overview"&&<div className="collection-overview"><div><p className="eyebrow">THE STORY BEHIND THE PIECES</p><h2>A different way to<br/>own the bigger picture.</h2><p>{stories[c.id]}</p><p>Each piece belongs to a specific place in this artwork. Start with one, find the missing pieces, and watch your own picture come together.</p></div><div className="collection-facts"><h3>Collection details</h3>{[["Creator",c.artist],["Art category",c.category],["Artwork fragments",`${c.total} pieces`],["Registration",`${c.joined} / ${c.capacity} places filled`],["Entry credit",`${(c.fee*10).toLocaleString()} RYVO`]].map(([label,value])=><div key={label}><span>{label}</span><b>{value}</b></div>)}<p>RYVO is in-app credit. It is not cash and cannot be withdrawn.</p></div></div>}
+    {tab==="Your board"&&(owned?<div className="collection-board-layout"><div><div className="collection-board-heading"><div><p className="eyebrow">YOUR BIGGER PICTURE</p><h2>Piece by piece.</h2></div><span>{progress} owned <i/> {c.total-progress} missing</span></div><div className="piece-grid collection-piece-grid" style={{gridTemplateColumns:`repeat(${c.total===12?4:5},1fr)`}}><Artwork theme={c.theme}/>{Array.from({length:c.total},(_,i)=><button key={i} aria-label={`Piece ${i+1}, ${owned.includes(i)?"owned":"missing"}`} aria-pressed={piece===i} className={`${owned.includes(i)?"owned":"missing"} ${piece===i?"piece-selected":""}`} onClick={()=>onSelect(i)}><span>{String(i+1).padStart(2,"0")}</span>{owned.includes(i)?<Icon name="check" size={17}/>:<span>+</span>}</button>)}</div><p className="board-hint muted">Select any piece to see its ownership or explore an available demo listing.</p></div><aside className="collection-piece-inspector"><span className="inspector-spark">✳</span><p className="eyebrow">EVERY PIECE HAS ITS PLACE</p><h3>{piece===null?"Find your next piece.":`Piece #${String(piece+1).padStart(2,"0")}`}</h3>{piece===null?<p>Your missing pieces are marked with a plus. Choose one to take a closer look.</p>:isOwned?<><p className="positive">Already yours.</p><p>This piece is part of your collection and counts towards your completed picture.</p></>:<><p>A little closer to the complete picture.</p><div className="inspector-price"><span>Demo listing price</span><b>{money(900+piece*100)}</b></div><div className="inspector-balance"><span>Demo cash available</span><b>{money(state.cash)}</b></div><button className="primary collection-cta" disabled={busy||!ready} onClick={()=>onBuy(piece)}>{busy?"Collecting…":"Buy with demo cash"}<Icon name="arrow" size={17}/></button><p className="collection-demo-note">Illustrative seller fee: 0.5%. No real funds or seller assets are transferred.</p></>}{error&&<p className="error" role="alert">{error}</p>}</aside></div>:<div className="collection-not-started"><Icon name="boards" size={32}/><h2>Your picture starts with one piece.</h2><p>{c.status==="open"?"Join this collection to receive your first piece and start building your board.":"You haven’t joined this collection. Registration availability is shown above."}</p>{c.status==="open"&&<button className="primary" disabled={!ready||busy} onClick={onJoin}>Start demo collection <Icon name="arrow" size={17}/></button>}</div>)}
+    {tab==="Competition rules"&&<div className="collection-rules">{[["01","Build your own board",`Entry gives you one unique piece and ${(c.fee*10).toLocaleString()} RYVO credit. Collect the ${c.total} required artwork fragments to complete your personal board.`],["02","Watch the winner limit",`This competition has ${c.winners} winner slots. It closes early when the configured winner count is reached through valid completed boards.`],["03","Know the timeline","A one-month primary period is followed by a one-month grace period. The maximum competition duration is two months."],["04","Understand refunds","If no participant completes a board within the full two-month period, participant entry payments and the creator launch fee are refunded. With at least one completed board, that no-winner refund rule does not apply."]].map(([n,title,text])=><article key={n}><span>{n}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}<p className="notice">Development preview: competition figures are sample data. Payment processing, winner validation and refunds are not live.</p></div>}
+   </div>
+  </section>
+  <div className="collection-next"><span>THERE’S ALWAYS ANOTHER POSSIBILITY</span><Link href="/">Discover more collections <Icon name="arrow" size={19}/></Link></div>
+ </div>;
+}
