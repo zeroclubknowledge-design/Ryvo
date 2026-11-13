@@ -4,19 +4,56 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Icon, Artwork } from "@/components/collection-art";
 import { CollectionDetails } from "@/components/collection-details";
-import { competitions, initialState, money, type Competition, type DemoState } from "@/lib/demo";
+import { competitions, initialState, money, DEMO_STORAGE_KEY, isDemoState, type Competition, type DemoState } from "@/lib/demo";
 type View = "explore"|"boards"|"marketplace"|"wallet"|"referrals";
 export function RyvoApp({initialView="explore",collectionId}:{initialView?:View;collectionId?:string}){
  const [view]=useState<View>(initialView),[state,setState]=useState<DemoState>(initialState),[ready,setReady]=useState(false),[error,setError]=useState("");
  const [category,setCategory]=useState("All collections"),[query,setQuery]=useState(""),[menu,setMenu]=useState(false),[selected,setSelected]=useState<number|null>(null),[busy,setBusy]=useState(false),[toast,setToast]=useState(""),[help,setHelp]=useState(false),[saved,setSaved]=useState<string[]>([]),[sort,setSort]=useState("Trending");
  const dialog=useRef<HTMLDialogElement>(null);
+ const paymentPending=useRef(false);
  const router=useRouter();
  const detail=competitions.find(c=>c.id===collectionId);
  useEffect(()=>{if(collectionId){const p=new URLSearchParams(location.search).get("piece");if(p!==null&&/^\d+$/.test(p))setSelected(Number(p))}},[collectionId]);
- useEffect(()=>{fetch("/api/demo").then(r=>{if(!r.ok)throw Error();return r.json()}).then(s=>{setState(s);setReady(true)}).catch(()=>setError("Cannot connect to the local server. Reload to try again."));const favorites=localStorage.getItem("ryvo-saved");if(favorites)try{setSaved(JSON.parse(favorites))}catch{}},[]);
+ useEffect(()=>{
+  try {
+   const cached=localStorage.getItem(DEMO_STORAGE_KEY);
+   let wallet:unknown=null;
+   try { if(cached)wallet=JSON.parse(cached); } catch {}
+   const restored=isDemoState(wallet)?wallet:structuredClone(initialState);
+   localStorage.setItem(DEMO_STORAGE_KEY,JSON.stringify(restored));
+   setState(restored);setReady(true);
+   const favorites=localStorage.getItem("ryvo-saved");
+   if(favorites)try{setSaved(JSON.parse(favorites))}catch{}
+  } catch { setError("Please allow browser storage to save your demo wallet and payments."); }
+  const sync=(event:StorageEvent)=>{
+   if(event.key!==DEMO_STORAGE_KEY||!event.newValue)return;
+   try{const wallet=JSON.parse(event.newValue);if(isDemoState(wallet))setState(wallet)}catch{}
+  };
+  window.addEventListener("storage",sync);
+  return()=>window.removeEventListener("storage",sync);
+ },[]);
  useEffect(()=>{if(help)dialog.current?.showModal();else dialog.current?.close()},[help]);
  useEffect(()=>{if(!toast)return;const t=setTimeout(()=>setToast(""),4500);return()=>clearTimeout(t)},[toast]);
- async function act(action:string,id:string,index?:number){setBusy(true);setError("");try{const r=await fetch("/api/demo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,id,index})});const data=await r.json();if(!r.ok)throw Error(data.error);setState(data);setSelected(null);setToast(action==="join"?"You're in! Your first piece and RYVO credits are ready.":"Piece collected. Your board has been updated.")}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
+ async function act(action:string,id:string,index?:number){
+  if(!ready||paymentPending.current)return;
+  paymentPending.current=true;setBusy(true);setError("");
+  try{
+   const pay=async()=>{
+    const cached=localStorage.getItem(DEMO_STORAGE_KEY);
+    const latest:unknown=cached?JSON.parse(cached):state;
+    if(!isDemoState(latest))throw Error("Please reload to initialize your demo wallet.");
+    const r=await fetch("/api/demo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,id,index,state:latest})});
+    const data=await r.json();
+    if(!r.ok)throw Error(data.error||"Unable to complete this demo payment.");
+    if(!isDemoState(data))throw Error("Unable to update the demo wallet. Please try again.");
+    localStorage.setItem(DEMO_STORAGE_KEY,JSON.stringify(data));
+    setState(data);setSelected(null);
+   };
+   if(navigator.locks)await navigator.locks.request("ryvo-demo-payment",pay);else await pay();
+   setToast(action==="join"?"Naira payment successful! Your first piece and RYVO credit are ready.":"Naira payment successful. Your piece has been added to your board.");
+  }catch(e){setError(e instanceof Error?e.message:"Unable to complete this demo payment.")}
+  finally{paymentPending.current=false;setBusy(false)}
+ }
  const navigate=(v:View)=>{setMenu(false);router.push(v==="explore"?"/":`/${v}`)};
  const open=(c:Competition,piece?:number)=>{router.push(`/collection/${c.id}${piece!==undefined?`?piece=${piece}`:""}`)};
  const close=()=>{setHelp(false);setError("")};
@@ -34,12 +71,12 @@ export function RyvoApp({initialView="explore",collectionId}:{initialView?:View;
  <section className="collections"><div className="section-heading"><h2>Explore collections<span className="lime-dot"/></h2><label className="sort-label"><span>Sort by:</span><select value={sort} onChange={e=>setSort(e.target.value)}><option>Trending</option><option>Entry: low to high</option><option>Most collected</option></select></label></div><div className="collection-tools"><div className="tabs">{["All collections","3D Art","Abstract","Digital Art","Saved"].map(t=><button key={t} className={category===t?"selected":""} onClick={()=>setCategory(t)}>{t=== "All collections"&&<span>✳ </span>}{t}{t==="Saved"&&saved.length>0?` (${saved.length})`:""}</button>)}</div><label className="search"><Icon name="search" size={17}/><input aria-label="Search collections or creators" placeholder="Search collections or creators" value={query} onChange={e=>setQuery(e.target.value)}/><kbd>⌕</kbd></label></div><div className="collection-grid">{filtered.map(c=><CollectionCard key={c.id} c={c} favorite={saved.includes(c.id)} onFavorite={()=>favorite(c.id)} onOpen={()=>open(c)}/>)}</div>{filtered.length===0&&<div className="empty-state"><Icon name="search" size={32}/><h3>No collections found</h3><p>Try another search or explore a different category.</p><button className="secondary" onClick={()=>{setQuery("");setCategory("All collections")}}>Reset filters</button></div>}</section></>}
  {view==="boards"&&<><PageTitle eyebrow="PIECE BY PIECE" title="Your collection, unfolding." subtitle="A little progress. A bigger picture. Pick up where you left off."/><div className="collection-grid board-cards">{competitions.filter(c=>state.boards[c.id]).map(c=><button className="board-card" key={c.id} onClick={()=>open(c)}><Artwork theme={c.theme}/><div className="card-content"><span className="eyebrow">{c.remaining} WINNER SLOTS LEFT</span><h3>{c.title}</h3><p>{state.boards[c.id].length} of {c.total} pieces collected</p><div className="progress"><i style={{width:`${state.boards[c.id].length/c.total*100}%`}}/></div><span className="board-link">Continue collecting <Icon name="arrow" size={16}/></span></div></button>)}</div></>}
  {view==="marketplace"&&<><PageTitle eyebrow="THE PIECE YOU'VE BEEN LOOKING FOR" title="Make the connection." subtitle="Discover available pieces for your boards. Purchases use your demo cash balance."/><div className="market-grid">{competitions.filter(c=>state.boards[c.id]).flatMap(c=>Array.from({length:c.total},(_,i)=>i).filter(i=>!state.boards[c.id].includes(i)).slice(0,4).map(i=><article className="market-card" key={`${c.id}-${i}`}><div className="market-art"><Artwork theme={c.theme}/><span className="piece-tag">PIECE #{String(i+1).padStart(2,"0")}</span></div><div className="card-content"><p className="muted">{c.title}</p><h3>Piece #{String(i+1).padStart(2,"0")}</h3><div className="market-bottom"><b>{money(900+i*100)}</b><button className="primary" onClick={()=>open(c,i)}>View piece ↗</button></div></div></article>))}</div></>}
- {view==="wallet"&&<><PageTitle eyebrow="ALL YOUR POSSIBILITIES, IN ONE PLACE" title="Your wallet." subtitle="Clear balances. Every movement accounted for."/><div className="wallet-grid"><article className="wallet-card ryvo-wallet"><Icon name="wallet"/><span>RYVO balance</span><h2>{state.balance.toLocaleString()} <small>RYVO</small></h2><p>In-app credit · not cash or withdrawable</p></article><article className="wallet-card"><Icon name="wallet"/><span>Demo cash available</span><h2>{money(state.cash)}</h2><p>Pending {money(0)} · held {money(0)}</p></article><article className="wallet-card universal-wallet"><span className="universal-mini">✳</span><span>Universal Pieces</span><h2>{state.universal.toString().padStart(2,"0")}</h2><p>Activation opens once final rules are confirmed.</p></article></div><div className="section-heading"><h2>Activity</h2><span className="muted">Demo ledger</span></div><div className="ledger">{state.ledger.map(t=><div key={t.id}><span className="ledger-icon"><Icon name={t.amount>0?"arrow":"boards"}/></span><p><b>{t.label}</b><small>{new Date(t.date).toLocaleDateString("en-NG",{day:"numeric",month:"short",year:"numeric",timeZone:"Africa/Lagos"})}</small></p><strong className={t.amount>0?"positive":""}>{t.amount>0?"+":"−"}{t.currency==="NGN"?money(Math.abs(t.amount)):`${Math.abs(t.amount).toLocaleString()} RYVO`}</strong></div>)}</div></>}
+ {view==="wallet"&&<><PageTitle eyebrow="ALL YOUR POSSIBILITIES, IN ONE PLACE" title="Your wallet." subtitle="Clear balances. Every movement accounted for."/><div className="wallet-grid"><article className="wallet-card ryvo-wallet"><Icon name="wallet"/><span>RYVO balance</span><h2>{state.balance.toLocaleString()} <small>RYVO</small></h2><p>In-app credit · not cash or withdrawable</p></article><article className="wallet-card"><Icon name="wallet"/><span>Demo naira available</span><h2>{money(state.cash)}</h2><p>₦100,000 starting balance · simulated funds</p></article><article className="wallet-card universal-wallet"><span className="universal-mini">✳</span><span>Universal Pieces</span><h2>{state.universal.toString().padStart(2,"0")}</h2><p>Activation opens once final rules are confirmed.</p></article></div><div className="section-heading"><h2>Activity</h2><span className="muted">Demo ledger</span></div><div className="ledger">{state.ledger.map(t=><div key={t.id}><span className="ledger-icon"><Icon name={t.amount>0?"arrow":"boards"}/></span><p><b>{t.label}</b><small>{new Date(t.date).toLocaleDateString("en-NG",{day:"numeric",month:"short",year:"numeric",timeZone:"Africa/Lagos"})}</small></p><strong className={t.amount>0?"positive":""}>{t.amount>0?"+":"−"}{t.currency==="NGN"?money(Math.abs(t.amount)):`${Math.abs(t.amount).toLocaleString()} RYVO`}</strong></div>)}</div></>}
  {view==="referrals"&&<><PageTitle eyebrow="GOOD THINGS ARE BETTER SHARED" title="Bring your people." subtitle="Build your circle and discover more possibilities together."/><div className="referral-panel"><span className="huge-spark">✳</span><h2>Five friends.<br/>One more possibility.</h2><p>Earn a Universal Piece for every five qualifying referrals.<br/>Referral qualification rules are being finalized.</p><button className="secondary" onClick={()=>setToast("Referral links will be available when account registration launches.")}>Referral programme coming soon <Icon name="arrow" size={17}/></button></div></>}
  </>}
  <footer className="page-footer"><span>© 2026 Ryvo. A bigger picture awaits.</span><button onClick={()=>setHelp(true)}>The little details <span>↗</span></button><span className="demo-label"><i/> Development preview · demo balances</span></footer>
  </main></div>
- <dialog aria-label="How Ryvo works" ref={dialog} onCancel={close} onClick={e=>{if(e.target===dialog.current)close()}}><button className="dialog-close icon-button" aria-label="Close details" onClick={close}><Icon name="close"/></button>{help&&<div className="help-content"><p className="eyebrow">WELCOME TO RYVO</p><h2>A bigger picture.<br/>One piece at a time.</h2>{[["01","Find your collection","Explore artwork and review the competition's entry fee, piece count and winner slots."],["02","Start your board","A confirmed entry gives you your first piece and 10 RYVO for every ₦1 paid."],["03","Connect the pieces","Collect the missing pieces. Valid completed boards qualify within the competition's winner limit."]].map(([n,t,d])=><div className="help-step" key={n}><span>{n}</span><div><h3>{t}</h3><p>{d}</p></div></div>)}<p className="notice">This local build uses one shared demo account. Payments, prizes, referrals and withdrawals are not live.</p></div>}</dialog>
+ <dialog aria-label="How Ryvo works" ref={dialog} onCancel={close} onClick={e=>{if(e.target===dialog.current)close()}}><button className="dialog-close icon-button" aria-label="Close details" onClick={close}><Icon name="close"/></button>{help&&<div className="help-content"><p className="eyebrow">WELCOME TO RYVO</p><h2>A bigger picture.<br/>One piece at a time.</h2>{[["01","Find your collection","Explore artwork and review the competition's entry fee, piece count and winner slots."],["02","Start your board","A confirmed entry gives you your first piece and 10 RYVO for every ₦1 paid."],["03","Connect the pieces","Collect the missing pieces. Valid completed boards qualify within the competition's winner limit."]].map(([n,t,d])=><div className="help-step" key={n}><span>{n}</span><div><h3>{t}</h3><p>{d}</p></div></div>)}<p className="notice">Each browser has its own demo wallet starting with ₦100,000. Entries and purchases use simulated naira. No real funds are charged or withdrawn.</p></div>}</dialog>
  {error&&!detail&&<div className="toast error" role="alert">{error}</div>}{toast&&<div className="toast" role="status"><Icon name="check" size={18}/>{toast}<button aria-label="Dismiss notification" onClick={()=>setToast("")}>×</button></div>}
  </div>
 }

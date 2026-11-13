@@ -1,6 +1,6 @@
 # Ryvo
 
-A working local Next.js application following the supplied dark, acid-yellow and purple reference.
+A working Next.js demo application following the supplied dark, acid-yellow and purple reference.
 
 ## Run
 
@@ -12,15 +12,18 @@ From `web`, run `npm run dev` and open http://localhost:3000. `npm run build` cr
 - Hidden scrollbars with normal scrolling preserved.
 - Responsive discovery with collection details, category and creator search, sorting, and saved collections.
 - Individual boards showing owned and missing artwork fragments.
-- Demo entry creates a board with one piece and credits 10 RYVO per naira of entry value.
+- Every browser-based demo account starts with ₦100,000 in simulated naira.
+- Entry deducts the naira fee, creates a board with one piece, and credits 10 RYVO per naira of entry value.
 - Demo marketplace purchases debit cash and update piece ownership and the ledger together.
 - Distinct RYVO, demo cash, and Universal Piece balances, plus dated transaction history.
-- Server-side validation rejects duplicate entries, duplicate purchases, invalid pieces, and insufficient funds. Writes are serialized within one process and stored atomically in `.data/demo.json`.
+- Server-side validation rejects duplicate entries, duplicate purchases, invalid pieces, and insufficient funds. Demo operations are stateless and never write to the deployment filesystem. Wallet snapshots are saved in browser local storage; Web Locks serialize same-origin payments across browser tabs where supported.
 - Direct routes for boards, marketplace, wallet, referrals and individual boards.
 
 ## Development boundary
 
-This is a local development foundation using one shared seeded demo account. It is not a production financial service. Do not expose `/api/demo` publicly. The file store and process-local queue are for a single local server only; they do not provide multi-process or distributed transaction safety.
+This demo uses a separate wallet per browser profile, not authenticated user accounts. The starting ₦100,000 is simulated money and cannot be withdrawn. Wallets persist across refreshes and navigation in the same browser; clearing site storage or using another browser creates a fresh demo account. There is no cross-device sync.
+
+The stateless `/api/demo` endpoint validates an incoming test snapshot and returns its updated state, so it works on read-only serverless hosts without `.data` or `/tmp` writes. Browser-owned snapshots are editable test data and must never authorize real payments. Real accounts require authenticated database-backed ledgers.
 
 Before launch, replace the demo API with authenticated user-scoped services backed by a transactional database. Implement confirmed payment webhooks, provider-level idempotency, unique collectible-copy records, seller listings and proceeds, winner validation, lifecycle jobs, refunds, creator/admin tools and operational audits. The demo does not collect real payments, execute payouts, award winners, or transfer real seller-owned assets. Marketplace listings and fees are illustrative; the fee is displayed but no seller settlement is simulated.
 
@@ -32,4 +35,4 @@ Universal activation and referral qualification are deferred because the supplie
 
 ## Verification
 
-Production build and TypeScript checks; browser checks for desktop and mobile layouts and the entry/collection flow. See `scripts/check-demo.mjs` for repeatable, non-mutating API checks.
+Production build and TypeScript checks; browser checks for desktop and mobile layouts and the entry/collection flow. Run `npm run test:demo` for repeatable API checks of initial funding, naira payments, RYVO credits, duplicates, insufficient funds, account isolation and route availability. Tests use independent snapshots and do not change any browser wallet.
