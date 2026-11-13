@@ -25,7 +25,7 @@ export async function POST(req: Request) {
  if (!body || typeof body.action !== "string") return Response.json({error:"Invalid action."}, {status:400, headers});
  if (!isDemoState(body.state)) return Response.json({error:"Please reload to initialize your demo wallet."}, {status:400, headers});
  try {
-  return Response.json(applyDemoAction(body.state, body.action, body.id, body.index), {headers});
+  return Response.json(applyDemoAction(body.state, body.action, body.id, body.index, body.payload), {headers});
  } catch (error) {
   return Response.json({error:error instanceof Error ? error.message : "Unable to complete this demo payment."}, {status:400, headers});
  }

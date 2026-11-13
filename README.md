@@ -17,7 +17,7 @@ npm run build
 npm start
 ```
 
-The local demo includes collection discovery, boards, simulated registration and purchases, and separate RYVO and cash balances. Each browser-based demo account starts with ₦100,000 in simulated naira. Demo wallet state is saved in the browser, and payments do not write to the hosted app’s filesystem.
+The demo includes collection discovery, dedicated boards with marketplace and demo leaderboard, simulated registration and purchases, a purple wallet dashboard, P2P merchant funding, test-bank accounts and simulated earnings withdrawals. Each browser-based demo account starts with ₦100,000 in simulated naira. Demo wallet state is saved in the browser, and payments do not write to the hosted app’s filesystem.
 
 Read [the app notes](web/README.md) for implementation details, verification commands, artwork information, and the remaining production work. Real authentication, payments, payouts, winner settlement and distributed persistence are not implemented yet.
 

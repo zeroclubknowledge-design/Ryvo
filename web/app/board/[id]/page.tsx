@@ -6,6 +6,6 @@ export function generateStaticParams(){return competitions.map(c=>({id:c.id}));}
 async function Board({params}:{params:Promise<{id:string}>}){
  const {id}=await params;
  if(!competitions.some(c=>c.id===id))notFound();
- return <RyvoApp collectionId={id}/>;
+ return <RyvoApp initialView="boards" collectionId={id} boardView/>;
 }
-export default function Page(props:{params:Promise<{id:string}>}){return <Suspense fallback={<p>Opening your collection…</p>}><Board {...props}/></Suspense>;}
+export default function Page(props:{params:Promise<{id:string}>}){return <Suspense fallback={<p>Opening your board…</p>}><Board {...props}/></Suspense>;}
