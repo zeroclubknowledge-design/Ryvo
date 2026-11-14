@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BackLink } from "@/components/back-button";
 import { useState } from "react";
 import { CollectionViewSwitch } from "@/components/collection-view-switch";
 import { Artwork, Icon } from "@/components/collection-art";
@@ -23,7 +24,7 @@ export function CollectionDetails({competition:c,state,ready,busy,error,saved,on
  const progress=owned?.length??0;
  const status=c.status==="open"?"Open to join":c.status==="upcoming"?"Up next":c.status==="grace"?"Grace period":"In progress";
  return <div className="collection-page">
-  <nav className="collection-breadcrumb" aria-label="Breadcrumb"><Link href="/explore">Explore</Link><span>/</span><span>Collections</span><span>/</span><b>{c.title}</b></nav>
+  <nav className="collection-breadcrumb" aria-label="Breadcrumb"><BackLink href="/explore" ariaLabel="Back to explore"/><span>/</span><span>Collections</span><span>/</span><b>{c.title}</b></nav>
   <div className="collection-page-heading"><div className="collection-series"><span className="live-dot"/> THE RYVO COLLECTIONS <span>VOL. {String(c.total).padStart(2,"0")}</span></div><CollectionViewSwitch id={c.id} view="collectible"/></div>
   <div className="collection-intro-grid">
    <section className="collection-gallery" aria-label="Collection artwork">
