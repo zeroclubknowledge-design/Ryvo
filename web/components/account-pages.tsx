@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Artwork, Icon } from "@/components/collection-art";
-import { competitions, money, type DemoState } from "@/lib/demo";
+import { allCompetitions, money, type DemoState } from "@/lib/demo";
 
 type DemoProfile={name:string;username:string;bio:string};
 type Notice={id:string;title:string;message:string;date:string;href:string;category:"Wallet"|"Collections";icon:string};
@@ -24,6 +24,7 @@ export function useDemoAccount(){
  return {profile,read,saveProfile,markRead,initials:profile.name.split(/\s+/).filter(Boolean).map(s=>s[0]).slice(0,2).join("").toUpperCase()};
 }
 export function getNotifications(state:DemoState):Notice[]{
+ const competitions=allCompetitions(state);
  const notices:Notice[]=[{id:"demo-welcome",title:"Your next round is ready.",message:"Your demo spending wallet starts with ₦100,000, plus a welcome Universal Piece. Explore a collection to get started.",date:"2026-11-13T10:00:00Z",href:"/explore",category:"Collections",icon:"spark"}];
  for(const t of state.ledger){
   const c=competitions.find(c=>t.label.includes(c.title));
@@ -44,6 +45,7 @@ export function NotificationsPage({notices,read,onRead}:{notices:Notice[];read:s
  </section><p className="account-demo-note">Demo notifications are generated from this browser’s collection and wallet activity.</p></div>;
 }
 export function ProfilePage({state,profile,initials,onSave}:{state:DemoState;profile:DemoProfile;initials:string;onSave:(p:DemoProfile)=>void}){
+ const competitions=allCompetitions(state);
  const [editing,setEditing]=useState(false),[name,setName]=useState(profile.name),[username,setUsername]=useState(profile.username),[bio,setBio]=useState(profile.bio),[error,setError]=useState("");
  const dialog=useRef<HTMLDialogElement>(null);
  const boards=competitions.filter(c=>state.boards[c.id]);

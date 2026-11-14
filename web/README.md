@@ -44,3 +44,12 @@ Universal activation and referral qualification are deferred because the supplie
 ## Verification
 
 Production build and TypeScript checks; browser checks for desktop and mobile layouts and the entry/collection flow. Run `npm run test:demo` for repeatable API checks of initial funding, naira payments, RYVO credits, duplicates, insufficient funds, account isolation, wallet migration, merchant funding, duplicate orders, bank validation, withdrawal limits/statuses and route availability. Tests use independent snapshots and do not change any browser wallet.
+
+## Current Ryvo demo behavior
+
+- Entry payments use RYVO credits. Creator launch payments use demo naira; projected entry revenue is entry value multiplied by capacity. The launch fee is 2.5% for a 5% creator allocation and 5% for a 10% allocation.
+- Paid competitions queue in registration order. Filling capacity starts one calendar month (clamped at month-end), opens the next registration, and unlocks collecting/listing. There is no grace month. An explicit demo control simulates filling registration.
+- Listings remove fragments from boards atomically. Cancellation restores them; a completed sale transfers ownership and credits the seller net of 0.5%. All whole counts from 10 to 50 fragment the full image without uncovered cells.
+- Player accounts are browser-local demo accounts; passwords are salted PBKDF2 hashes. Accounts are not production authentication. Wallets are isolated by account, while competition configuration and marketplace offers are shared within that browser. Artwork blobs are stored in IndexedDB.
+- API operations remain stateless and never write to a server filesystem. Real cross-device identity, shared database/object storage, payment settlement, moderation, official winner validation, refunds, and referral payouts require production services.
+- `npm run test:demo` runs payment, ownership, queue, lifecycle, and fragment-coverage checks against `RYVO_TEST_URL` (defaults to localhost:3000). It uses Node 24's native TypeScript support for the pure rule helpers.

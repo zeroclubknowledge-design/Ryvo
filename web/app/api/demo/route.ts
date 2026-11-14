@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   }
  }
  const raw = await req.text();
- if (raw.length > 128000) return Response.json({error:"Demo wallet data is too large."}, {status:413, headers});
+ if (raw.length > 512000) return Response.json({error:"Demo wallet data is too large."}, {status:413, headers});
  let body;
  try { body = JSON.parse(raw); } catch { return Response.json({error:"Invalid request."}, {status:400, headers}); }
  if (!body || typeof body.action !== "string") return Response.json({error:"Invalid action."}, {status:400, headers});

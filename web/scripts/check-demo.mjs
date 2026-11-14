@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {oneMonthAfter,fragmentLayout,isDemoState} from '../lib/demo.ts';
 const base = process.env.RYVO_TEST_URL || 'http://127.0.0.1:3000';
 const read = async()=>{const r=await fetch(`${base}/api/demo`);assert.equal(r.status,200);assert.match(r.headers.get('cache-control'),/no-store/);return r.json()};
 const seed=await read();
@@ -15,7 +16,9 @@ assert.equal(joined.body.balance,seed.balance-10000,'Entry must debit RYVO');
 assert.deepEqual(joined.body.boards['harbour-lights'],[0]);
 assert.ok(joined.body.ledger.some(t=>t.currency==='RYVO'&&t.amount===-10000&&t.label.startsWith('Entry payment')));
 assert.equal((await post({action:'join',id:'harbour-lights'},joined.body)).status,400,'No duplicate entries');
-const bought=await post({action:'buy',id:'harbour-lights',index:1},joined.body);
+assert.equal((await post({action:'buy',id:'harbour-lights',index:1},joined.body)).status,400,'Collecting waits for full registration');
+const filled=await post({action:'fill-demo-registration'},joined.body);assert.equal(filled.status,200);assert.equal(filled.body.rounds['harbour-lights'].status,'active');assert.equal(filled.body.rounds['paper-lanterns'].status,'open');
+const bought=await post({action:'buy',id:'harbour-lights',index:1},filled.body);
 assert.equal(bought.status,200);
 assert.equal(bought.body.cash,99000);
 assert.deepEqual(bought.body.boards['harbour-lights'],[0,1]);
@@ -55,7 +58,7 @@ const settled=await post({action:'settle'},due);assert.equal(settled.status,200)
 const legacy=structuredClone(seed);for(const key of ['walletVersion','earnings','bank','withdrawals','fundingOrders'])delete legacy[key];
 const migrated=await post({action:'settle'},legacy);assert.equal(migrated.status,200);assert.equal(migrated.body.earnings,7500);assert.equal(migrated.body.cash,seed.cash);assert.deepEqual(migrated.body.boards,seed.boards);
 const migratedAgain=await post({action:'settle'},migrated.body);assert.deepEqual(migratedAgain.body,migrated.body,'Migration must not reissue demo earnings');
-for(const route of ['/','/discover','/how-it-works','/ryvo-credit','/onboarding','/explore','/boards','/wallet','/wallet/p2p','/notifications','/profile','/referrals','/board/night-bloom','/collection/harbour-lights','/collection/night-bloom','/collection/salt-flats','/collection/paper-lanterns'])assert.equal((await fetch(base+route)).status,200,route);
+for(const route of ['/','/discover','/how-it-works','/ryvo-credit','/onboarding','/explore','/boards','/wallet','/wallet/p2p','/notifications','/profile','/referrals','/signup','/signin','/create','/board/night-bloom','/collection/harbour-lights','/collection/night-bloom','/collection/salt-flats','/collection/paper-lanterns'])assert.equal((await fetch(base+route)).status,200,route);
 assert.equal((await fetch(base+'/marketplace')).status,404,'Standalone marketplace was removed');
 console.log('Passed: ₦100,000 per demo account, RYVO entry and naira purchase debits, duplicate and insufficient-funds protection, invalid snapshots, account isolation, no shared-server state, merchant quotes and funding idempotency, bank validation, withdrawal limits, pending/complete payouts, wallet migration, and all app routes.');
 
@@ -67,3 +70,38 @@ assert.deepEqual((await post({action:'sell',payload:{amount:12000,merchantId:'li
 for(const payload of [{amount:12000,merchantId:'missing'},{amount:12001,merchantId:'lime-desk'},{amount:12,merchantId:'lime-desk'},{amount:24000,merchantId:'lime-desk'}])assert.equal((await post({action:'sell',payload:{...payload,requestId:'invalid-sale-order'}})).status,400);
 const saleBank=await post({action:'save-bank',payload:bank},sold.body);const saleWithdrawal=await post({action:'withdraw',payload:{amount:8500,requestId:'sale-withdrawal-test'}},saleBank.body);assert.equal(saleWithdrawal.status,200);assert.equal(saleWithdrawal.body.earnings,0);
 console.log('Passed: RYVO entry debits, swaps including 100 r/ fee, merchant sales, insufficient credit, rate/limit validation, conversion idempotency, and sale proceeds withdrawal.');
+
+const seller={...structuredClone(seed),ownerId:'seller-account'};
+const listed=await post({action:'list-piece',id:'night-bloom',index:0,payload:{price:1000,requestId:'piece-listing-order-1',ownerName:'Demo Seller'}},seller);assert.equal(listed.status,200);assert.ok(!listed.body.boards['night-bloom'].includes(0));assert.equal(listed.body.listings[0].status,'active');assert.equal(listed.body.cash,seller.cash);
+assert.deepEqual((await post({action:'list-piece',id:'night-bloom',index:0,payload:{price:1000,requestId:'piece-listing-order-1',ownerName:'Demo Seller'}},listed.body)).body,listed.body);
+assert.equal((await post({action:'buy',id:'night-bloom',index:0},listed.body)).status,400,'Cannot reclaim listed fragment through sample seller');
+for(const price of [0,499,100001,1000.5])assert.equal((await post({action:'list-piece',id:'night-bloom',index:0,payload:{price,requestId:'invalid-list-price',ownerName:'Seller'}},seller)).status,400);
+assert.equal((await post({action:'list-piece',id:'night-bloom',index:3,payload:{price:1000,requestId:'unowned-list-piece',ownerName:'Seller'}},seller)).status,400);
+const cancelled=await post({action:'cancel-listing',payload:{listingId:'piece-listing-order-1'}},listed.body);assert.equal(cancelled.status,200);assert.ok(cancelled.body.boards['night-bloom'].includes(0));assert.equal(cancelled.body.listings[0].status,'cancelled');
+const buyer={...structuredClone(seed),ownerId:'buyer-account'};buyer.boards['night-bloom']=buyer.boards['night-bloom'].filter(i=>i!==0);
+const acquired=await post({action:'buy-listing',payload:listed.body.listings[0]},buyer);assert.equal(acquired.status,200);assert.ok(acquired.body.boards['night-bloom'].includes(0));assert.equal(acquired.body.cash,buyer.cash-1000);
+assert.deepEqual((await post({action:'buy-listing',payload:listed.body.listings[0]},acquired.body)).body,acquired.body);
+assert.equal((await post({action:'buy-listing',payload:listed.body.listings[0]},listed.body)).status,400,'Cannot purchase own listing');
+const soldPiece=await post({action:'settle-sale',payload:{listingId:'piece-listing-order-1',buyerId:'buyer-account'}},listed.body);assert.equal(soldPiece.status,200);assert.equal(soldPiece.body.earnings,seller.earnings+995);assert.equal(soldPiece.body.listings[0].status,'sold');assert.ok(!soldPiece.body.boards['night-bloom'].includes(0));
+assert.equal((await post({action:'cancel-listing',payload:{listingId:'piece-listing-order-1'}},soldPiece.body)).status,400);
+assert.deepEqual((await post({action:'settle-sale',payload:{listingId:'piece-listing-order-1',buyerId:'buyer-account'}},soldPiece.body)).body,soldPiece.body);
+const lowListing=await post({action:'list-piece',id:'night-bloom',index:0,payload:{price:500,requestId:'listing-kobo-test',ownerName:'Seller'}},seller);const lowSold=await post({action:'settle-sale',payload:{listingId:'listing-kobo-test',buyerId:'buyer-account'}},lowListing.body);assert.equal(lowSold.status,200);assert.equal(lowSold.body.earnings,seller.earnings+497.5);assert.ok(isDemoState(lowSold.body));
+const launchPayload={title:'Test Round',description:'An uploaded artwork for a new competition.',artist:'Demo Creator',total:13,capacity:2,winners:1,fee:1000,creatorShare:5,artworkKey:'asset-11111111-1111-1111-1111-111111111111',coverKey:'asset-22222222-2222-2222-2222-222222222222',requestId:'33333333-3333-3333-3333-333333333333'};
+const launched=await post({action:'launch',payload:launchPayload});assert.equal(launched.status,200);assert.equal(launched.body.cash,99950);assert.equal(launched.body.createdCompetitions.length,1);assert.equal(launched.body.createdCompetitions[0].launchFee,50);const gameId=launched.body.createdCompetitions[0].id;assert.equal(launched.body.rounds[gameId].status,'upcoming');
+assert.deepEqual((await post({action:'launch',payload:launchPayload},launched.body)).body,launched.body);
+const higherShare=await post({action:'launch',payload:{...launchPayload,creatorShare:10}});assert.equal(higherShare.body.cash,99900);
+for(const change of [{total:9},{total:51},{total:12.5},{capacity:1},{winners:3},{creatorShare:7},{fee:999},{artworkKey:'invalid'}])assert.equal((await post({action:'launch',payload:{...launchPayload,...change}})).status,400);
+assert.equal((await post({action:'launch',payload:launchPayload},{...seed,cash:49})).status,400);
+assert.equal((await post({action:'join',id:gameId},launched.body)).status,400,'Queued games cannot be joined');
+const advance1=await post({action:'fill-demo-registration'},launched.body);assert.equal(advance1.body.rounds['harbour-lights'].status,'active');assert.equal(advance1.body.rounds['paper-lanterns'].status,'open');
+const advance2=await post({action:'fill-demo-registration'},advance1.body);assert.equal(advance2.body.rounds[gameId].status,'open');assert.equal(advance2.body.rounds[gameId].startedAt,undefined);
+const customJoin=await post({action:'join',id:gameId},advance2.body);assert.equal(customJoin.status,200);assert.equal(customJoin.body.rounds[gameId].joined,1);
+const live=await post({action:'fill-demo-registration'},customJoin.body);assert.equal(live.body.rounds[gameId].status,'active');assert.equal(live.body.rounds[gameId].endsAt,oneMonthAfter(live.body.rounds[gameId].startedAt));
+const customBuy=await post({action:'buy',id:gameId,index:12},live.body);assert.equal(customBuy.status,200);assert.ok(customBuy.body.boards[gameId].includes(12));
+const expired=structuredClone(live.body);expired.rounds[gameId].startedAt='2020-01-31T12:00:00.000Z';expired.rounds[gameId].endsAt='2020-02-29T12:00:00.000Z';const closed=await post({action:'settle'},expired);assert.equal(closed.body.rounds[gameId].status,'ended');assert.equal((await post({action:'buy',id:gameId,index:1},closed.body)).status,400);
+assert.equal(oneMonthAfter('2026-01-31T12:34:00.000Z'),'2026-02-28T12:34:00.000Z');assert.equal(oneMonthAfter('2028-01-31T12:34:00.000Z'),'2028-02-29T12:34:00.000Z');
+for(let total=10;total<=50;total++){const f=fragmentLayout(total);assert.equal(f.length,total);assert.ok(Math.abs(f.reduce((sum,p)=>sum+p.width*p.height,0)-1)<1e-10);for(let i=0;i<f.length;i++){const a=f[i];assert.ok(a.x>=0&&a.y>=0&&a.x+a.width<=1.00000001&&a.y+a.height<=1.00000001);for(let j=i+1;j<f.length;j++){const b=f[j];assert.ok(Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)<=1e-10||Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y)<=1e-10)}}}
+console.log('Passed: listing removes ownership, cancellation restores it, sale transfers ownership with exact 0.5% fee, sale retry protection, creator launch fee tiers and validation, sequential registration queue, full-registration start, one-calendar-month expiry, and exact fragment coverage for every count 10–50.');
+
+const afterSaleSwap=await post({action:'swap',payload:{amount:1100,requestId:'swap-after-kobo-sale'}},lowSold.body);assert.equal(afterSaleSwap.status,200);assert.equal(afterSaleSwap.body.earnings,seller.earnings+597.5);
+const oddListing=await post({action:'list-piece',id:'night-bloom',index:0,payload:{price:501,requestId:'listing-round-fee-test',ownerName:'Seller'}},seller);const oddSold=await post({action:'settle-sale',payload:{listingId:'listing-round-fee-test',buyerId:'buyer-account'}},oddListing.body);assert.equal(oddSold.status,200);assert.equal(oddSold.body.earnings,seller.earnings+498.49,'Half-kobo seller fee rounds once to nearest kobo');
