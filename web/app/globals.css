@@ -132,7 +132,7 @@ dialog[aria-label="How Ryvo works"]{max-width:600px}
 @media(max-width:700px){.landing-sidebar{visibility:hidden}.landing-sidebar.open{visibility:visible}}
 
 /* Rounded square artwork and a continuous right-to-left collection ribbon. */
-.landing .landing-featured{aspect-ratio:1;height:auto;border-radius:28px;transform:none;border:0}
+.landing .landing-featured{aspect-ratio:1;height:auto;border-radius:28px;transform:rotate(4deg);border:0}
 .landing-ticker{display:block;padding:0;overflow:hidden}
 .landing-ticker-track{display:flex;width:max-content;animation:ryvo-ticker 26s linear infinite}
 .landing-ticker-group{display:flex;align-items:center;justify-content:space-around;gap:38px;flex:0 0 auto;min-width:calc(100vw - 235px);padding:19px 25px}
