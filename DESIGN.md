@@ -12,6 +12,11 @@ Ryvo is a collectible board game. Players join competitions, collect and trade p
 
 ## Product interface
 
+- Explore is a play room: a large featured artwork, a real board-in-progress preview, and a pink creator panel. It must feel like a place to play rather than a generic dashboard.
+- Featured artwork carries the competition title, real entry cost, piece count, and winner availability. The continue-playing preview uses the player's actual owned fragments.
+- Challenge titles sit on their artwork covers; supporting facts remain below. Keep the art dominant.
+- Desktop player profiles place identity beside a collection gallery. Mobile stacks the cover, identity and gallery without changing their meaning.
+- Wallet credit and withdrawable earnings stay visually distinct, using pink and green surfaces. Bank and merchant controls form a secondary row; Universal Pieces sit in a separate ribbon.
 - Challenge cards show actual status, entry credit cost, winner availability, and registration progress or remaining time.
 - On phones, discovery uses one readable card per row. Tablet uses two columns; desktop uses four.
 - Align content edges. Group related facts and separate distinct tasks with space.

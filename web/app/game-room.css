@@ -1,0 +1,252 @@
+/* Ryvo's play room: key art, a real board in progress, and a clear next move. */
+.app-shell main { max-width: 1540px; padding-top: 46px; }
+.room-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 28px; margin-bottom: 40px; }
+.room-heading h1 { font-size: clamp(42px,4.8vw,72px); line-height: 1.02; letter-spacing: -.04em; font-weight: 650; margin: 0; max-width: 900px; }
+.room-heading h1>span { color: var(--lime); }
+.room-heading p { color: #b3b9ae; font-size: 14px; margin: 22px 0 0; line-height: 1.7; }
+.room-guide { display: inline-flex; align-items: center; gap: 10px; color: #c9d3bf; font-size: 12px; min-height: 44px; flex-shrink: 0; }
+.room-stage { display: grid; grid-template-columns: minmax(0,1.85fr) minmax(290px,1fr); gap: 24px; }
+.room-feature { min-height: 620px; position: relative; border-radius: 24px; overflow: hidden; background: #2c3721; isolation: isolate; }
+.room-feature>.artwork { position: absolute; inset: 0; }
+.room-feature .explorer-image { background-position: 60% 35%; }
+.room-feature-shade { position: absolute; inset: 0; background: linear-gradient(180deg,#10160844,transparent 25%,#10160830 38%,#101608ed 92%); pointer-events: none; }
+.room-feature-top { position: relative; display: flex; justify-content: space-between; padding: 28px; gap: 15px; font-size: 11px; }
+.room-feature-top>span { display: flex; gap: 8px; align-items: center; padding: 10px 14px; background: #141b12ba; color: #f0f5e9; border-radius: 999px; }
+.room-feature-top i { height: 6px; width: 6px; border-radius: 50%; background: var(--lime); }
+.room-feature-copy { position: absolute; left: 38px; right: 38px; bottom: 50px; }
+.room-artist { font-size: 12px; color: #c2d0b5; }
+.room-feature h2 { font-size: clamp(44px,5.5vw,80px); letter-spacing: -.04em; line-height: .98; margin: 16px 0 21px; font-weight: 600; max-width: 620px; }
+.room-feature h2>span { color: var(--lime); }
+.room-feature-copy>p { font-size: 15px; line-height: 1.65; color: #d0dac7; margin: 0 0 25px; }
+.room-feature-facts { display: flex; flex-wrap: wrap; gap: 21px; font-size: 11px; color: #b7c7a7; margin-bottom: 27px; }
+.room-feature-facts b { color: #f2f5ed; font-size: 16px; font-weight: 550; margin-right: 4px; font-variant-numeric: tabular-nums; }
+.room-play { min-height: 54px; display: inline-flex; align-items: center; gap: 70px; background: var(--lime); color: #1b2412; padding: 16px 24px; border-radius: 999px; font-size: 13px; font-weight: 650; }
+.room-art-index { position: absolute; bottom: 19px; right: 28px; font-size: 8px; letter-spacing: .12em; color: #94a383; }
+.room-next { display: grid; grid-template-rows: 1.4fr 1fr; gap: 24px; min-width: 0; }
+.room-continue { display: flex; flex-direction: column; padding: 25px; border-radius: 24px; background: #242c1e; min-width: 0; }
+.room-continue-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 9px; letter-spacing: .08em; color: #bbd49f; }
+.room-mini-board { position: relative; height: 155px; margin: 22px 0; overflow: hidden; border-radius: 12px; }
+.room-mini-board>.artwork { position: absolute; inset: 0; }
+.room-mini-grid { position: absolute; inset: 0; }
+.room-mini-grid>span { position: absolute; background: #151c14e8; border: 2px solid #27311fe0; border-radius: 4px; }
+.room-mini-grid>span.filled { background: transparent; }
+.room-continue-name { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.room-continue-name h3 { font-size: 22px; line-height: 1.15; letter-spacing: -.03em; margin: 0; font-weight: 550; }
+.room-continue-name>span { color: var(--lime); font-size: 22px; flex-shrink: 0; }
+.room-continue-name small { font-size: 10px; color: #9fae92; }
+.room-continue>p { color: #a9b99a; font-size: 11px; margin: 13px 0 0; }
+.room-new-player { justify-content: space-between; }
+.room-new-player>svg { color: var(--lime); }
+.room-new-player h3 { font-size: 30px; line-height: 1.1; font-weight: 550; letter-spacing: -.03em; }
+.room-new-player>span { display: flex; justify-content: space-between; margin-top: 25px; color: #d6e7c5; font-size: 12px; }
+.room-create { position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 27px; background: var(--ryvo-pink); color: #291328; border-radius: 24px; overflow: hidden; }
+.room-create h3 { font-size: clamp(27px,3vw,40px); font-weight: 600; line-height: 1.05; letter-spacing: -.035em; margin: 0; position: relative; }
+.room-create p { position: relative; font-size: 11px; margin: 15px 0 25px; }
+.room-create-mark { position: absolute; right: 15px; top: -20px; font-size: 180px; line-height: 1; font-weight: 400; color: #5618522e; transform: rotate(-12deg); }
+.room-create-link { display: flex; align-items: center; justify-content: space-between; gap: 15px; font-size: 12px; font-weight: 650; position: relative; }
+.room-score { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)) 1fr; gap: 28px; padding: 35px 4px 20px; }
+.room-score>a { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 15px; min-height: 58px; }
+.room-score b { font-size: 38px; font-weight: 500; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.room-score>a>span { font-size: 11px; color: #a8b49c; line-height: 1.6; }
+.room-score svg { color: #8aa271; }
+.room-score>p { color: #859773; font-size: 13px; margin: 0; align-self: center; text-align: right; line-height: 1.6; }
+.room-score>p>span { color: #d8e8c9; }
+.app-shell .collections { margin-top: 48px; }
+.app-shell .section-heading h2 { font-size: clamp(28px,3vw,38px); font-weight: 550; }
+.app-shell .collection-card { background: #21271c; border-radius: 20px; }
+.app-shell .card-art { aspect-ratio: .88; border-radius: 20px 20px 0 0; }
+.app-shell .card-art::after { content: ""; pointer-events: none; position: absolute; inset: 40% 0 0; background: linear-gradient(transparent,#11190bf2); }
+.app-shell .card-art .explorer-image { background-position: 66% 30%; background-size: cover; }
+.app-shell .status-badge,.app-shell .favorite,.app-shell .piece-count { z-index: 2; }
+.app-shell .piece-count { top: 60px; right: 13px; left: auto; bottom: auto; background: #141c12b0; }
+.challenge-art-caption { position: absolute; z-index: 2; inset: auto 24px 24px; pointer-events: none; }
+.challenge-art-caption>span { font-size: 10px; color: #c2cdb6; }
+.challenge-art-caption h3 { font-size: clamp(24px,2.6vw,34px); color: #fff; letter-spacing: -.035em; line-height: 1.04; margin: 9px 0 0; font-weight: 550; }
+.app-shell .card-content { padding: 23px; }
+.app-shell .card-content .artist { margin-top: 0; }
+.challenge-round-state { min-height: 42px; margin-block: 22px 16px; }
+.app-shell .card-meta { margin-top: 0; }
+.challenge-card-action { background: transparent; padding: 12px 0 0; border-radius: 0; color: #d1e7b7; margin-top: 15px; }
+.app-shell .floating-taskbar { box-shadow: 0 16px 45px #0006; }
+/* The wallet becomes a credit console, with a separate cash-out column. */
+.new-wallet-page .page-heading h1 { font-size: clamp(44px,5vw,70px); font-weight: 600; }
+.new-wallet-page .wallet-dashboard { grid-template-columns: 1.65fr 1fr; gap: 25px; }
+.wallet-brand-card { border: 0; border-radius: 24px; padding: 35px; background: var(--ryvo-pink); box-shadow: none; }
+.wallet-main-balance { margin-top: 40px; }
+.wallet-main-balance>span:first-child { font-size: clamp(50px,7vw,92px); font-weight: 500; letter-spacing: -.04em; }
+.wallet-card-top>span:first-child { font-size: 13px; }
+.wallet-round-actions { margin-top: 35px; gap: 20px; }
+.wallet-round-actions>a>span,.wallet-round-actions>button>span { width: 54px; height: 54px; }
+.wallet-card-note { border: 0; padding-top: 24px; }
+.wallet-decor-circle { opacity: .3; }
+.earnings-balance-card { background: var(--ryvo-green); border: 0; border-radius: 24px; padding: 30px; }
+.earnings-balance-card h2 { font-size: clamp(38px,4.5vw,64px); font-weight: 500; letter-spacing: -.035em; }
+.naira-spending-card { border: 0; border-radius: 20px; background: #252d20; padding: 24px; }
+.new-wallet-page .wallet-utility-grid { grid-template-columns: 1.2fr 1fr; gap: 25px; margin-top: 25px; }
+.wallet-bank-card { background: #20251c; border: 0; border-radius: 20px; padding: 28px; }
+.wallet-p2p-invite { border: 0; border-radius: 20px; padding: 28px; }
+.wallet-universal-tile { grid-column: 1/-1; border: 0; border-radius: 20px; background: #29212e; padding: 25px 30px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px 25px; align-items: center; }
+.wallet-universal-tile>span { grid-row: 1/3; position: static; font-size: 46px; }
+.wallet-universal-tile>h2 { grid-column: 3; grid-row: 1/3; margin: 0; font-size: 48px; }
+.wallet-universal-tile>p { grid-column: 2; margin: 0; font-size: 14px; }
+.wallet-universal-tile>small { grid-column: 2; font-size: 11px; line-height: 1.7; }
+.wallet-activity-section { margin-top: 45px; }
+.wallet-activity-section .ledger { border: 0; border-radius: 20px; padding: 14px 28px; background: #1e241a; }
+.wallet-activity-section .ledger>div { padding: 23px 0; }
+/* A collector profile reads as a gallery, with its player identity beside the work. */
+.profile-page { display: grid; grid-template-columns: 300px minmax(0,1fr); gap: 30px; }
+.profile-cover { grid-column: 1/-1; border-radius: 24px; height: 400px; }
+.profile-cover .explorer-image { background-size: cover; background-position: center 35%; }
+.profile-cover-type p { font-size: clamp(37px,5vw,68px); letter-spacing: -.035em; line-height: 1.04; }
+.profile-cover-type>span { display: none; }
+.profile-identity { margin: -75px 0 0; z-index: 1; align-self: start; background: #242c1e; border-radius: 24px; padding: 28px; }
+.profile-identity-top { display: block; }
+.profile-portrait { width: 95px; height: 95px; margin: 0 0 25px; background: var(--ryvo-green); color: #1b2b0e; border: 7px solid #242c1e; font-size: 30px; }
+.profile-badges { flex-wrap: wrap; margin-bottom: 23px; }
+.profile-name-row { display: block; }
+.profile-name-row h1 { font-size: 30px; letter-spacing: -.035em; }
+.profile-edit-button { margin-top: 22px; width: 100%; justify-content: space-between; padding: 15px; border: 0; background: #344628; border-radius: 999px; }
+.profile-bio { font-size: 13px; line-height: 1.85; margin-block: 24px; }
+.profile-stat-pills { flex-direction: column; align-items: stretch; gap: 8px; }
+.profile-stat-pills>span { padding: 13px 0; background: transparent; font-size: 12px; }
+.profile-gallery-section { grid-column: 2; margin: 10px 0 0; }
+.profile-section-heading .eyebrow { display: none; }
+.profile-section-heading h2 { font-size: 30px; letter-spacing: -.035em; }
+.profile-gallery { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 22px; overflow: visible; }
+.profile-gallery-card { height: 330px; border-radius: 20px; min-width: 0; width: 100%; border: 0; }
+.profile-activity { grid-column: 2; margin: 0; }
+.profile-activity>div:last-child { background: #20251b; border-radius: 20px; padding: 8px 24px; }
+.profile-bottom-actions,.profile-page>.account-demo-note { grid-column: 1/-1; margin: 0; }
+.profile-page .profile-bottom-actions { justify-content: flex-end; }
+/* The landing's existing tilted artwork stays; its composition gains scale and air. */
+.landing-hero { min-height: calc(100svh - 90px); align-items: center; gap: 40px; padding-block: 65px; }
+.landing-hero h1 { font-size: clamp(46px,5.3vw,78px); line-height: 1.02; letter-spacing: -.04em; font-weight: 650; }
+.landing-hero-copy>p:not(.eyebrow) { max-width: 440px; font-size: 15px; line-height: 1.9; }
+.landing-hero-copy>.eyebrow { display: none; }
+.landing-featured { min-height: 490px; }
+.landing-cta-row { margin-top: 35px; }
+.landing-process { padding-block: 90px; }
+.landing-steps { gap: 40px; }
+.landing-steps article { background: #22291d; border-radius: 20px; padding: 32px; }
+.landing-steps h3 { font-size: 22px; letter-spacing: -.03em; line-height: 1.2; }
+.landing-steps p { font-size: 13px; line-height: 1.85; color: #b0bfa2; }
+.room-play,.room-continue,.room-create { transition: transform 160ms var(--ease,cubic-bezier(.2,.8,.2,1)); }
+@media (hover:hover) and (pointer:fine) { .room-play:hover { transform: translateY(-2px); }.room-continue:hover,.room-create:hover { transform: translateY(-2px); } }
+.room-play:active,.room-create:active { transform: scale(.985); }
+@media (max-width:1100px) {
+ .room-stage { grid-template-columns: minmax(0,1.6fr) minmax(260px,1fr); gap: 20px; }
+ .room-feature h2 { font-size: 60px; }
+ .room-feature-copy { left: 28px; right: 28px; }
+ .room-score { grid-template-columns: repeat(3,minmax(0,1fr)); }
+ .room-score>p { display: none; }
+ .new-wallet-page .wallet-dashboard { grid-template-columns: 1fr; }
+ .profile-page { grid-template-columns: 250px minmax(0,1fr); gap: 24px; }
+ .profile-gallery { grid-template-columns: 1fr; }
+ .landing-hero { gap: 20px; }
+ .landing-hero h1 { font-size: 50px; }
+}
+@media (max-width:760px) {
+ .app-shell main { padding-top: 28px; }
+ .room-heading { display: grid; grid-template-columns: minmax(0,1fr) 44px; gap: 18px 12px; margin-bottom: 26px; }
+ .room-heading>div { display: contents; }
+ .room-heading h1 { grid-column: 1/-1; font-size: clamp(40px,9vw,62px); }
+ .room-heading p { max-width: 350px; font-size: 13px; margin: 0; }
+ .room-guide { margin: 0; font-size: 0; width: 44px; justify-content: center; align-self: center; gap: 0; background: #29351f; border-radius: 50%; }
+ .room-stage { grid-template-columns: 1fr; }
+ .room-feature { min-height: 460px; border-radius: 22px; }
+ .room-feature-top { padding: 19px; font-size: 10px; }
+ .room-feature-top>span { padding: 9px 11px; }
+ .room-feature-copy { left: 25px; right: 25px; bottom: 40px; }
+ .room-feature h2 { font-size: clamp(48px,12vw,70px); max-width: 300px; }
+ .room-feature-copy>p { font-size: 13px; }
+ .room-feature-facts { gap: 14px; font-size: 10px; }
+ .room-feature-facts b { font-size: 14px; }
+ .room-play { width: 100%; justify-content: space-between; font-size: 12px; }
+ .room-next { grid-template-columns: 1fr 1fr; grid-template-rows: auto; gap: 14px; }
+ .room-continue { padding: 18px; border-radius: 20px; }
+ .room-continue-top { font-size: 8px; letter-spacing: 0; }
+ .room-continue-top>svg { width: 16px; flex-shrink: 0; }
+ .room-mini-board { height: 105px; margin: 17px 0; }
+ .room-continue-name { display: block; }
+ .room-continue-name h3 { font-size: 19px; }
+ .room-continue-name>span { display: block; margin-top: 12px; font-size: 22px; }
+ .room-continue-name small { font-size: 9px; }
+ .room-continue>p { font-size: 10px; line-height: 1.7; }
+ .room-create { padding: 19px; border-radius: 20px; }
+ .room-create h3 { font-size: clamp(24px,6vw,33px); }
+ .room-create p { line-height: 1.7; font-size: 10px; }
+ .room-create-mark { font-size: 130px; right: -10px; top: 35px; }
+ .room-create-link { font-size: 10px; align-items: flex-end; gap: 8px; line-height: 1.6; }
+ .room-create-link svg { flex-shrink: 0; }
+ .room-score { padding-top: 27px; gap: 15px; }
+ .room-score>a { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+ .room-score b { font-size: 32px; }
+ .room-score>a>span { font-size: 10px; }
+ .room-score svg { display: none; }
+ .room-new-player h3 { font-size: 24px; }
+ .room-new-player>span { font-size: 10px; line-height: 1.6; }
+ .app-shell .collections { margin-top: 27px; }
+ .app-shell .section-heading h2 { font-size: 29px; }
+ .app-shell .card-art { aspect-ratio: .94; }
+ .challenge-art-caption h3 { font-size: 36px; }
+ .new-wallet-page .page-heading { align-items: flex-start; gap: 10px; }
+ .new-wallet-page .page-heading h1 { font-size: 46px; }
+ .wallet-brand-card { padding: 25px; }
+ .wallet-main-balance>span:first-child { font-size: 57px; }
+ .wallet-round-actions { gap: 9px; }
+ .wallet-round-actions>a>span,.wallet-round-actions>button>span { width: 46px; height: 46px; }
+ .new-wallet-page .wallet-side-balances { display: grid; grid-template-columns: 1fr; gap: 18px; }
+ .new-wallet-page .wallet-utility-grid { grid-template-columns: 1fr; gap: 18px; }
+ .wallet-universal-tile { padding: 24px; gap: 10px 16px; }
+ .wallet-universal-tile>span { font-size: 35px; }
+ .wallet-universal-tile>h2 { font-size: 40px; }
+ .wallet-universal-tile>small { font-size: 10px; }
+ .wallet-activity-section .ledger { padding-inline: 18px; }
+ .profile-page { display: block; }
+ .profile-cover { height: 310px; border-radius: 22px; }
+ .profile-cover-type p { font-size: 36px; }
+ .profile-cover-brand { display: none; }
+ .profile-identity { position: relative; margin: -32px 16px 35px; padding: 25px; }
+ .profile-identity-top { display: flex; align-items: center; gap: 15px; }
+ .profile-portrait { width: 75px; height: 75px; margin-bottom: 0; flex-shrink: 0; }
+ .profile-badges { margin: 0; gap: 7px; }
+ .profile-name-row { margin-top: 20px; }
+ .profile-stat-pills { flex-direction: row; flex-wrap: wrap; gap: 10px 20px; }
+ .profile-stat-pills>span { padding-block: 5px; font-size: 11px; }
+ .profile-gallery { display: grid; grid-template-columns: 1fr; gap: 20px; overflow: visible; }
+ .profile-gallery-card { height: 360px; }
+ .profile-section-heading h2 { font-size: 26px; }
+ .profile-activity { margin-top: 38px; }
+ .profile-bottom-actions { margin-top: 30px; }
+ .landing-hero { padding-block: 45px; gap: 45px; min-height: auto; }
+ .landing-hero h1 { font-size: clamp(44px,11vw,68px); }
+ .landing-hero-copy>p:not(.eyebrow) { font-size: 14px; }
+ .landing-featured { min-height: 420px; }
+ .landing-process { padding-block: 65px; }
+ .landing-steps article { display: block; padding: 27px; }
+ .landing-steps article>span { display: block; margin-bottom: 22px; }
+ .landing-steps h3 { margin-bottom: 15px; }
+}
+@media (max-width:360px) {
+ .room-next { grid-template-columns: 1fr; }
+ .room-create { min-height: 230px; }
+ .room-continue-name { display: flex; }
+ .room-mini-board { height: 155px; }
+ .room-feature-copy { left: 20px; right: 20px; }
+ .room-feature h2 { font-size: 48px; }
+ .new-wallet-page .page-heading { flex-wrap: wrap; }
+ .wallet-main-balance>span:first-child { font-size: 48px; }
+}
+@media (prefers-reduced-motion:reduce) { .room-play,.room-continue,.room-create { transition: none; transform: none; } }
+/* The landing drawer stays anchored; dismissal dissolves instead of moving it. */
+.landing-sidebar { top: 0; bottom: auto; height: 100svh; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; }
+.landing-scrim { display: none; position: fixed; inset: 0; z-index: 39; background: #07080ab8; padding: 0; margin: 0; border: 0; opacity: 0; pointer-events: none; touch-action: none; transition: opacity 180ms var(--ease,cubic-bezier(.2,.8,.2,1)); }
+.guide-heading>.guide-credit-card>p:not(.eyebrow) { color: #281026; font-weight: 650; }
+.guide-heading .guide-credit-card>span:last-of-type { color: #3d1a3a; }
+@media (max-width:700px) {
+ .landing-sidebar { transform: none; visibility: hidden; opacity: 0; filter: blur(8px); pointer-events: none; box-shadow: none; transition: opacity 180ms var(--ease,cubic-bezier(.2,.8,.2,1)),filter 180ms var(--ease,cubic-bezier(.2,.8,.2,1)),visibility 0s linear 180ms; }
+ .landing-sidebar.open { transform: none; visibility: visible; opacity: 1; filter: blur(0); pointer-events: auto; transition: opacity 220ms var(--ease,cubic-bezier(.2,.8,.2,1)),filter 220ms var(--ease,cubic-bezier(.2,.8,.2,1)),visibility 0s; }
+ .landing-scrim { display: block; }
+ .landing.menu-open .landing-scrim { opacity: 1; pointer-events: auto; }
+ .landing-sidebar-bottom { padding-top: 35px; }
+}
