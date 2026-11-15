@@ -105,3 +105,24 @@ console.log('Passed: listing removes ownership, cancellation restores it, sale t
 
 const afterSaleSwap=await post({action:'swap',payload:{amount:1100,requestId:'swap-after-kobo-sale'}},lowSold.body);assert.equal(afterSaleSwap.status,200);assert.equal(afterSaleSwap.body.earnings,seller.earnings+597.5);
 const oddListing=await post({action:'list-piece',id:'night-bloom',index:0,payload:{price:501,requestId:'listing-round-fee-test',ownerName:'Seller'}},seller);const oddSold=await post({action:'settle-sale',payload:{listingId:'listing-round-fee-test',buyerId:'buyer-account'}},oddListing.body);assert.equal(oddSold.status,200);assert.equal(oddSold.body.earnings,seller.earnings+498.49,'Half-kobo seller fee rounds once to nearest kobo');
+
+// Universal Piece redemptions reveal exactly one new fragment without spending money.
+const universalBefore=structuredClone(seed);
+const reveal=await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-redemption-1'}},universalBefore);
+assert.equal(reveal.status,200);assert.equal(reveal.body.universal,seed.universal-1);
+assert.equal(reveal.body.boards['night-bloom'].length,seed.boards['night-bloom'].length+1);
+assert.equal(reveal.body.cash,seed.cash);assert.equal(reveal.body.balance,seed.balance);assert.equal(reveal.body.earnings,seed.earnings);
+const newFragment=reveal.body.boards['night-bloom'].find(i=>!seed.boards['night-bloom'].includes(i));assert.ok([3,7,10,11].includes(newFragment));assert.ok(isDemoState(reveal.body));assert.deepEqual(seed,universalBefore);
+assert.deepEqual((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-redemption-1'}},reveal.body)).body,reveal.body,'Retry must not consume another Universal Piece');
+assert.equal((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-no-balance'}},reveal.body)).status,400);
+for(const requestId of [undefined,'short','x'.repeat(81)])assert.equal((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId}})).status,400);
+assert.equal((await post({action:'redeem-universal',id:'missing',payload:{requestId:'universal-invalid-game'}})).status,400);
+assert.equal((await post({action:'redeem-universal',id:'harbour-lights',payload:{requestId:'universal-unjoined-game'}})).status,400);
+assert.equal((await post({action:'redeem-universal',id:'harbour-lights',payload:{requestId:'universal-waiting-game'}},joined.body)).status,400);
+const almostComplete=structuredClone(seed);almostComplete.boards['night-bloom']=Array.from({length:12},(_,i)=>i).filter(i=>i!==7);
+const lastFragment=await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-last-fragment'}},almostComplete);assert.equal(lastFragment.status,200);assert.ok(lastFragment.body.boards['night-bloom'].includes(7));assert.equal(new Set(lastFragment.body.boards['night-bloom']).size,12);
+const completed={...lastFragment.body,universal:1};assert.equal((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-complete-board'}},completed)).status,400);
+const listedOnly=await post({action:'list-piece',id:'night-bloom',index:7,payload:{price:1000,requestId:'universal-exclusion-listing',ownerName:'Player'}},completed);
+assert.equal(listedOnly.status,200);assert.equal((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-listed-only'}},listedOnly.body)).status,400,'Listed fragments cannot be duplicated through a Universal Piece');
+const endedUniversal=structuredClone(seed);endedUniversal.rounds={...(endedUniversal.rounds??{}),'night-bloom':{joined:150,status:'ended',startedAt:'2020-01-01T00:00:00.000Z',endsAt:'2020-02-01T00:00:00.000Z'}};assert.equal((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-ended-round'}},endedUniversal)).status,400);
+console.log('Passed: Universal Piece reveals one eligible missing fragment, consumes one item, preserves money, prevents duplicates and listed-piece recovery, validates requests, respects live rounds, and protects retries.');

@@ -250,3 +250,71 @@
  .landing.menu-open .landing-scrim { opacity: 1; pointer-events: auto; }
  .landing-sidebar-bottom { padding-top: 35px; }
 }
+/* Referral copy, registration capacity and piece inventory share the product scale. */
+.squad-page .page-heading { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 18px; }
+.squad-page .page-heading>div { display: contents; }
+.squad-page .page-heading h1 { grid-column: 1; margin: 0; }
+.squad-page .page-heading .subheading { grid-column: 1/-1; grid-row: 2; white-space: nowrap; font-size: clamp(10px,3vw,14px); letter-spacing: -.02em; }
+.squad-phase { grid-column: 2; grid-row: 1; align-self: center; }
+.squad-hero-art { min-height: 210px; }
+.squad-ryvo-logo { position: absolute; width: 190px; height: 190px; object-fit: contain; left: 50%; top: 0; transform: translateX(-50%) rotate(-8deg); opacity: .24; }
+.challenge-round-state>p { margin-bottom: 19px; }
+.challenge-round-state .challenge-player-count { margin-bottom: 10px; }
+.challenge-round-state>small { display: block; font-size: 10px; color: #abbc9d; line-height: 1.7; margin-top: 11px; }
+.wallet-round-actions { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.wallet-round-actions>button:nth-child(2) svg { transform: none; }
+.board-section-tabs { gap: 8px; flex-wrap: wrap; }
+.board-section-tabs>button { min-height: 44px; padding: 12px 16px; }
+.board-add-listing { display: inline-flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--lime); color: #202817; font-size: 12px; font-weight: 650; border-radius: 999px; min-height: 44px; padding: 12px 18px; }
+.universal-reveal-card { background: #2d2435; border-radius: 22px; padding: 30px; display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 25px; align-items: center; }
+.universal-reveal-symbol { color: #e7b4ef; width: 70px; height: 70px; display: grid; place-items: center; border-radius: 20px; background: #4b3158; }
+.universal-reveal-card h2 { font-size: 28px; font-weight: 550; letter-spacing: -.03em; margin: 0 0 12px; }
+.universal-reveal-card p { font-size: 13px; color: #c4aed0; line-height: 1.8; margin: 0 0 13px; max-width: 500px; }
+.universal-reveal-count { font-size: 11px; color: #e6c4ef; line-height: 1.7; }
+.universal-reveal-card .primary { min-height: 48px; border-radius: 999px; background: #e6b8ef; color: #312039; }
+.piece-inventory-note { color: #b5c6a6; font-size: 12px; line-height: 1.8; margin: 20px 0 30px; }
+.piece-inventory-note a { color: var(--lime); }
+.piece-inventory-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 20px; }
+.inventory-piece { padding: 0; border-radius: 16px; overflow: hidden; background: #242e1d; text-align: left; min-width: 0; }
+.inventory-fragment { position: relative; overflow: hidden; background: #162011; min-height: 80px; }
+.inventory-fragment .artwork,.inventory-fragment .uploaded-artwork { height: 100%; width: 100%; object-fit: contain; }
+.inventory-piece>div:last-child { display: flex; flex-direction: column; gap: 16px; padding: 19px; }
+.inventory-piece b { font-weight: 550; font-size: 16px; }
+.inventory-piece>div>span { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 11px; color: #c6e3ad; min-height: 25px; }
+.inventory-manage-listings { margin-top: 25px; }
+@media (max-width:1000px) {
+ .universal-reveal-card { grid-template-columns: auto minmax(0,1fr); }
+ .universal-reveal-card .primary { grid-column: 1/-1; justify-content: space-between; }
+ .piece-inventory-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width:700px) {
+ .squad-page .page-heading { gap: 16px 10px; }
+ .squad-page .squad-phase { font-size: 9px; letter-spacing: .06em; padding: 9px 12px; }
+ .squad-hero-art { min-height: 190px; }
+ .squad-ryvo-logo { width: 170px; height: 170px; }
+ .board-section-tabs { gap: 4px; flex-wrap: nowrap; }
+ .board-section-tabs>button { gap: 6px; padding-inline: 10px; font-size: 11px; }
+ .board-section-tabs .board-demo-badge { display: none; }
+ .board-market-controls { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .board-add-listing { grid-column: 1/-1; }
+ .universal-reveal-card { padding: 24px; gap: 20px; grid-template-columns: 1fr; }
+ .universal-reveal-card h2 { font-size: 29px; }
+ .universal-reveal-card p { font-size: 12px; }
+ .universal-reveal-card .primary { width: 100%; }
+ .piece-inventory-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+ .inventory-piece>div:last-child { padding: 16px; }
+}
+@media (max-width:360px) { .board-section-tabs>button { font-size: 10px; padding-inline: 7px; gap: 5px; }.board-section-tabs>button>svg { display: none; } }
+/* Keep the fragment identifier on its artwork and the sale details compact. */
+.board-listing .listing-piece-number { top: 10px; left: 10px; bottom: auto; z-index: 2; padding: 6px 8px; border-radius: 6px; background: #10180dcc; font-size: 16px; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; text-shadow: none; }
+.board-listing .listing-status { z-index: 2; }
+.board-listing .board-listing-content { padding: 12px 14px; }
+.board-listing-content>span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.5; }
+.board-listing .board-listing-content>div { padding-top: 4px; gap: 8px; min-height: 44px; }
+.board-listing .board-listing-content b { font-size: 15px; font-variant-numeric: tabular-nums; }
+.board-listing .board-listing-content button { width: 44px; height: 44px; flex-shrink: 0; }
+@media (max-width:700px) {
+ .board-listing .board-listing-content { padding: 11px 12px; }
+ .board-listing-content>span { font-size: 10px; }
+ .board-listing .board-listing-content b { font-size: 14px; }
+}

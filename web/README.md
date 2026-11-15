@@ -53,3 +53,10 @@ Production build and TypeScript checks; browser checks for desktop and mobile la
 - Player accounts are browser-local demo accounts; passwords are salted PBKDF2 hashes. Accounts are not production authentication. Wallets are isolated by account, while competition configuration and marketplace offers are shared within that browser. Artwork blobs are stored in IndexedDB.
 - API operations remain stateless and never write to a server filesystem. Real cross-device identity, shared database/object storage, payment settlement, moderation, official winner validation, refunds, and referral payouts require production services.
 - `npm run test:demo` runs payment, ownership, queue, lifecycle, and fragment-coverage checks against `RYVO_TEST_URL` (defaults to localhost:3000). It uses Node 24's native TypeScript support for the pure rule helpers.
+
+
+## Piece management and wallet simplification
+
+The board now includes Marketplace, Leaderboard, and Pieces tabs. Pieces displays owned fragments and lets a joined player redeem one Universal Piece for one randomly chosen missing fragment during an active round. Redemption cannot duplicate owned or actively listed fragments, cannot spend the item on an unavailable board, and is protected against request retries. It does not debit RYVO or naira. The Marketplace includes an explicit List a piece action; selecting an owned fragment opens its pricing form. A successful listing switches to My listings and removes the fragment from the board.
+
+P2P is now for funding RYVO only. Users convert RYVO to withdrawable naira through Swap, with the existing 100 r/ fee. Historical merchant-sale records and the legacy demo operation remain compatible with stored wallets; no user-facing Sell flow remains. Referral commissions and prize payouts are still not connected. Collection cards show joined players against the creator’s configured capacity; filling the currently open registration starts that game and opens the next queued registration.

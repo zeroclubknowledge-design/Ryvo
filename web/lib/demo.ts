@@ -93,6 +93,20 @@ export function applyDemoAction(snapshot: DemoState, action: string, id: unknown
   s.rounds![c.id].joined++;
   const date = new Date().toISOString();
   s.ledger.unshift({id:crypto.randomUUID(),label:`Entry payment · ${c.title}`,amount:-c.fee*CREDIT_RATE,currency:"RYVO",date});
+ } else if(action==="redeem-universal"){
+  const requestId=(payload as {requestId?:unknown})?.requestId;
+  if(typeof requestId!=="string"||requestId.length<10||requestId.length>80)throw Error("Invalid Universal Piece request. Please try again.");
+  const key=`universal:${requestId}`;
+  if(s.purchases.includes(key))return s;
+  if(s.purchases.length>=200)throw Error("Demo history is full. No Universal Piece has been spent.");
+  if(!c||!s.boards[c.id])throw Error("Join this competition before using a Universal Piece.");
+  if(c.status!=="active")throw Error("Universal Pieces unlock when registration fills and the competition goes live.");
+  if(s.universal<1)throw Error("You have no Universal Pieces available.");
+  const available=Array.from({length:c.total},(_,i)=>i).filter(i=>!s.boards[c.id].includes(i)&&!s.listings!.some(l=>l.competitionId===c.id&&l.index===i&&l.status==="active"));
+  if(!available.length)throw Error("No missing pieces are available to reveal. Cancel your own listings to restore those pieces.");
+  const limit=Math.floor(0x100000000/available.length)*available.length;
+  const draw=new Uint32Array(1);do{crypto.getRandomValues(draw)}while(draw[0]>=limit);
+  s.boards[c.id].push(available[draw[0]%available.length]);s.universal--;s.purchases.push(key);
  } else if (action === "buy") {
   if (!c || !s.boards[c.id]) throw Error("Join the competition before collecting pieces.");
   if (typeof index !== "number" || !Number.isInteger(index) || index < 0 || index >= c.total) throw Error("Invalid piece.");
