@@ -1,0 +1,157 @@
+/* Shared product refinements. Montserrat and the established Ryvo palette stay authoritative. */
+:root {
+  color-scheme: dark;
+  --ryvo-copy: #bbc0b7;
+  --ryvo-quiet: #a3aa9e;
+}
+body { text-rendering: optimizeLegibility; }
+h1, h2, h3 { text-wrap: balance; }
+input, textarea { caret-color: var(--ryvo-green); }
+button, a { touch-action: manipulation; }
+button:disabled { transform: none; }
+.skip-to-game { position: fixed; top: 12px; left: 20px; z-index: 100; padding: 14px 20px; border-radius: 12px; background: var(--lime); color: #17200c; transform: translateY(-180%); font-weight: 650; }
+.skip-to-game:focus { transform: none; }
+#ryvo-content:focus { outline: none; }
+.app-shell main { max-width: 1440px; }
+.app-shell .page-heading { margin-bottom: 32px; }
+.app-shell .page-heading h1 { letter-spacing: -.035em; }
+.app-shell .subheading { color: var(--ryvo-copy); font-size: 14px; line-height: 1.75; }
+.app-shell .page-heading .eyebrow { display: none; }
+.app-shell .hero { height: 390px; border-radius: 16px; }
+.app-shell .hero-copy { padding: 34px 38px; }
+.app-shell .hero h2 { font-size: clamp(36px, 3.3vw, 50px); letter-spacing: -.035em; margin: 24px 0 18px; }
+.app-shell .hero-copy>p { color: #c1c8b6; font-size: 14px; line-height: 1.65; }
+.app-shell .hero-badge { font-size: 10px; letter-spacing: .09em; }
+.app-shell .hero-badge>span { font-size: 10px; }
+.app-shell .hero-buttons { margin-top: 25px; gap: 14px; }
+.app-shell .hero-buttons .primary { min-height: 48px; padding-inline: 22px; border-radius: 999px; font-size: 12px; }
+.app-shell .hero-play { width: 44px; height: 44px; }
+.app-shell .hero-buttons>span { font-size: 12px; }
+.app-shell .hero-creator { margin-top: 25px; }
+.app-shell .hero-creator>span { font-size: 12px; }
+.app-shell .hero-creator small { font-size: 10px; }
+.app-shell .quick-stats { background: #1b1e19; border: 0; border-radius: 16px; padding-block: 22px; margin-top: 24px; }
+.app-shell .quick-stats>div { border: 0; gap: 14px; }
+.app-shell .quick-stats b { font-variant-numeric: tabular-nums; }
+.app-shell .quick-stats p>span { color: var(--ryvo-quiet); font-size: 11px; }
+.app-shell .quick-stats button { min-width: 36px; min-height: 36px; align-self: center; }
+.app-shell .collections { margin-top: 48px; }
+.app-shell .section-heading h2 { font-size: 25px; letter-spacing: -.03em; }
+.app-shell .sort-label { font-size: 12px; }
+.app-shell .sort-label select { font-size: 12px; min-height: 44px; }
+.app-shell .tabs { gap: 5px; flex-wrap: wrap; }
+.app-shell .tabs button { min-height: 44px; padding: 11px 16px; border-radius: 999px; font-size: 12px; color: #b8bdb1; }
+.app-shell .tabs button.selected { color: #202817; }
+.app-shell .search { min-height: 44px; border-radius: 999px; background: #1b1d1a; padding: 8px 14px; }
+.app-shell .search input { width: 200px; min-width: 0; font-size: 12px; }
+.app-shell .search button { display: grid; place-items: center; min-width: 28px; min-height: 28px; padding: 0; }
+.challenge-results { color: var(--ryvo-quiet); font-size: 11px; margin: 0 0 20px; }
+.app-shell .collection-grid { gap: 22px; }
+.app-shell .collection-card { background: #1d211a; border: 0; border-radius: 16px; display: flex; flex-direction: column; }
+.app-shell .card-art { margin: 0; height: auto; aspect-ratio: 1.14; border-radius: 16px 16px 0 0; }
+.app-shell .card-content { padding: 22px; flex: 1; display: flex; flex-direction: column; }
+.app-shell .card-title-row h3 { font-size: 19px; font-weight: 600; letter-spacing: -.03em; overflow-wrap: anywhere; }
+.app-shell .card-title-row>svg { color: #b9c2ae; flex-shrink: 0; }
+.app-shell .card-title-row>button { min-width: 0; min-height: 44px; }
+.app-shell .artist { gap: 7px; font-size: 11px; color: #aeb8a1; margin-top: 12px; line-height: 1.5; }
+.app-shell .mini-avatar { height: 23px; width: 23px; flex-shrink: 0; font-size: 8px; }
+.app-shell .verified { display: inline-flex; color: #bbd98e; }
+.app-shell .status-badge { left: 13px; top: 13px; font-size: 10px; padding: 8px 10px; border-radius: 999px; }
+.app-shell .favorite { width: 40px; height: 40px; top: 10px; right: 10px; }
+.app-shell .piece-count { font-size: 10px; padding: 7px 9px; left: 13px; bottom: 13px; border-radius: 7px; }
+.challenge-round-state { min-height: 64px; margin: 22px 0 18px; color: #aebaa0; }
+.challenge-round-state>div { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 10px; margin-bottom: 11px; }
+.challenge-round-state b { font-weight: 500; color: #d2dfc3; font-variant-numeric: tabular-nums; }
+.challenge-round-state meter { width: 100%; height: 5px; display: block; appearance: none; border: 0; border-radius: 4px; overflow: hidden; background: #37412e; }
+.challenge-round-state meter::-webkit-meter-bar { background: #37412e; border: 0; border-radius: 4px; height: 5px; }
+.challenge-round-state meter::-webkit-meter-optimum-value { background: var(--ryvo-green); border-radius: 4px; }
+.challenge-round-state meter::-moz-meter-bar { background: var(--ryvo-green); }
+.challenge-round-state>p { display: flex; align-items: center; gap: 9px; font-size: 11px; line-height: 1.65; margin: 0; padding-block: 8px; }
+.challenge-round-state svg { flex-shrink: 0; }
+.app-shell .card-meta { gap: 16px; justify-content: space-between; margin-top: auto; }
+.app-shell .card-meta span { font-size: 10px; color: #aeb8a1; }
+.app-shell .card-meta b { font-size: 18px; font-weight: 550; font-variant-numeric: tabular-nums; }
+.app-shell .card-meta small { font-size: 11px; color: #aeb8a1; }
+.challenge-card-action { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 12px 15px; border-radius: 999px; margin-top: 24px; background: #303d24; color: #d0e7ba; font-size: 12px; font-weight: 550; }
+.app-shell .floating-taskbar { border-color: #ffffff1c; background: #252725ed; }
+.app-shell .floating-taskbar>a { min-height: 48px; }
+.app-shell :is(.icon-button,.avatar) { min-width: 44px; min-height: 44px; }
+.app-shell .balance-pill { min-height: 44px; }
+.app-shell .creator-form :is(input:not([type=range]):not([type=file]),select,textarea), .auth-panel input, .onboarding-fields :is(input,select) { font-size: 16px; }
+.auth-panel form>label,.auth-fields-row>label { font-size: 13px; }
+.auth-intro,.auth-demo-note { color: #aabd9c; font-size: 13px; line-height: 1.8; }
+.auth-password>button { min-height: 44px; top: 2px; }
+.app-shell :is(.page-heading,.card-content,.creator-review,.wallet-main-balance) { overflow-wrap: anywhere; }
+.app-shell :is(.primary,.secondary,.challenge-card-action,.floating-taskbar>a), .landing :is(.primary,.landing-header>a) { transition: transform var(--dur-micro,120ms) var(--ease,cubic-bezier(.2,.8,.2,1)), background-color var(--dur-micro,120ms) ease, color var(--dur-micro,120ms) ease; }
+@media (hover:hover) and (pointer:fine) {
+  .app-shell .collection-card:hover { transform: translateY(-2px); }
+  .app-shell .card-art:hover .artwork { transform: scale(1.025); }
+  .challenge-card-action:hover { background: #40542e; }
+  .app-shell .collection-card:focus-within { outline: 1px solid #78945b; outline-offset: 3px; }
+}
+@media (hover:none), (pointer:coarse) {
+  .app-shell .collection-card:hover,.app-shell .card-art:hover .artwork,.app-shell .primary:hover { transform: none; }
+}
+.app-shell :is(.primary,.secondary,.challenge-card-action,.floating-taskbar>a):active { transform: scale(.98); }
+.app-shell :is(button,a,input,select,textarea):focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+@media (max-width:1100px) and (min-width:701px) {
+  .app-shell .collection-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .app-shell .collection-tools { flex-direction: column; align-items: stretch; }
+  .app-shell .search input { flex: 1; }
+}
+@media (max-width:700px) {
+  .app-shell main { padding-inline: 20px; padding-bottom: calc(130px + env(safe-area-inset-bottom,0px)); }
+  .app-shell .page-heading h1 { font-size: 36px; }
+  .app-shell .subheading { font-size: 13px; }
+  .app-shell .hero { height: 430px; }
+  .app-shell .hero-copy { padding: 25px; }
+  .app-shell .hero h2 { font-size: 37px; margin-top: 35px; }
+  .app-shell .hero-copy>p { font-size: 13px; }
+  .app-shell .hero-buttons { gap: 10px; }
+  .app-shell .hero-buttons>span { display: none; }
+  .app-shell .hero-badge>span { margin-left: auto; }
+  .app-shell .quick-stats { padding: 18px 10px; gap: 6px; }
+  .app-shell .quick-stats>div { padding: 0 7px; position: relative; }
+  .app-shell .quick-stats p>span { font-size: 10px; line-height: 1.5; }
+  .app-shell .quick-stats button { position: absolute; inset: 0; width: 100%; height: 100%; color: transparent; }
+  .app-shell .quick-stats p b { font-size: 26px; }
+  .app-shell .collections { margin-top: 36px; }
+  .app-shell .section-heading { gap: 12px; align-items: center; }
+  .app-shell .section-heading h2 { font-size: 23px; }
+  .app-shell .sort-label>span { display: none; }
+  .app-shell .sort-label select { max-width: 125px; font-size: 11px; }
+  .app-shell .collection-tools { gap: 16px; }
+  .app-shell .tabs { gap: 4px; }
+  .app-shell .tabs button { padding-inline: 12px; font-size: 11px; }
+  .app-shell .search { width: 100%; }
+  .app-shell .search input { flex: 1; width: 0; }
+  .app-shell .collection-grid { gap: 24px; }
+  .app-shell .card-content { padding: 23px; }
+  .app-shell .card-title-row h3 { font-size: 23px; }
+  .app-shell .favorite { width: 44px; height: 44px; }
+  .app-shell .floating-taskbar>a { min-width: 0; }
+  .app-shell .floating-taskbar { bottom: max(12px,env(safe-area-inset-bottom)); }
+}
+@media (max-width:360px) {
+  .app-shell .app-brand b { font-size: 20px; }
+  .app-shell .topbar { gap: 8px; padding-inline: 12px; }
+  .app-shell .top-actions { gap: 5px; }
+  .app-shell main { padding-inline: 16px; }
+  .app-shell .hero-copy { padding: 20px; }
+  .app-shell .hero h2 { font-size: 32px; }
+  .app-shell .floating-taskbar>a { font-size: 10px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .app-shell *, .landing * { animation: none !important; transition: none !important; }
+  .app-shell .collection-card:hover,.app-shell .card-art:hover .artwork { transform: none; }
+}
+@media (max-width:700px) {
+  .app-shell .collections .collection-grid { grid-template-columns: minmax(0,1fr); }
+  .app-shell .collection-tools .tabs { overflow: visible; width: 100%; }
+}
+.empty-board-start { display: flex; align-items: flex-start; flex-direction: column; gap: 18px; max-width: 650px; padding: clamp(28px,5vw,55px); border-radius: 16px; background: #20271b; margin-block: 30px; }
+.empty-board-start>svg { color: var(--ryvo-green); }
+.empty-board-start h2 { font-size: clamp(27px,3vw,36px); letter-spacing: -.03em; line-height: 1.2; margin: 8px 0 0; }
+.empty-board-start p { font-size: 14px; line-height: 1.8; color: #b5c5a7; margin: 0 0 10px; }
+.empty-board-start .primary { min-height: 48px; border-radius: 999px; }
+@media (max-width:700px) { .empty-board-start .primary { width: 100%; } }
