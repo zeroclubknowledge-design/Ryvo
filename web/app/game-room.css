@@ -327,3 +327,11 @@
  .board-listing-content>span { font-size: 10px; }
  .board-listing .board-listing-content b { font-size: 14px; }
 }
+
+/* Keep the creator introduction on one line, without a balance badge competing for space. */
+.creator-page > .page-heading > div { width: 100%; min-width: 0; max-width: none; }
+.creator-page > .page-heading .subheading { max-width: none; white-space: nowrap; }
+.new-wallet-page .wallet-side-balances { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 600px) {
+ .creator-page > .page-heading .subheading { font-size: clamp(9px, 2.65vw, 15px); letter-spacing: -.02em; }
+}
