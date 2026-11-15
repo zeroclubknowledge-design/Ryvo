@@ -35,3 +35,7 @@ No real money is charged, transferred or paid out. New accounts include a separa
 `public/other-side.png` is generated explorer artwork; supporting sculptures use CSS. Public font files include their licence.
 
 Regression coverage includes naira registration, exact draw pricing, finite stock, duplicates, gift consumption, single-copy listing/cancellation, seller settlement, prize limits, account isolation, migration, queue timing, wallet funding, swaps, withdrawals and route availability. Browser checks also verify registration locks and a sale between two local demo accounts.
+
+## Current visual direction
+
+The landing, app home and shared product surfaces follow the inspected Fantrade reference: black canvas, bold Montserrat headings, compact neutral cards, open wallet balances, pill controls and floating navigation. Ryvo retains its logo, green actions, purple selected Create state and all existing game mechanics. The shared system is in `app/ryvo-system.css`; `DESIGN.md` records the decisions.
