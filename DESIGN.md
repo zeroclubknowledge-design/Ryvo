@@ -17,7 +17,7 @@ Ryvo is a collectible board game. Players join competitions, collect and trade p
 - Challenge titles sit on their artwork covers; supporting facts remain below. Keep the art dominant.
 - Desktop player profiles place identity beside a collection gallery. Mobile stacks the cover, identity and gallery without changing their meaning.
 - Wallet credit and withdrawable earnings stay visually distinct, using pink and green surfaces. Bank and merchant controls form a secondary row; Universal Pieces sit in a separate ribbon.
-- Challenge cards show actual status, entry credit cost, winner availability, and registration progress or remaining time.
+- Challenge cards show actual status, naira entry cost, winner availability, and registration progress or remaining time.
 - On phones, discovery uses one readable card per row. Tablet uses two columns; desktop uses four.
 - Align content edges. Group related facts and separate distinct tasks with space.
 - Use readable secondary text, tabular numbers for balances, and comfortable touch targets.
@@ -28,3 +28,7 @@ Ryvo is a collectible board game. Players join competitions, collect and trade p
 ## Verification
 
 Verify discovery, collection, boards, wallet, creator entry, and account pages at phone, tablet, and desktop sizes. Include long text, search with no results, a new player with no boards, keyboard focus, and reduced motion. Build and demo regression checks must pass before publishing.
+
+## Piece economy
+
+Registration uses naira and issues 10 r/ per ₦1. New boards start empty. Draws, gift redemption and trading stay locked until registration fills. Each type has one copy per player place; random draws can repeat types. Show physical copy quantities separately from unique board progress. Listing removes one copy, and the board slot remains filled when another copy is owned. Player listings use RYVO; seller proceeds and simulated prizes enter naira earnings. Keep demo boundaries explicit.

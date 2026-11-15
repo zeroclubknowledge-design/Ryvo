@@ -1,40 +1,25 @@
 import assert from 'node:assert/strict';
-import {oneMonthAfter,fragmentLayout,isDemoState} from '../lib/demo.ts';
-const base = process.env.RYVO_TEST_URL || 'http://127.0.0.1:3000';
-const read = async()=>{const r=await fetch(`${base}/api/demo`);assert.equal(r.status,200);assert.match(r.headers.get('cache-control'),/no-store/);return r.json()};
-const seed=await read();
-assert.equal(seed.cash,100000,'Every new demo wallet starts with ₦100,000');
-const original=structuredClone(seed);
-const post=async(body,state=seed,headers={})=>{
- const r=await fetch(`${base}/api/demo`,{method:'POST',headers:{'Content-Type':'application/json',...headers},body:JSON.stringify({state,...body})});
- return {status:r.status,body:await r.json()};
-};
-const joined=await post({action:'join',id:'harbour-lights'},seed,{Origin:new URL(base).origin});
-assert.equal(joined.status,200);
-assert.equal(joined.body.cash,100000,'Entry payment must preserve naira');
-assert.equal(joined.body.balance,seed.balance-10000,'Entry must debit RYVO');
-assert.deepEqual(joined.body.boards['harbour-lights'],[0]);
-assert.ok(joined.body.ledger.some(t=>t.currency==='RYVO'&&t.amount===-10000&&t.label.startsWith('Entry payment')));
-assert.equal((await post({action:'join',id:'harbour-lights'},joined.body)).status,400,'No duplicate entries');
-assert.equal((await post({action:'buy',id:'harbour-lights',index:1},joined.body)).status,400,'Collecting waits for full registration');
-const filled=await post({action:'fill-demo-registration'},joined.body);assert.equal(filled.status,200);assert.equal(filled.body.rounds['harbour-lights'].status,'active');assert.equal(filled.body.rounds['paper-lanterns'].status,'open');
-const bought=await post({action:'buy',id:'harbour-lights',index:1},filled.body);
-assert.equal(bought.status,200);
-assert.equal(bought.body.cash,99000);
-assert.deepEqual(bought.body.boards['harbour-lights'],[0,1]);
-assert.equal(bought.body.balance,joined.body.balance,'Piece purchases must not debit RYVO');
-assert.equal((await post({action:'buy',id:'harbour-lights',index:1},bought.body)).status,400);
-for(const body of [{},{action:'unknown'},{action:'join',id:'salt-flats'},{action:'buy',id:'night-bloom',index:0},{action:'buy',id:'night-bloom',index:-1},{action:'buy',id:'night-bloom',index:99},{action:'buy',id:'night-bloom',index:'3'}])assert.equal((await post(body)).status,400);
-assert.equal((await post({action:'join',id:'harbour-lights'},{...seed,balance:9999})).status,400);
-assert.equal((await post({action:'buy',id:'night-bloom',index:3},{...seed,cash:100})).status,400);
-assert.equal((await post({action:'join',id:'harbour-lights'},{...seed,cash:-1})).status,400);
-assert.equal((await post({action:'join',id:'harbour-lights'},null)).status,400);
-assert.equal((await post({action:'join',id:'harbour-lights'},seed,{Origin:'https://untrusted.example'})).status,403);
-const [a,b]=await Promise.all([post({action:'join',id:'harbour-lights'}),post({action:'join',id:'harbour-lights'})]);
-assert.equal(a.status,200);assert.equal(b.status,200);
-assert.equal(a.body.cash,100000);assert.equal(b.body.cash,100000,'Separate demo accounts must not share deductions');
-assert.deepEqual(seed,original,'Payment processing must not mutate the source snapshot');
-assert.deepEqual(await read(),seed,'New demo accounts always receive their own starting balance');
+import {initialState,applyDemoAction,allCompetitions,oneMonthAfter,fragmentLayout,isDemoState,settleDemoWithdrawals} from '../lib/demo.ts';
+import {drawCopy,pieceDrawPrice} from '../lib/piece-inventory.ts';
+const base=process.env.RYVO_TEST_URL||'http://localhost:3000';
+const read=async()=>{const r=await fetch(base+'/api/demo');assert.equal(r.status,200);assert.match(r.headers.get('cache-control'),/no-store/);return r.json()};
+const seed=await read(),original=structuredClone(seed);
+const post=async(body,state=seed,headers={})=>{const r=await fetch(base+'/api/demo',{method:'POST',headers:{'Content-Type':'application/json',...headers},body:JSON.stringify({state,...body})});const data=await r.json();if(r.ok)assert.ok(isDemoState(data),`Invalid response for ${body.action}`);return {status:r.status,body:data}};
+const joined=await post({action:'join',id:'harbour-lights'},seed,{Origin:new URL(base).origin});assert.equal(joined.status,200);
+assert.equal(joined.body.cash,99000);assert.equal(joined.body.balance,seed.balance+10000);assert.deepEqual(joined.body.boards['harbour-lights'],[]);
+assert.ok(joined.body.ledger.some(t=>t.currency==='NGN'&&t.amount===-1000));assert.ok(joined.body.ledger.some(t=>t.currency==='RYVO'&&t.amount===10000));
+assert.equal((await post({action:'join',id:'harbour-lights'},joined.body)).status,400);
+assert.equal((await post({action:'join',id:'harbour-lights'},{...seed,cash:999})).status,400);
+assert.equal((await post({action:'join',id:'harbour-lights'},{...seed,balance:0})).status,200,'Entry uses naira, not an existing RYVO balance');
+for(const action of ['buy-draw','redeem-universal'])assert.equal((await post({action,id:'harbour-lights',payload:{requestId:'waiting-test-order-1'}},joined.body)).status,400);
+const filled=await post({action:'fill-demo-registration'},joined.body);assert.equal(filled.body.rounds['harbour-lights'].status,'active');assert.equal(filled.body.rounds['paper-lanterns'].status,'open');
+assert.equal((await post({action:'buy',id:'night-bloom',index:3})).status,400,'No unlimited sample sellers');
+assert.equal((await post({action:'join',id:'harbour-lights'},null)).status,400);assert.equal((await post({action:'join',id:'harbour-lights'},seed,{Origin:'https://untrusted.example'})).status,403);
+const [a,b]=await Promise.all([post({action:'join',id:'harbour-lights'}),post({action:'join',id:'harbour-lights'})]);assert.equal(a.body.cash,99000);assert.equal(b.body.cash,99000);assert.deepEqual(seed,original);assert.deepEqual(await read(),seed);
+for(let total=10;total<=50;total++){assert.equal(Array.from({length:total},(_,i)=>pieceDrawPrice(10000,total,i)).reduce((a,b)=>a+b),10000);assert.equal(fragmentLayout(total).length,total)}
+assert.equal(pieceDrawPrice(10000,20,0),500);assert.equal(drawCopy([2,0,1],()=>2),2);assert.equal(drawCopy([2,0,1],()=>1),0);assert.throws(()=>drawCopy([0,0],()=>0));assert.throws(()=>drawCopy([-1,2],()=>0));
+console.log('Passed: naira registration issues equivalent RYVO once, empty starting inventory, registration lock, queue advancement, exact draw pricing and finite-stock selection.');
+
 const bank={bank:'Demo Bank',accountNumber:'0123456789',accountName:'Demo Tester'};
 assert.equal((await post({action:'save-bank',payload:{...bank,accountNumber:'123'}})).status,400);
 const bankSaved=await post({action:'save-bank',payload:bank});assert.equal(bankSaved.status,200);assert.deepEqual(bankSaved.body.bank,bank);
@@ -60,7 +45,7 @@ const migrated=await post({action:'settle'},legacy);assert.equal(migrated.status
 const migratedAgain=await post({action:'settle'},migrated.body);assert.deepEqual(migratedAgain.body,migrated.body,'Migration must not reissue demo earnings');
 for(const route of ['/','/discover','/how-it-works','/ryvo-credit','/onboarding','/explore','/boards','/wallet','/wallet/p2p','/notifications','/profile','/referrals','/signup','/signin','/create','/board/night-bloom','/collection/harbour-lights','/collection/night-bloom','/collection/salt-flats','/collection/paper-lanterns'])assert.equal((await fetch(base+route)).status,200,route);
 assert.equal((await fetch(base+'/marketplace')).status,404,'Standalone marketplace was removed');
-console.log('Passed: ₦100,000 per demo account, RYVO entry and naira purchase debits, duplicate and insufficient-funds protection, invalid snapshots, account isolation, no shared-server state, merchant quotes and funding idempotency, bank validation, withdrawal limits, pending/complete payouts, wallet migration, and all app routes.');
+console.log('Passed: funding, bank validation, withdrawals, account isolation, migration and all application routes.');
 
 const swapped=await post({action:'swap',payload:{amount:1100,requestId:'swap-order-test-1'}});assert.equal(swapped.status,200);assert.equal(swapped.body.balance,seed.balance-1100);assert.equal(swapped.body.earnings,seed.earnings+100);assert.equal(swapped.body.cash,seed.cash);assert.ok(swapped.body.ledger.some(t=>t.currency==='RYVO'&&t.amount===-1100));
 assert.deepEqual((await post({action:'swap',payload:{amount:1100,requestId:'swap-order-test-1'}},swapped.body)).body,swapped.body);
@@ -69,23 +54,40 @@ const sold=await post({action:'sell',payload:{amount:12000,merchantId:'lime-desk
 assert.deepEqual((await post({action:'sell',payload:{amount:12000,merchantId:'lime-desk',requestId:'sell-order-test-1'}},sold.body)).body,sold.body);
 for(const payload of [{amount:12000,merchantId:'missing'},{amount:12001,merchantId:'lime-desk'},{amount:12,merchantId:'lime-desk'},{amount:24000,merchantId:'lime-desk'}])assert.equal((await post({action:'sell',payload:{...payload,requestId:'invalid-sale-order'}})).status,400);
 const saleBank=await post({action:'save-bank',payload:bank},sold.body);const saleWithdrawal=await post({action:'withdraw',payload:{amount:8500,requestId:'sale-withdrawal-test'}},saleBank.body);assert.equal(saleWithdrawal.status,200);assert.equal(saleWithdrawal.body.earnings,0);
-console.log('Passed: RYVO entry debits, swaps including 100 r/ fee, merchant sales, insufficient credit, rate/limit validation, conversion idempotency, and sale proceeds withdrawal.');
 
-const seller={...structuredClone(seed),ownerId:'seller-account'};
-const listed=await post({action:'list-piece',id:'night-bloom',index:0,payload:{price:1000,requestId:'piece-listing-order-1',ownerName:'Demo Seller'}},seller);assert.equal(listed.status,200);assert.ok(!listed.body.boards['night-bloom'].includes(0));assert.equal(listed.body.listings[0].status,'active');assert.equal(listed.body.cash,seller.cash);
-assert.deepEqual((await post({action:'list-piece',id:'night-bloom',index:0,payload:{price:1000,requestId:'piece-listing-order-1',ownerName:'Demo Seller'}},listed.body)).body,listed.body);
-assert.equal((await post({action:'buy',id:'night-bloom',index:0},listed.body)).status,400,'Cannot reclaim listed fragment through sample seller');
-for(const price of [0,499,100001,1000.5])assert.equal((await post({action:'list-piece',id:'night-bloom',index:0,payload:{price,requestId:'invalid-list-price',ownerName:'Seller'}},seller)).status,400);
-assert.equal((await post({action:'list-piece',id:'night-bloom',index:3,payload:{price:1000,requestId:'unowned-list-piece',ownerName:'Seller'}},seller)).status,400);
-const cancelled=await post({action:'cancel-listing',payload:{listingId:'piece-listing-order-1'}},listed.body);assert.equal(cancelled.status,200);assert.ok(cancelled.body.boards['night-bloom'].includes(0));assert.equal(cancelled.body.listings[0].status,'cancelled');
-const buyer={...structuredClone(seed),ownerId:'buyer-account'};buyer.boards['night-bloom']=buyer.boards['night-bloom'].filter(i=>i!==0);
-const acquired=await post({action:'buy-listing',payload:listed.body.listings[0]},buyer);assert.equal(acquired.status,200);assert.ok(acquired.body.boards['night-bloom'].includes(0));assert.equal(acquired.body.cash,buyer.cash-1000);
+console.log('Passed: swap fees, historical merchant-sale compatibility, fractional naira earnings and withdrawal protection.');
+
+const seller=settleDemoWithdrawals({...structuredClone(seed),ownerId:'seller-account'});
+seller.inventory['night-bloom'][0]++;seller.pieceSupply['night-bloom'].remaining[0]--;
+const listed=await post({action:'list-piece',id:'night-bloom',index:0,payload:{price:1000,requestId:'copy-listing-order-1',ownerName:'Seller'}},seller);
+assert.equal(listed.status,200);assert.equal(listed.body.inventory['night-bloom'][0],1);assert.ok(listed.body.boards['night-bloom'].includes(0),'Listing an extra must keep the board slot filled');assert.equal(listed.body.listings[0].currency,'RYVO');
+assert.deepEqual((await post({action:'list-piece',id:'night-bloom',index:0,payload:{price:1000,requestId:'copy-listing-order-1',ownerName:'Seller'}},listed.body)).body,listed.body);
+const secondListing=await post({action:'list-piece',id:'night-bloom',index:0,payload:{price:500,requestId:'copy-listing-order-2',ownerName:'Seller'}},listed.body);assert.equal(secondListing.status,200);assert.ok(!secondListing.body.boards['night-bloom'].includes(0));
+const cancelled=await post({action:'cancel-listing',payload:{listingId:'copy-listing-order-2'}},secondListing.body);assert.equal(cancelled.body.inventory['night-bloom'][0],1);assert.ok(cancelled.body.boards['night-bloom'].includes(0));assert.ok(isDemoState(cancelled.body));
+for(const price of [0,-1,1000001,500.5])assert.equal((await post({action:'list-piece',id:'night-bloom',index:0,payload:{price,requestId:'invalid-copy-price',ownerName:'Seller'}},seller)).status,400);
+assert.equal((await post({action:'buy-listing',payload:listed.body.listings[0]},listed.body)).status,400);
+const buyer={...structuredClone(seed),ownerId:'buyer-account'};
+const acquired=await post({action:'buy-listing',payload:listed.body.listings[0]},buyer);assert.equal(acquired.status,200);assert.equal(acquired.body.balance,buyer.balance-1000);assert.equal(acquired.body.cash,buyer.cash);assert.equal(acquired.body.inventory['night-bloom'][0],2,'Buying an owned type must add a duplicate');
 assert.deepEqual((await post({action:'buy-listing',payload:listed.body.listings[0]},acquired.body)).body,acquired.body);
-assert.equal((await post({action:'buy-listing',payload:listed.body.listings[0]},listed.body)).status,400,'Cannot purchase own listing');
-const soldPiece=await post({action:'settle-sale',payload:{listingId:'piece-listing-order-1',buyerId:'buyer-account'}},listed.body);assert.equal(soldPiece.status,200);assert.equal(soldPiece.body.earnings,seller.earnings+995);assert.equal(soldPiece.body.listings[0].status,'sold');assert.ok(!soldPiece.body.boards['night-bloom'].includes(0));
-assert.equal((await post({action:'cancel-listing',payload:{listingId:'piece-listing-order-1'}},soldPiece.body)).status,400);
-assert.deepEqual((await post({action:'settle-sale',payload:{listingId:'piece-listing-order-1',buyerId:'buyer-account'}},soldPiece.body)).body,soldPiece.body);
-const lowListing=await post({action:'list-piece',id:'night-bloom',index:0,payload:{price:500,requestId:'listing-kobo-test',ownerName:'Seller'}},seller);const lowSold=await post({action:'settle-sale',payload:{listingId:'listing-kobo-test',buyerId:'buyer-account'}},lowListing.body);assert.equal(lowSold.status,200);assert.equal(lowSold.body.earnings,seller.earnings+497.5);assert.ok(isDemoState(lowSold.body));
+const soldPiece=await post({action:'settle-sale',payload:{listingId:'copy-listing-order-1',buyerId:'buyer-account'}},listed.body);assert.equal(soldPiece.status,200);assert.equal(soldPiece.body.earnings,seller.earnings+99.5);assert.deepEqual((await post({action:'settle-sale',payload:{listingId:'copy-listing-order-1',buyerId:'buyer-account'}},soldPiece.body)).body,soldPiece.body);
+assert.equal((await post({action:'cancel-listing',payload:{listingId:'copy-listing-order-1'}},soldPiece.body)).status,400);
+const legacySeller=structuredClone(listed.body);legacySeller.listings[0].currency='NGN';
+const legacyBuyer=await post({action:'buy-listing',payload:legacySeller.listings[0]},buyer);assert.equal(legacyBuyer.status,200);assert.equal(legacyBuyer.body.cash,buyer.cash-1000);
+console.log('Passed: duplicate trading, last-copy removal, multiple listings of one type, cancellation, credit-priced purchases, naira fee settlement, legacy listings and retry protection.');
+
+const forced=settleDemoWithdrawals(seed);forced.pieceSupply['night-bloom'].remaining.fill(0);forced.pieceSupply['night-bloom'].remaining[0]=3;
+const revealed=await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'duplicate-universal-1'}},forced);assert.equal(revealed.status,200);assert.equal(revealed.body.inventory['night-bloom'][0],2);assert.equal(revealed.body.boards['night-bloom'].length,seed.boards['night-bloom'].length);assert.equal(revealed.body.universal,0);assert.equal(revealed.body.pieceSupply['night-bloom'].remaining[0],2);assert.equal(revealed.body.balance,seed.balance);assert.equal(revealed.body.cash,seed.cash);
+assert.deepEqual((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'duplicate-universal-1'}},revealed.body)).body,revealed.body);
+assert.equal((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'duplicate-universal-2'}},revealed.body)).status,400);
+const paid=await post({action:'buy-draw',id:'night-bloom',payload:{requestId:'paid-random-draw-1'}},forced);assert.equal(paid.status,200);assert.equal(paid.body.balance,seed.balance-pieceDrawPrice(20000,12,0));assert.equal(paid.body.inventory['night-bloom'][0],2);assert.equal(paid.body.drawCounts['night-bloom'],1);
+assert.deepEqual((await post({action:'buy-draw',id:'night-bloom',payload:{requestId:'paid-random-draw-1'}},paid.body)).body,paid.body);
+const noStock=structuredClone(forced);noStock.pieceSupply['night-bloom'].remaining.fill(0);assert.equal((await post({action:'buy-draw',id:'night-bloom',payload:{requestId:'empty-stock-order-1'}},noStock)).status,400);assert.equal((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'empty-stock-order-2'}},noStock)).status,400);
+for(const requestId of [undefined,'short','x'.repeat(81)])assert.equal((await post({action:'buy-draw',id:'night-bloom',payload:{requestId}})).status,400);
+const nearlyDone=settleDemoWithdrawals(seed);nearlyDone.boards['night-bloom']=Array.from({length:12},(_,i)=>i).filter(i=>i!==7);nearlyDone.inventory['night-bloom']=Array(12).fill(1);nearlyDone.inventory['night-bloom'][7]=0;nearlyDone.pieceSupply['night-bloom'].remaining.fill(0);nearlyDone.pieceSupply['night-bloom'].remaining[7]=1;
+const win=await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'first-winning-draw'}},nearlyDone);assert.equal(win.status,200);assert.equal(win.body.boards['night-bloom'].length,12);assert.equal(win.body.finishers['night-bloom'].length,1);assert.equal(win.body.earnings,seed.earnings+2400);assert.equal(allCompetitions(win.body).find(c=>c.id==='night-bloom').remaining,7);
+assert.deepEqual((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'first-winning-draw'}},win.body)).body,win.body);
+console.log('Passed: paid and gifted random draws allow duplicates, consume finite supply, preserve unique progress, reject depleted supply and award an idempotent demo prize.');
+
 const launchPayload={title:'Test Round',description:'An uploaded artwork for a new competition.',artist:'Demo Creator',total:13,capacity:2,winners:1,fee:1000,creatorShare:5,artworkKey:'asset-11111111-1111-1111-1111-111111111111',coverKey:'asset-22222222-2222-2222-2222-222222222222',requestId:'33333333-3333-3333-3333-333333333333'};
 const launched=await post({action:'launch',payload:launchPayload});assert.equal(launched.status,200);assert.equal(launched.body.cash,99950);assert.equal(launched.body.createdCompetitions.length,1);assert.equal(launched.body.createdCompetitions[0].launchFee,50);const gameId=launched.body.createdCompetitions[0].id;assert.equal(launched.body.rounds[gameId].status,'upcoming');
 assert.deepEqual((await post({action:'launch',payload:launchPayload},launched.body)).body,launched.body);
@@ -97,32 +99,35 @@ const advance1=await post({action:'fill-demo-registration'},launched.body);asser
 const advance2=await post({action:'fill-demo-registration'},advance1.body);assert.equal(advance2.body.rounds[gameId].status,'open');assert.equal(advance2.body.rounds[gameId].startedAt,undefined);
 const customJoin=await post({action:'join',id:gameId},advance2.body);assert.equal(customJoin.status,200);assert.equal(customJoin.body.rounds[gameId].joined,1);
 const live=await post({action:'fill-demo-registration'},customJoin.body);assert.equal(live.body.rounds[gameId].status,'active');assert.equal(live.body.rounds[gameId].endsAt,oneMonthAfter(live.body.rounds[gameId].startedAt));
-const customBuy=await post({action:'buy',id:gameId,index:12},live.body);assert.equal(customBuy.status,200);assert.ok(customBuy.body.boards[gameId].includes(12));
-const expired=structuredClone(live.body);expired.rounds[gameId].startedAt='2020-01-31T12:00:00.000Z';expired.rounds[gameId].endsAt='2020-02-29T12:00:00.000Z';const closed=await post({action:'settle'},expired);assert.equal(closed.body.rounds[gameId].status,'ended');assert.equal((await post({action:'buy',id:gameId,index:1},closed.body)).status,400);
+
+const customDraw=await post({action:'buy-draw',id:gameId,payload:{requestId:'custom-piece-draw'}},live.body);assert.equal(customDraw.status,200);assert.equal(customDraw.body.balance,live.body.balance-pieceDrawPrice(10000,13,0));
+const closing=structuredClone(live.body);closing.boards[gameId]=Array.from({length:12},(_,i)=>i);closing.inventory[gameId]=Array(13).fill(1);closing.inventory[gameId][12]=0;closing.pieceSupply[gameId].remaining.fill(0);closing.pieceSupply[gameId].remaining[12]=1;
+const finalWinner=await post({action:'redeem-universal',id:gameId,payload:{requestId:'last-winner-slot'}},closing);assert.equal(finalWinner.status,200);assert.equal(finalWinner.body.rounds[gameId].status,'ended');assert.equal(finalWinner.body.finishers[gameId][0].reward,400);assert.equal(allCompetitions(finalWinner.body).find(c=>c.id===gameId).remaining,0);
+assert.equal((await post({action:'buy-draw',id:gameId,payload:{requestId:'closed-winner-round'}},finalWinner.body)).status,400);
+const expired=structuredClone(live.body);expired.rounds[gameId].startedAt='2020-01-31T12:00:00.000Z';expired.rounds[gameId].endsAt='2020-02-29T12:00:00.000Z';assert.equal((await post({action:'buy-draw',id:gameId,payload:{requestId:'expired-piece-draw'}},expired)).status,400);
 assert.equal(oneMonthAfter('2026-01-31T12:34:00.000Z'),'2026-02-28T12:34:00.000Z');assert.equal(oneMonthAfter('2028-01-31T12:34:00.000Z'),'2028-02-29T12:34:00.000Z');
-for(let total=10;total<=50;total++){const f=fragmentLayout(total);assert.equal(f.length,total);assert.ok(Math.abs(f.reduce((sum,p)=>sum+p.width*p.height,0)-1)<1e-10);for(let i=0;i<f.length;i++){const a=f[i];assert.ok(a.x>=0&&a.y>=0&&a.x+a.width<=1.00000001&&a.y+a.height<=1.00000001);for(let j=i+1;j<f.length;j++){const b=f[j];assert.ok(Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x)<=1e-10||Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y)<=1e-10)}}}
-console.log('Passed: listing removes ownership, cancellation restores it, sale transfers ownership with exact 0.5% fee, sale retry protection, creator launch fee tiers and validation, sequential registration queue, full-registration start, one-calendar-month expiry, and exact fragment coverage for every count 10–50.');
+let example={...structuredClone(initialState),ownerId:'example-player',boards:{},balance:0};
+example=applyDemoAction(example,'launch',undefined,undefined,{...launchPayload,total:20,capacity:100,winners:2,requestId:'example-100-player-round'});
+const exampleId=example.createdCompetitions[0].id;
+example=applyDemoAction(example,'fill-demo-registration');example=applyDemoAction(example,'fill-demo-registration');example=applyDemoAction(example,'join',exampleId);assert.equal(example.balance,10000);assert.equal(example.pieceSupply[exampleId].remaining.reduce((a,b)=>a+b),2000);
+example=applyDemoAction(example,'fill-demo-registration');
+for(let i=0;i<20;i++)example=applyDemoAction(example,'buy-draw',exampleId,undefined,{requestId:`example-paid-draw-${i}`});
+assert.equal(example.balance,0);assert.equal(example.inventory[exampleId].reduce((a,b)=>a+b),20);assert.equal(example.pieceSupply[exampleId].remaining.reduce((a,b)=>a+b),1980);assert.ok(isDemoState(example));
+const stock=Array(20).fill(100),distributed=Array(20).fill(0);for(let i=0;i<2000;i++){const index=drawCopy(stock,()=>0);stock[index]--;distributed[index]++}assert.deepEqual(distributed,Array(20).fill(100));assert.throws(()=>drawCopy(stock,()=>0));
+const bad=structuredClone(example);bad.inventory[exampleId][0]=-1;assert.equal(isDemoState(bad),false);const badStock=structuredClone(example);badStock.pieceSupply[exampleId].remaining[0]=101;assert.equal(isDemoState(badStock),false);
+console.log('Passed: creator launch rules, queue ordering, one-month expiry, first-completion prize settlement, winner-limit closure, 100x20 supply and exactly 10,000 r/ for 20 paid draws.');
 
-const afterSaleSwap=await post({action:'swap',payload:{amount:1100,requestId:'swap-after-kobo-sale'}},lowSold.body);assert.equal(afterSaleSwap.status,200);assert.equal(afterSaleSwap.body.earnings,seller.earnings+597.5);
-const oddListing=await post({action:'list-piece',id:'night-bloom',index:0,payload:{price:501,requestId:'listing-round-fee-test',ownerName:'Seller'}},seller);const oddSold=await post({action:'settle-sale',payload:{listingId:'listing-round-fee-test',buyerId:'buyer-account'}},oddListing.body);assert.equal(oddSold.status,200);assert.equal(oddSold.body.earnings,seller.earnings+498.49,'Half-kobo seller fee rounds once to nearest kobo');
-
-// Universal Piece redemptions reveal exactly one new fragment without spending money.
-const universalBefore=structuredClone(seed);
-const reveal=await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-redemption-1'}},universalBefore);
-assert.equal(reveal.status,200);assert.equal(reveal.body.universal,seed.universal-1);
-assert.equal(reveal.body.boards['night-bloom'].length,seed.boards['night-bloom'].length+1);
-assert.equal(reveal.body.cash,seed.cash);assert.equal(reveal.body.balance,seed.balance);assert.equal(reveal.body.earnings,seed.earnings);
-const newFragment=reveal.body.boards['night-bloom'].find(i=>!seed.boards['night-bloom'].includes(i));assert.ok([3,7,10,11].includes(newFragment));assert.ok(isDemoState(reveal.body));assert.deepEqual(seed,universalBefore);
-assert.deepEqual((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-redemption-1'}},reveal.body)).body,reveal.body,'Retry must not consume another Universal Piece');
-assert.equal((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-no-balance'}},reveal.body)).status,400);
-for(const requestId of [undefined,'short','x'.repeat(81)])assert.equal((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId}})).status,400);
-assert.equal((await post({action:'redeem-universal',id:'missing',payload:{requestId:'universal-invalid-game'}})).status,400);
-assert.equal((await post({action:'redeem-universal',id:'harbour-lights',payload:{requestId:'universal-unjoined-game'}})).status,400);
-assert.equal((await post({action:'redeem-universal',id:'harbour-lights',payload:{requestId:'universal-waiting-game'}},joined.body)).status,400);
-const almostComplete=structuredClone(seed);almostComplete.boards['night-bloom']=Array.from({length:12},(_,i)=>i).filter(i=>i!==7);
-const lastFragment=await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-last-fragment'}},almostComplete);assert.equal(lastFragment.status,200);assert.ok(lastFragment.body.boards['night-bloom'].includes(7));assert.equal(new Set(lastFragment.body.boards['night-bloom']).size,12);
-const completed={...lastFragment.body,universal:1};assert.equal((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-complete-board'}},completed)).status,400);
-const listedOnly=await post({action:'list-piece',id:'night-bloom',index:7,payload:{price:1000,requestId:'universal-exclusion-listing',ownerName:'Player'}},completed);
-assert.equal(listedOnly.status,200);assert.equal((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-listed-only'}},listedOnly.body)).status,400,'Listed fragments cannot be duplicated through a Universal Piece');
-const endedUniversal=structuredClone(seed);endedUniversal.rounds={...(endedUniversal.rounds??{}),'night-bloom':{joined:150,status:'ended',startedAt:'2020-01-01T00:00:00.000Z',endsAt:'2020-02-01T00:00:00.000Z'}};assert.equal((await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'universal-ended-round'}},endedUniversal)).status,400);
-console.log('Passed: Universal Piece reveals one eligible missing fragment, consumes one item, preserves money, prevents duplicates and listed-piece recovery, validates requests, respects live rounds, and protects retries.');
+// Existing local accounts reserve their copies once before new shared draws.
+const {hydrateWorld,worldSnapshot,WORLD_KEY}=await import('../lib/demo-world.ts');
+const storedWallets=new Map([
+ ['ryvo-account-wallet:legacy-a',JSON.stringify({...structuredClone(initialState),ownerId:'legacy-a'})],
+ ['ryvo-account-wallet:legacy-b',JSON.stringify({...structuredClone(initialState),ownerId:'legacy-b'})]
+]);
+globalThis.localStorage={get length(){return storedWallets.size},key:index=>[...storedWallets.keys()][index]??null,getItem:key=>storedWallets.get(key)??null};
+const fresh={...structuredClone(initialState),ownerId:'new-player',boards:{}};
+const migratedWorld=hydrateWorld(fresh),legacyGame=allCompetitions(fresh).find(game=>game.id==='night-bloom');
+for(const slot of initialState.boards['night-bloom'])assert.equal(migratedWorld.pieceSupply['night-bloom'].remaining[slot],legacyGame.capacity-2);
+storedWallets.set(WORLD_KEY,worldSnapshot(migratedWorld));
+assert.deepEqual(hydrateWorld(migratedWorld).pieceSupply,migratedWorld.pieceSupply,'Shared legacy copies must not be reserved twice');
+delete globalThis.localStorage;
+console.log('Passed: all existing local wallets reserve legacy copies once in the shared finite supply.');
