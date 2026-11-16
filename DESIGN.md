@@ -38,3 +38,9 @@ Collection, board and app route fallbacks use the actual Ryvo logo centered on a
 ## Surface refinements
 
 Product boxes and text inputs are borderless; focus uses tonal keyboard feedback, with no green ring around amount fields; selected digits use a muted purple highlight. P2P does not show demo-cash balances. How-to-play is a pill, the landing drawer has room after the logo and before Get started, and the guide playbook uses open rows. Notifications use a grouped, borderless feed with actual activity, read filters and reversible clearing saved per browser account.
+
+## Dropdowns and back navigation
+
+All product selects use the shared `RyvoSelect` component, built on Base UI. Use borderless dark rounded popup cards, a tonal selected row, green check mark, keyboard/typeahead support, Escape/outside-tap dismissal and viewport-aware placement. Inside native wallet dialogs, portal the menu into that dialog so it stays in the top layer. Never introduce a device-native visible select in player, merchant or future admin screens.
+
+All back controls use a soft pink tint from Ryvo’s palette. Onboarding has one footer Back control beneath its primary action on each step; remove the duplicate above the progress indicator. Keep authentication and other app back controls in their existing locations.
