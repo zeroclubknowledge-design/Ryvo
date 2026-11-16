@@ -58,3 +58,7 @@ Landing drawer exit takes 380ms and delays visibility hiding until the slide com
 A paid creator launch opens its own registration immediately. Multiple competitions can register players at the same time. Previously queued records migrate to open registration without resetting payment or join counts. Each competition’s one-month play clock still starts only when its own capacity fills. No queue or next-registration handoff remains in the player/creator copy. Demo fill controls target an individual competition. Creation confirmation offers a copyable collection link, labelled as browser-local demo sharing.
 
 The home creator panel uses the exact selected Create purple (#6338bc), with light text and a dark purple action. Featured art shows the full shared winner prize pool at top right; compact challenge rows show it beside View challenge. Amounts come from each competition’s prize field, not registration revenue or a made-up figure.
+
+## Supabase transition
+
+Public copy uses Start playing and removes browser-simulation claims. Hero: Your race to in soft Ryvo pink, Complete it in green. Supabase owns identity; published competitions, wallet balances, entries and boards come from protected database reads. Never import local prototype balances or progress into real accounts. Payment and game mutations stay unavailable until verified server operations exist. Missing data renders an explicit retry state, not a sample balance.

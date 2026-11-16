@@ -1,42 +1,83 @@
 "use client";
+
 import { RyvoSelect } from "@/components/ryvo-select";
+
 import Image from "next/image";
+
 import Link from "next/link";
+
 import { BackButton, BackLink } from "@/components/back-button";
+
 import { useEffect, useRef, useState, type ReactNode } from "react";
+
 import { useRouter } from "next/navigation";
+
 import { Artwork, Icon } from "@/components/collection-art";
-import { useDemoAccount } from "@/components/account-pages";
+
+
+
 export function LandingFrame({children,active}:{children:ReactNode;active?:string}){
+
  const [menu,setMenu]=useState(false);
+
  const menuButton=useRef<HTMLButtonElement>(null);
+
  useEffect(()=>{
+
   const mobile=window.matchMedia("(max-width:700px)");
+
   if(!menu||!mobile.matches)return;
+
   const body=document.body,scrollY=window.scrollY,trigger=menuButton.current;
+
   const previous={position:body.style.position,top:body.style.top,width:body.style.width,overflow:body.style.overflow};
+
   Object.assign(body.style,{position:"fixed",top:`-${scrollY}px`,width:"100%",overflow:"hidden"});
+
   const links=Array.from(document.querySelectorAll<HTMLAnchorElement>("#landing-navigation a"));
+
   links[0]?.focus({preventScroll:true});
+
   const onKey=(e:KeyboardEvent)=>{
+
    if(e.key==="Escape"){e.preventDefault();setMenu(false)}
+
    if(e.key==="Tab"&&links.length){const first=links[0],last=links[links.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}
+
   };
+
   document.addEventListener("keydown",onKey);
+
   const onResize=()=>setMenu(false);
+
   mobile.addEventListener("change",onResize);
+
   return()=>{document.removeEventListener("keydown",onKey);mobile.removeEventListener("change",onResize);Object.assign(body.style,previous);window.scrollTo({top:scrollY,behavior:"instant"});trigger?.focus({preventScroll:true})};
+
  },[menu]);
- return <div className={`landing ${menu?"menu-open":""}`}><aside aria-label="Landing navigation" aria-hidden={!menu} inert={!menu} id="landing-navigation" className={`landing-sidebar ${menu?"open":""}`}><Link href="/" className="wordmark"><Image src="/ryvo-logo.png" alt="" width={52} height={52}/><span>Ryvo</span></Link><p className="eyebrow">YOUR NEXT ROUND STARTS HERE</p><nav>{[["/discover","Discover","01"],["/how-it-works","How it works","02"],["/ryvo-credit","RYVO Credit","03"],["/ryvo-token","RYVO Token","04"]].map(([href,label,n])=><Link href={href} key={href} prefetch aria-current={active===href?"page":undefined} onClick={()=>setMenu(false)}>{label}<span>{n}</span></Link>)}<Link href="/explore">Play the demo ↗</Link></nav><div className="landing-sidebar-bottom"><span>✳</span><p>Find your pieces.<br/>Finish your board.</p><Link href="/onboarding" className="primary">Get started <Icon name="arrow"/></Link><small>Collect. Connect. Complete.</small></div></aside><button type="button" className="landing-scrim" tabIndex={-1} aria-hidden="true" onClick={()=>setMenu(false)}/><div className="landing-body"><header className="landing-header"><button ref={menuButton} aria-label="Open landing navigation" aria-expanded={menu} aria-controls="landing-navigation" onClick={()=>setMenu(true)}><Icon name="menu"/></button><Link href="/" className="wordmark landing-top-brand"><Image src="/ryvo-logo.png" alt="" width={36} height={36}/><span>Ryvo</span></Link><nav className="landing-top-links" aria-label="Explore Ryvo"><Link href="/discover">Discover</Link><Link href="/how-it-works">How it works</Link><Link href="/ryvo-credit">RYVO Credit</Link><Link href="/ryvo-token">RYVO Token</Link></nav><Link href="/explore">Play the demo <Icon name="arrow" size={17}/></Link></header>{children}<footer className="landing-footer"><span>© 2026 Ryvo</span><span>One board. Your next challenge.</span><Link href="/explore">Play the demo ↗</Link></footer></div></div>
+
+ return <div className={`landing ${menu?"menu-open":""}`}><aside aria-label="Landing navigation" aria-hidden={!menu} inert={!menu} id="landing-navigation" className={`landing-sidebar ${menu?"open":""}`}><Link href="/" className="wordmark"><Image src="/ryvo-logo.png" alt="" width={52} height={52}/><span>Ryvo</span></Link><p className="eyebrow">YOUR NEXT ROUND STARTS HERE</p><nav>{[["/discover","Discover","01"],["/how-it-works","How it works","02"],["/ryvo-credit","RYVO Credit","03"],["/ryvo-token","RYVO Token","04"]].map(([href,label,n])=><Link href={href} key={href} prefetch aria-current={active===href?"page":undefined} onClick={()=>setMenu(false)}>{label}<span>{n}</span></Link>)}<Link href="/explore">Start playing ↗</Link></nav><div className="landing-sidebar-bottom"><span>✳</span><p>Find your pieces.<br/>Finish your board.</p><Link href="/onboarding" className="primary">Get started <Icon name="arrow"/></Link><small>Collect. Connect. Complete.</small></div></aside><button type="button" className="landing-scrim" tabIndex={-1} aria-hidden="true" onClick={()=>setMenu(false)}/><div className="landing-body"><header className="landing-header"><button ref={menuButton} aria-label="Open landing navigation" aria-expanded={menu} aria-controls="landing-navigation" onClick={()=>setMenu(true)}><Icon name="menu"/></button><Link href="/" className="wordmark landing-top-brand"><Image src="/ryvo-logo.png" alt="" width={36} height={36}/><span>Ryvo</span></Link><nav className="landing-top-links" aria-label="Explore Ryvo"><Link href="/discover">Discover</Link><Link href="/how-it-works">How it works</Link><Link href="/ryvo-credit">RYVO Credit</Link><Link href="/ryvo-token">RYVO Token</Link></nav><Link href="/explore">Start playing <Icon name="arrow" size={17}/></Link></header>{children}<footer className="landing-footer"><span>© 2026 Ryvo</span><span>One board. Your next challenge.</span><Link href="/explore">Start playing ↗</Link></footer></div></div>
+
 }
+
 export function LandingPage(){return <LandingFrame>
- <section className="ryvo-hero"><span className="ryvo-hero-watermark" aria-hidden>RYVO</span><div className="ryvo-hero-copy"><h1>ONE ARTWORK.<br/><em>YOUR RACE TO COMPLETE IT.</em></h1><p>Collect the pieces. Trade your extras. Be one of the first to complete your board and share the prize.</p><div className="ryvo-hero-actions"><Link className="primary" href="/onboarding">Start playing <Icon name="arrow" size={18}/></Link><Link className="secondary" href="/explore">Explore challenges</Link></div><small>A collectible board game. All payments are simulated in this demo.</small></div><div className="ryvo-hero-art"><Artwork theme="explorer"/><div className="hero-art-caption"><span>THE OTHER SIDE</span><b>12 pieces. One complete picture.</b><Link href="/collection/harbour-lights" aria-label="Explore The Other Side"><Icon name="arrow"/></Link></div></div></section>
+
+ <section className="ryvo-hero"><span className="ryvo-hero-watermark" aria-hidden>RYVO</span><div className="ryvo-hero-copy"><h1>ONE ARTWORK.<br/><em><span className="hero-race-pink">YOUR RACE TO</span> COMPLETE IT.</em></h1><p>Collect the pieces. Trade your extras. Be one of the first to complete your board and share the prize.</p><div className="ryvo-hero-actions"><Link className="primary" href="/onboarding">Start playing <Icon name="arrow" size={18}/></Link><Link className="secondary" href="/explore">Explore challenges</Link></div></div><div className="ryvo-hero-art"><Artwork theme="explorer"/><div className="hero-art-caption"><span>THE OTHER SIDE</span><b>12 pieces. One complete picture.</b><Link href="/collection/harbour-lights" aria-label="Explore The Other Side"><Icon name="arrow"/></Link></div></div></section>
+
  <section className="ryvo-play-section"><div className="ryvo-section-title"><h2>MORE THAN<br/>A COLLECTION.</h2><p>Every artwork is a race. Every piece is a move. Your board is yours to complete.</p></div><div className="ryvo-feature-grid"><Link className="ryvo-feature-tile tile-board" href="/how-it-works"><h3>THE PICTURE<br/>COMES TOGETHER.</h3><div className="landing-live-board"><Artwork theme="bloom"/><div>{Array.from({length:12},(_,i)=><i key={i} className={[2,6,9].includes(i)?"missing":""}/>)}</div></div><p>Draw pieces, keep the ones you need, and find a place for every fragment.</p><Icon name="arrow"/></Link><Link className="ryvo-feature-tile tile-trade" href="/discover"><h3>EXTRA PIECES.<br/>NEW POSSIBILITIES.</h3><div className="landing-trade-preview"><div><Artwork theme="explorer"/><b>Piece #04<small>Available to trade</small></b><Icon name="arrow" size={19}/></div><div><Artwork theme="bloom"/><b>Piece #09<small>Find your missing piece</small></b><Icon name="arrow" size={19}/></div></div><p>List your duplicates at your price. Trade with players in your competition.</p><Icon name="arrow"/></Link><Link className="ryvo-feature-tile tile-create" href="/create"><Image src="/ryvo-logo.png" alt="" width={48} height={48}/><h3>YOUR ART.<br/>EVERYONE’S NEXT GAME.</h3><p>Choose 10–50 pieces, set the player count, and open registration immediately.</p><span>Create a challenge <Icon name="arrow" size={19}/></span></Link><Link className="ryvo-feature-tile tile-invite" href="/referrals"><h3>BRING YOUR SQUAD.<br/>SHARE THE REWARDS.</h3><p>Earn 50% on eligible referred entry payments during Ryvo’s first 10,000-player phase.</p><span>See referral rewards <Icon name="arrow" size={19}/></span></Link></div></section>
+
  <section className="ryvo-how-section"><div className="ryvo-section-title"><h2>THREE MOVES.<br/>ONE COMPLETE BOARD.</h2></div><div>{[["01","Join the round","Register in naira and receive equivalent RYVO credit. Play unlocks when all player places fill."],["02","Find your pieces","Open random pieces with RYVO credit. Duplicates happen — keep them or put them up for sale."],["03","Finish first","Trade for missing types and complete your board within the one-month round to race for a winner slot."]].map(([n,t,d])=><article key={n}><span>{n}</span><h3>{t}</h3><p>{d}</p></article>)}</div></section>
+
  <section className="ryvo-final"><Image src="/ryvo-logo.png" alt="" width={66} height={66}/><h2>THE NEXT MOVE<br/>IS YOURS.</h2><p>A new challenge. A blank board. A race worth playing.</p><Link className="primary" href="/onboarding">Get in the game <Icon name="arrow"/></Link></section>
+
  </LandingFrame>}
+
 export function OnboardingPage(){
- const [step,setStep]=useState(0),[name,setName]=useState(""),[username,setUsername]=useState(""),[interest,setInterest]=useState("3D Art"),[error,setError]=useState("");const account=useDemoAccount();const router=useRouter();
- const next=()=>{setError("");if(step===1){if(name.trim().length<2||name.trim().length>50||!/^[a-z0-9_.]{3,24}$/.test(username)){setError("Enter a name and a username with 3–24 lowercase letters, numbers, dots or underscores.");return}}if(step<2){setStep(step+1);return}try{account.saveProfile({name:name.trim(),username,bio:`Exploring ${interest.toLowerCase()}, one piece at a time.`});localStorage.setItem("ryvo-onboarded","true");router.push("/signup")}catch{setError("Please allow browser storage to save your demo profile.")}};
- return <div className="onboarding"><section className="onboarding-art"><Artwork theme={step===2?"bloom":"explorer"}/><Link href="/" className="wordmark"><Image src="/ryvo-logo.png" alt="" width={48} height={48}/><span>Ryvo</span></Link><div><p className="eyebrow">PLAYER SETUP</p><h2>{step===0?<>Every game<br/>starts with a player.</>:step===1?<>Pick your name.<br/>Make your mark.</>:<>Your first round<br/>is waiting.</>}</h2><span>✳</span></div></section><section className="onboarding-form"><div className="onboarding-progress" aria-label={`Step ${step+1} of 3`}>{[0,1,2].map(i=><span className={i<=step?"active":""} key={i}/>)}</div><form onSubmit={e=>{e.preventDefault();next()}}><p className="eyebrow">0{step+1} / 03 · {step===0?"WELCOME":step===1?"MAKE IT PERSONAL":"YOUR FIRST MOVE"}</p><h1>{step===0?"Your next challenge awaits.":step===1?"Create your player profile.":"You’re ready to play."}</h1><p className="onboarding-intro">{step===0?"Choose a competition, collect its pieces and race to complete your board.":step===1?"Choose the player name that appears on your profile and the leaderboard.":"Next, create your player account or sign in. Then pick a competition and make your first move."}</p>{step===0?<div className="onboarding-benefits">{[["explore","Choose your first challenge"],["boards","Complete your board, piece by piece"],["wallet","Fuel your game with RYVO"]].map(([i,t])=><div key={i}><span><Icon name={i}/></span><b>{t}</b><Icon name="check" size={17}/></div>)}</div>:step===1?<div className="onboarding-fields"><label>Your name<input autoComplete="name" placeholder="What should we call you?" maxLength={50} required value={name} onChange={e=>setName(e.target.value)}/></label><label>Username<input autoComplete="username" placeholder="your.collector.name" pattern="[a-z0-9_.]{3,24}" required value={username} onChange={e=>setUsername(e.target.value.toLowerCase())}/><small>3–24 letters, numbers, dots or underscores.</small></label><label>What catches your eye?<RyvoSelect label="What catches your eye?" value={interest} onValueChange={setInterest} options={["3D Art","Abstract","Digital Art"].map(value=>({value,label:value}))}/></label></div>:<div className="onboarding-ready"><span className="currency-symbol">r/</span><h3>Your demo wallet is waiting.</h3><p>Welcome credit, ₦100,000 in demo spending money and your first Universal Piece. Your existing progress stays with you.</p><div><b>Fund → Collect → Complete</b><span>All payments are simulated.</span></div></div>}{error&&<p className="error" role="alert">{error}</p>}<button className="primary" type="submit">{step===0?"Let’s get started":step===1?"Continue":"Create my account"}<Icon name="arrow"/></button>{step>0?<BackButton className="onboarding-step-back" ariaLabel="Back to previous step" onClick={()=>setStep(step-1)}/>:<BackLink href="/" className="onboarding-step-back" ariaLabel="Back to Ryvo"/>}<p className="onboarding-demo-note">Demo profile saved in this browser. No password or real bank details needed.</p></form><Link href="/explore" className="onboarding-skip">Already exploring? Return to the demo ↗</Link></section></div>
+
+ const [step,setStep]=useState(0),[name,setName]=useState(""),[username,setUsername]=useState(""),[interest,setInterest]=useState("3D Art"),[error,setError]=useState("");const router=useRouter();
+
+ const next=()=>{setError("");if(step===1){if(name.trim().length<2||name.trim().length>50||!/^[a-z0-9_.]{3,24}$/.test(username)){setError("Enter a name and a username with 3–24 lowercase letters, numbers, dots or underscores.");return}}if(step<2){setStep(step+1);return}try{sessionStorage.setItem("ryvo-onboarding-draft",JSON.stringify({name:name.trim(),username,interest}));router.push("/signup")}catch{setError("Please allow browser storage to continue.")}};
+
+ return <div className="onboarding"><section className="onboarding-art"><Artwork theme={step===2?"bloom":"explorer"}/><Link href="/" className="wordmark"><Image src="/ryvo-logo.png" alt="" width={48} height={48}/><span>Ryvo</span></Link><div><p className="eyebrow">PLAYER SETUP</p><h2>{step===0?<>Every game<br/>starts with a player.</>:step===1?<>Pick your name.<br/>Make your mark.</>:<>Your first round<br/>is waiting.</>}</h2><span>✳</span></div></section><section className="onboarding-form"><div className="onboarding-progress" aria-label={`Step ${step+1} of 3`}>{[0,1,2].map(i=><span className={i<=step?"active":""} key={i}/>)}</div><form onSubmit={e=>{e.preventDefault();next()}}><p className="eyebrow">0{step+1} / 03 · {step===0?"WELCOME":step===1?"MAKE IT PERSONAL":"YOUR FIRST MOVE"}</p><h1>{step===0?"Your next challenge awaits.":step===1?"Create your player profile.":"You’re ready to play."}</h1><p className="onboarding-intro">{step===0?"Choose a competition, collect its pieces and race to complete your board.":step===1?"Choose the player name that appears on your profile and the leaderboard.":"Next, create your player account or sign in. Then pick a competition and make your first move."}</p>{step===0?<div className="onboarding-benefits">{[["explore","Choose your first challenge"],["boards","Complete your board, piece by piece"],["wallet","Fuel your game with RYVO"]].map(([i,t])=><div key={i}><span><Icon name={i}/></span><b>{t}</b><Icon name="check" size={17}/></div>)}</div>:step===1?<div className="onboarding-fields"><label>Your name<input autoComplete="name" placeholder="What should we call you?" maxLength={50} required value={name} onChange={e=>setName(e.target.value)}/></label><label>Username<input autoComplete="username" placeholder="your.collector.name" pattern="[a-z0-9_.]{3,24}" required value={username} onChange={e=>setUsername(e.target.value.toLowerCase())}/><small>3–24 letters, numbers, dots or underscores.</small></label><label>What catches your eye?<RyvoSelect label="What catches your eye?" value={interest} onValueChange={setInterest} options={["3D Art","Abstract","Digital Art"].map(value=>({value,label:value}))}/></label></div>:<div className="onboarding-ready"><span className="currency-symbol">r/</span><h3>Your next challenge is waiting.</h3><p>Create your player account, discover new artwork and find a competition to make your first move.</p><div><b>Fund → Collect → Complete</b><span>Your account. Your boards. Your game.</span></div></div>}{error&&<p className="error" role="alert">{error}</p>}<button className="primary" type="submit">{step===0?"Let’s get started":step===1?"Continue":"Create my account"}<Icon name="arrow"/></button>{step>0?<BackButton className="onboarding-step-back" ariaLabel="Back to previous step" onClick={()=>setStep(step-1)}/>:<BackLink href="/" className="onboarding-step-back" ariaLabel="Back to Ryvo"/>}</form><Link href="/explore" className="onboarding-skip">Already exploring? Explore challenges ↗</Link></section></div>
+
 }
