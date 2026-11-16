@@ -62,3 +62,11 @@ The home creator panel uses the exact selected Create purple (#6338bc), with lig
 ## Supabase transition
 
 Public copy uses Start playing and removes browser-simulation claims. Hero: Your race to in soft Ryvo pink, Complete it in green. Supabase owns identity; published competitions, wallet balances, entries and boards come from protected database reads. Never import local prototype balances or progress into real accounts. Payment and game mutations stay unavailable until verified server operations exist. Missing data renders an explicit retry state, not a sample balance.
+
+## Merchant and admin surfaces
+
+Merchant studio lives at `/merchant`, with Orders, Credit stock and Your offer. The admin control room lives at `/admin`, with merchant approval, payment review, wholesale, competitions, players, audit and settings. Both are Operate surfaces inheriting the player design system: Montserrat, black canvas, neutral borderless panels, pink secondary banner actions, green merchant selection and purple admin selection. Desktop uses compact horizontal navigation; mobile uses a floating taskbar with a custom More menu for additional admin pages. No sidebar is introduced.
+
+Use actual scoped Supabase records. Empty and inaccessible workspaces remain designed states, with no fictional transaction or revenue charts. Bank receipt confirmation has a distinct verification form and explicit amount/reference requirements. Stock and player credit balances remain separate.
+
+Restore decorative artwork banners on player Explore, Boards, Wallet, P2P and Notifications with the existing explorer, bloom and chrome artwork. Keep competition data and competition cards independent of these banners. Share the SceneBanner component with operational entry and overview pages. Keep text sharp over a local dark artwork scrim, and blur only the fixed navigation backdrop.

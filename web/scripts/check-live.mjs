@@ -2,7 +2,7 @@ const base = process.env.RYVO_TEST_URL || 'http://localhost:3014';
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 const retired = await fetch(`${base}/api/demo`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'fund',state:{balance:1000000}})});
 assert(retired.status === 410, 'Browser-supplied wallet mutations must be rejected.');
-for (const route of ['/', '/signup', '/signin', '/onboarding', '/wallet', '/explore', '/discover', '/ryvo-credit', '/ryvo-token']) {
+for (const route of ['/', '/signup', '/signin', '/onboarding', '/wallet', '/explore', '/discover', '/ryvo-credit', '/ryvo-token', '/merchant', '/merchant/orders', '/merchant/stock', '/merchant/offer', '/admin', '/admin/merchants', '/admin/orders', '/admin/stock', '/admin/competitions', '/admin/players', '/admin/audit', '/admin/settings']) {
  const response = await fetch(`${base}${route}`);
  assert(response.ok, `${route} must load.`);
  const html = await response.text();
