@@ -21,7 +21,7 @@
 .ryvo-loader-center { display:grid; place-items:center; position:relative; }
 .ryvo-loader-logo { width:clamp(112px,15vw,164px); height:auto; overflow:visible; }
 .ryvo-loader-outline { opacity:.16; }
-.ryvo-loader-ink { animation-duration:1080ms; animation-timing-function:linear; animation-iteration-count:infinite; }
+.ryvo-loader-ink { animation-duration:1080ms; animation-timing-function:linear; animation-iteration-count:infinite; animation-play-state:paused; }
 .ryvo-loader-top { animation-name:ryvoInkTop; }
 .ryvo-loader-middle { animation-name:ryvoInkMiddle; }
 .ryvo-loader-green { animation-name:ryvoInkGreen; }
@@ -46,3 +46,5 @@
 @media(prefers-reduced-motion:reduce) {
  .ryvo-loader-ink { animation:none; clip-path:inset(0); opacity:1; }
 }
+
+.ryvo-loader.is-ready .ryvo-loader-ink { animation-play-state:running; }

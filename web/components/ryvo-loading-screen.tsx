@@ -1,15 +1,25 @@
-import { useId } from "react";
+"use client";
+import { useEffect, useId, useState } from "react";
 import { getImageProps } from "next/image";
 
 /** Pure CSS feedback: Suspense can replace it immediately, at any point in the cycle. */
-export function RyvoLoadingScreen({label="Loading your next move"}:{label?:string}) {
+export function RyvoLoadingScreen({label="Loading your next move",onReady}:{label?:string;onReady?:()=>void}) {
+ const [loaded,setLoaded]=useState(false);
  const id=useId().replaceAll(":","");
  const {props:logo}=getImageProps({src:"/ryvo-logo.png",alt:"",width:192,height:192});
+ useEffect(()=>{
+  let active=true;
+  const image=new window.Image();
+  const ready=()=>{if(active){setLoaded(true);onReady?.()}};
+  image.onload=ready;image.onerror=ready;image.src=logo.src;
+  if(image.complete)ready();
+  return()=>{active=false;image.onload=null;image.onerror=null};
+ },[logo.src,onReady]);
  // The three clips follow the exposed edges of the original, overlapping logo shapes.
  const top="M0 0H1600V510H1120L1080 520L800 640L775 590L730 568L0 710Z";
  const green="M0 1220L385 1110L495 825L550 805L1075 1005L1100 1050L1070 1095L1600 1310V1600H0Z";
  const middle="M0 710L730 568L775 590L800 640L1080 520L1120 510H1600V1310L1070 1095L1100 1050L1075 1005L550 805L495 825L385 1110L0 1220Z";
- return <div className="ryvo-loader" role="status" aria-live="polite" aria-label={label}>
+ return <div className={`ryvo-loader ${loaded?"is-ready":""}`} role="status" aria-live="polite" aria-label={label}>
   <span className="ryvo-loader-label">{label}</span>
   <div className="ryvo-loader-center" aria-hidden="true">
    <svg className="ryvo-loader-logo" viewBox="160 170 1240 1340" focusable="false">

@@ -33,4 +33,8 @@ Register in naira and receive 10 r/ per ₦1. Boards start empty; draws and trad
 
 ## Loading feedback
 
-Collection, board and app route fallbacks use the actual Ryvo logo centered on a dark ambient pink/green background. Ink fills pink left-to-right, charcoal right-to-left, then green left-to-right in a 720ms pass within a 1,080ms cycle. Use CSS clip-path animation with a static full logo for reduced motion. Announce a descriptive loading status to assistive technology without visible opening text. Use the optimized logo source, and never impose a minimum loading time or delay ready content.
+Collection, board and app route fallbacks use the actual Ryvo logo centered on a dark ambient pink/green background. Ink fills pink left-to-right, charcoal right-to-left, then green left-to-right in a 720ms pass within a 1,080ms cycle. Use CSS clip-path animation with a static full logo for reduced motion. Announce a descriptive loading status to assistive technology without visible opening text. Use the optimized logo source, and keep non-collection navigation immediate. Collection and board entries now show a single 950ms opening overlay after the optimized logo is ready so the requested logo pass is visible even after prefetch; reduced-motion users skip that hold.
+
+## Surface refinements
+
+Product boxes and text inputs are borderless; focus uses tonal keyboard feedback, with no green ring around amount fields; selected digits use a muted purple highlight. P2P does not show demo-cash balances. How-to-play is a pill, the landing drawer has room after the logo and before Get started, and the guide playbook uses open rows. Notifications use a grouped, borderless feed with actual activity, read filters and reversible clearing saved per browser account.

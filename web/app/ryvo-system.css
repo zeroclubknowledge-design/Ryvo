@@ -95,3 +95,59 @@ button,a { touch-action:manipulation; }
 .ryvo-feature-tile h3:first-child { margin-top:0; }
 .profile-page .profile-identity { background:#121411; border:0; box-shadow:none; }
 .auth-panel h1,.auth-art-copy h2 { font-weight:800; letter-spacing:-.04em; }
+/* Borderless product surfaces. Keep keyboard focus through a tonal state, not a ring. */
+:is(.app-shell,.landing,.auth-page,.onboarding) :where(*) { border-color:transparent !important; }
+:is(.app-shell,.landing,.auth-page,.onboarding) :is(input,select,textarea,button,a,dialog,section,article,form):focus,
+:is(.app-shell,.landing,.auth-page,.onboarding) :is(input,select,textarea,button,a,dialog,section,article,form):focus-visible,
+.app-shell .collection-card:focus-within { outline:none !important; box-shadow:none !important; }
+:is(.app-shell,.landing,.auth-page,.onboarding) :is(button,a):focus-visible { background-color:#27391b; color:#e9f8dc; }
+:is(.app-shell,.landing,.auth-page,.onboarding) :is(input,select,textarea) { outline:none !important; }
+.app-shell .amount-input-wrap { border:0; border-radius:14px; overflow:hidden; }
+.app-shell .amount-input-wrap input,.app-shell .amount-input-wrap input:focus,.app-shell .amount-input-wrap input:focus-visible { background:transparent !important; border:0 !important; border-radius:0; outline:none !important; box-shadow:none !important; }
+.app-shell :is(.fund-order-summary,.p2p-banner,.p2p-banner-balance,.wallet-modal) { border:0; }
+.play-home-heading>button { background:#181c15; border-radius:999px; padding:11px 16px; color:#e2e9dc; min-height:42px; }
+.landing .landing-sidebar>nav { margin-top:36px; }
+.landing .landing-sidebar-bottom>p { margin-bottom:0; }
+.landing .landing-sidebar-bottom>.primary { margin-top:25px; }
+.landing .guide-playbook article { background:transparent; border:0; box-shadow:none; }
+/* Notifications: open feed, date groups, quiet icons and readable transaction amounts. */
+.notification-feed .page-heading { margin-bottom:28px; }
+.notification-feed .page-heading h1 { font-size:clamp(32px,4vw,44px); }
+.notification-feed .notification-filter-tabs { display:flex; gap:10px; overflow-x:auto; margin:0 0 17px; padding:0; }
+.notification-feed .notification-filter-tabs>button { white-space:nowrap; border:0; background:transparent; border-radius:999px; padding:13px 18px; min-height:44px; font-size:12px; font-weight:750; color:#a9afa3; }
+.notification-feed .notification-filter-tabs>button.active { background:#60b800; color:#0d1c02; }
+.notification-feed-actions { display:flex; justify-content:space-between; align-items:center; gap:14px; margin:0 0 28px; font-size:11px; color:#939c8b; }
+.notification-feed-actions>div { display:flex; gap:20px; }
+.notification-feed-actions button { color:#d9e4cf; min-height:40px; }
+.notification-feed-actions button:disabled { opacity:.4; }
+.notification-feed .notification-results { display:block; }
+.notification-date-heading { color:#a2ad98; font-size:12px; font-weight:700; margin:30px 0 8px; }
+.notification-feed .notification-row,.notification-feed .notification-row.unread { display:grid; grid-template-columns:24px minmax(0,1fr) 20px; align-items:start; gap:16px; padding:22px 0 30px; border:0; border-radius:0; background:transparent; box-shadow:none; }
+.notification-feed .notice-icon { width:24px; height:27px; padding-top:2px; border-radius:0; border:0; background:transparent; color:#a9b5a0; }
+.notification-feed .notice-body { display:block; min-width:0; }
+.notification-feed .notice-body h3 { display:block; color:#edf3e7; font-size:17px; font-weight:750; line-height:1.45; margin:0 0 9px; }
+.notification-feed .notice-body h3>i { display:inline-block; width:6px; height:6px; border-radius:50%; background:#b795df; margin:0 0 2px 8px; }
+.notification-feed .notice-body p { color:#a8b1a1; font-size:13px; line-height:1.85; margin:0; }
+.notification-feed .notice-body time { display:block; margin-top:15px; font-size:11px; color:#85917c; }
+.notification-feed .notice-amount { display:block; margin-top:11px; font-size:14px; font-weight:550; }
+.notification-feed .notice-amount.positive { color:#65c990; }.notification-feed .notice-amount.negative { color:#ed9ba8; }
+.notification-feed .notice-row-controls { margin:0; padding:0; }
+.notification-feed .notice-row-controls>button { background:transparent; border:0; border-radius:50%; color:#8fa77c; width:24px; height:28px; }
+.notification-undo { display:flex; gap:14px; align-items:center; color:#a0af95; font-size:12px; margin-bottom:25px; }
+.notification-undo>button { color:#bddd9f; font-weight:700; min-height:35px; }
+.notification-feed .notifications-empty { background:transparent; padding:45px 0; }
+@media(max-width:600px) {
+ .notification-feed .notification-filter-tabs { gap:5px; }
+ .notification-feed .notification-filter-tabs>button { padding:12px 16px; font-size:11px; }
+ .notification-feed-actions { font-size:10px; gap:8px; margin-bottom:22px; }
+ .notification-feed-actions>div { gap:15px; }
+ .notification-feed .notification-row,.notification-feed .notification-row.unread { gap:12px; }
+ .notification-feed .notice-body h3 { font-size:16px; }
+ .notification-feed .notice-body p { font-size:12px; }
+}
+
+.notification-feed .notice-icon { align-self:start; }
+.notification-feed .notice-body time { text-align:left; float:none; position:static; }
+.app-shell input::selection,.auth-page input::selection,.onboarding input::selection { background:#65506e; color:#fff; }
+.app-shell input[type='number'] { appearance:textfield; -moz-appearance:textfield; }
+.app-shell input[type='number']::-webkit-inner-spin-button,.app-shell input[type='number']::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
