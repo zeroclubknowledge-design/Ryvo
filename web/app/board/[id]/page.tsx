@@ -1,3 +1,4 @@
+import { RyvoLoadingScreen } from "@/components/ryvo-loading-screen";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { RyvoApp } from "@/components/ryvo-app";
@@ -8,4 +9,4 @@ async function Board({params}:{params:Promise<{id:string}>}){
  if(!competitions.some(c=>c.id===id)&&!/^custom-[a-z0-9-]{10,80}$/.test(id))notFound();
  return <RyvoApp initialView="boards" collectionId={id} boardView/>;
 }
-export default function Page(props:{params:Promise<{id:string}>}){return <Suspense fallback={<p>Opening your board…</p>}><Board {...props}/></Suspense>;}
+export default function Page(props:{params:Promise<{id:string}>}){return <Suspense fallback={<RyvoLoadingScreen label="Opening your board"/>}><Board {...props}/></Suspense>;}

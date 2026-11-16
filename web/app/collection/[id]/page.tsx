@@ -1,3 +1,4 @@
+import { RyvoLoadingScreen } from "@/components/ryvo-loading-screen";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { RyvoApp } from "@/components/ryvo-app";
@@ -9,5 +10,5 @@ async function Collection({params}:{params:Promise<{id:string}>}){
   return <RyvoApp collectionId={id}/>;
 }
 export default function Page(props:{params:Promise<{id:string}>}){
-  return <Suspense fallback={<main className="collection-loading">Opening the collection…</main>}><Collection {...props}/></Suspense>;
+  return <Suspense fallback={<RyvoLoadingScreen label="Opening the collection"/>}><Collection {...props}/></Suspense>;
 }

@@ -30,3 +30,7 @@ Build, demo regression checks and browser checks cover landing, mobile menu, dis
 ## Product rules
 
 Register in naira and receive 10 r/ per ₦1. Boards start empty; draws and trades unlock when capacity fills. A competition lasts one month. Supply equals capacity × piece types; random draws can duplicate. Listing moves one copy, and a unique slot stays filled if another copy remains owned. New player listings use RYVO; seller proceeds and simulated prizes enter naira earnings. Browser-local demo state does not authorize real payments.
+
+## Loading feedback
+
+Collection, board and app route fallbacks use the actual Ryvo logo centered on a dark ambient pink/green background. Ink fills pink left-to-right, charcoal right-to-left, then green left-to-right in a 720ms pass within a 1,080ms cycle. Use CSS clip-path animation with a static full logo for reduced motion. Announce a descriptive loading status to assistive technology without visible opening text. Use the optimized logo source, and never impose a minimum loading time or delay ready content.
