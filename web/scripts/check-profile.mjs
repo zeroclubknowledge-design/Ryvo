@@ -1,0 +1,36 @@
+import { PGlite } from '@electric-sql/pglite';
+import { readFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const db=new PGlite();
+await db.exec(`create role anon;create role authenticated;create schema auth;create schema storage;
+ create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+ create function storage.foldername(text) returns text[] language sql immutable as $$select string_to_array($1,'/')$$;
+ create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+ create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);
+ alter table storage.objects enable row level security;
+ grant usage on schema auth,storage to anon,authenticated;
+ grant execute on function auth.uid(),storage.foldername(text) to anon,authenticated;
+ grant insert,select,delete on storage.objects to authenticated;`);
+const sql=await readFile(new URL('../../supabase/migrations/202611160003_profile_photos.sql',import.meta.url),'utf8');
+await db.exec(sql);await db.exec(sql);
+const owner='00000000-0000-4000-8000-000000000001',other='00000000-0000-4000-8000-000000000002';
+async function as(id,fn){await db.exec('set role authenticated');await db.query(`select set_config('request.jwt.claim.sub',$1,false)`,[id]);try{return await fn()}finally{await db.exec('reset role')}}
+const name=`${owner}/avatar-00000000-0000-4000-8000-000000000003.jpg`;
+await as(owner,()=>db.query(`insert into storage.objects(bucket_id,name) values('profile-photos',$1)`,[name]));
+assert.equal((await as(owner,()=>db.query('select * from storage.objects'))).rows.length,1);
+assert.equal((await as(other,()=>db.query('select * from storage.objects'))).rows.length,0);
+await assert.rejects(()=>as(other,()=>db.query(`insert into storage.objects(bucket_id,name) values('profile-photos',$1)`,[name])),/row-level security/);
+await assert.rejects(()=>as(owner,()=>db.query(`insert into storage.objects(bucket_id,name) values('profile-photos',$1)`,[`${owner}/script.svg`])),/row-level security/);
+assert.equal((await as(other,()=>db.query('delete from storage.objects returning id'))).rows.length,0);
+assert.equal((await as(owner,()=>db.query('delete from storage.objects returning id'))).rows.length,1);
+const bucket=(await db.query('select * from storage.buckets')).rows[0];assert.equal(bucket.file_size_limit,5242880);assert.equal(bucket.allowed_mime_types.includes('image/svg+xml'),false);
+// Import the small pure media rules without the Next.js runtime.
+const ts=await import('typescript');const source=await readFile(new URL('../lib/profile-media.ts',import.meta.url),'utf8');
+const js=ts.default.transpileModule(source,{compilerOptions:{module:ts.default.ModuleKind.ESNext}}).outputText;
+const media=await import(`data:text/javascript;base64,${Buffer.from(js).toString('base64')}`);
+assert.equal(media.ownedAvatarPath(owner,name),true);assert.equal(media.ownedAvatarPath(other,name),false);assert.equal(media.ownedAvatarPath(owner,'https://other.example/photo.jpg'),false);
+assert.throws(()=>media.validateProfilePhoto({type:'image/svg+xml',size:100}),/JPG/);
+assert.throws(()=>media.validateProfilePhoto({type:'image/jpeg',size:6000000}),/5 MB/);
+media.validateProfilePhoto({type:'image/jpeg',size:1000});
+assert.deepEqual(media.profileBannerAt(0),media.profileBannerAt(1000));
+await db.close();console.log('Passed: photo ownership, blocked cross-account writes/deletes, image format/size validation, safe avatar paths, and storage migration reruns.');

@@ -46,3 +46,13 @@ Every mutation records an audit event. Receipt references are unique across whol
 Workspaces refresh every 15 seconds while visible. Lists show their latest 200 orders/audit events and up to 500 player/merchant/competition records. These are operational views, not full accounting exports. Merchant bank details cannot be changed through the offer editor; existing order details stay fixed.
 
 Run `npm run test:operations` from `web` for isolated PostgreSQL tests of permissions, receipts, reservations, repeat requests, cancellations and settlement. No live account or payment is created by these tests.
+
+## Profile photos and shared covers
+
+Run `supabase/migrations/202611160003_profile_photos.sql` in the SQL Editor to enable player profile uploads. This creates the public `profile-photos` media bucket with a 5 MB limit, permitted image types and policies restricting uploads/deletions to each account's own folder. Public profile photos are visible to anyone with their media URL; do not upload private documents.
+
+The app validates the selected image, crops it to a square, resizes it to 640×640 and saves a JPEG. It updates the account only after upload succeeds. Existing photos stay in place if upload fails. A successful replacement removes the previous photo when possible.
+
+The shared player cover is configured in `web/lib/profile-media.ts`. Add the supplied banner assets there; all players receive the same banner each UTC day. The current cover remains until more artwork is supplied. Banner dimensions stay fixed as images change.
+
+Run `npm run test:profile` from `web` for photo validation and database storage-policy checks.

@@ -1,3 +1,4 @@
+import localFont from "next/font/local";
 import type { Metadata } from "next";
 import { getImageProps } from "next/image";
 import "./globals.css";
@@ -9,6 +10,8 @@ import "./select.css";
 import "./token-profile.css";
 import "./live-product.css";
 import "./operations.css";
+import "./player-profile.css";
+const montserrat=localFont({src:"../public/fonts/Montserrat-Variable.ttf",weight:"100 900",display:"block",preload:true,variable:"--font-ryvo",adjustFontFallback:"Arial"});
 export const metadata: Metadata = { title: "Ryvo — Collect. Connect. Complete.", description: "Choose a competition. Collect the pieces. Complete your board. Get in the Ryvo game." };
 const loaderLogo=getImageProps({src:"/ryvo-logo.png",alt:"",width:192,height:192}).props.src;
-export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) { return <html lang="en"><head><link rel="preload" as="image" href={loaderLogo}/></head><body>{children}</body></html>; }
+export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) { return <html lang="en"><head><link rel="preload" as="image" href={loaderLogo}/></head><body className={`${montserrat.className} ${montserrat.variable}`}>{children}</body></html>; }

@@ -70,3 +70,11 @@ Merchant studio lives at `/merchant`, with Orders, Credit stock and Your offer. 
 Use actual scoped Supabase records. Empty and inaccessible workspaces remain designed states, with no fictional transaction or revenue charts. Bank receipt confirmation has a distinct verification form and explicit amount/reference requirements. Stock and player credit balances remain separate.
 
 Restore decorative artwork banners on player Explore, Boards, Wallet, P2P and Notifications with the existing explorer, bloom and chrome artwork. Keep competition data and competition cards independent of these banners. Share the SceneBanner component with operational entry and overview pages. Keep text sharp over a local dark artwork scrim, and blur only the fixed navigation backdrop.
+
+## Player identity and stable loading
+
+Profile uses a fixed-ratio shared cover rather than a personal banner. Covers live in `profile-media.ts`; additional supplied banners rotate by UTC day for every player, keeping the same geometry. Identity sits below the art, with an overlapping round photo, a pink upload control, one Edit action and a borderless custom logout menu. Players upload their own JPG/PNG/WebP photo to their account's Supabase Storage folder; never accept an arbitrary avatar URL.
+
+Boards uses a prominent 36–48px `Boards` title. Explore's list heading is `Pick your` / `challenge` on exactly two lines. Footer How to play links use the pink pill treatment.
+
+Load Montserrat through Next.js local fonts with preload and metric-adjusted fallback. Keep static page framing present while fetching data; do not replace the whole page with a short temporary loading panel. Banner entrances and navigation press scaling are removed. Data error messages float above the taskbar instead of pushing the layout down. Preserve the deliberately requested ink logo on collection/board openings.

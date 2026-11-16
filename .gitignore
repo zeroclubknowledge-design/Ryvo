@@ -17,6 +17,7 @@ web/output/
 !.env.example
 *.pem
 *.key
+supabase/local-*.sql
 
 # Operating-system and debug files
 .DS_Store
