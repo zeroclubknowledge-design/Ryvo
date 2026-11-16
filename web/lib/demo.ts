@@ -1,3 +1,4 @@
+import { awardWinningTokens, validTokenProgram, type TokenProgram } from "./token-program.ts";
 import { initializePieces, revealCopy, syncBoard, drawPriceFor, type PieceSupply, type Finisher, type PlayerProgress } from "./piece-economy.ts";
 export { inventoryFor, stockFor, drawPriceFor } from "./piece-economy.ts";
 export type Competition = { id:string; title:string; artist:string; category:string; theme:string; total:number; owned:number[]; fee:number; capacity:number; joined:number; winners:number; remaining:number; days:number; status:"open"|"active"|"upcoming"|"ended"; description?:string; artworkKey?:string; coverKey?:string; prize:number };
@@ -5,7 +6,7 @@ export const competitions: Competition[] = [
  {id:"harbour-lights",title:"The Other Side",artist:"Ada Nwosu",category:"3D Art",theme:"explorer",total:12,owned:[],fee:1000,capacity:200,joined:147,winners:20,remaining:20,days:28,status:"open",prize:40000},
  {id:"night-bloom",title:"Night Bloom",artist:"Ifeoma Adeyemi",category:"Abstract",theme:"bloom",total:12,owned:[0,1,2,4,5,6,8,9],fee:2000,capacity:150,joined:150,winners:25,remaining:8,days:19,status:"active",prize:60000},
  {id:"salt-flats",title:"Chrome Dreams",artist:"Tomas Reiner",category:"3D Art",theme:"chrome",total:25,owned:[0,1,3,4,5,6,7,8,10,11,12,13,15,16,18,19,21,23],fee:500,capacity:100,joined:100,winners:10,remaining:3,days:6,status:"active",prize:10000},
- {id:"paper-lanterns",title:"Soft Orbit",artist:"Mira Sato",category:"Digital Art",theme:"orbit",total:10,owned:[],fee:1000,capacity:250,joined:0,winners:25,remaining:25,days:30,status:"upcoming",prize:50000}
+ {id:"paper-lanterns",title:"Soft Orbit",artist:"Mira Sato",category:"Digital Art",theme:"orbit",total:10,owned:[],fee:1000,capacity:250,joined:0,winners:25,remaining:25,days:30,status:"open",prize:50000}
 ];
 export type Ledger = {id:string; label:string; amount:number; currency:"RYVO"|"NGN"; date:string};
 export type BankAccount={bank:string;accountNumber:string;accountName:string};
@@ -21,7 +22,7 @@ export const demoBanks=["Demo Bank","Access Bank","First Bank","GTBank","UBA","Z
 export type PieceListing={id:string;competitionId:string;index:number;price:number;currency?:"RYVO"|"NGN";ownerId:string;ownerName:string;status:"active"|"sold"|"cancelled";listedAt:string;buyerId?:string};
 export type CreatedCompetition=Competition&{creatorId:string;launchFee:number;creatorShare:5|10;createdAt:string;requestId:string;description:string;artworkKey:string;coverKey:string};
 export type RoundProgress={joined:number;status:Competition["status"];startedAt?:string;endsAt?:string};
-export type DemoState = {ownerId?:string;playerName?:string;inventory?:Record<string,number[]>;drawCounts?:Record<string,number>;pieceSupply?:Record<string,PieceSupply>;finishers?:Record<string,Finisher[]>;players?:Record<string,Record<string,PlayerProgress>>;listings?:PieceListing[];createdCompetitions?:CreatedCompetition[];rounds?:Record<string,RoundProgress>;earnings?:number;walletVersion?:1;bank?:BankAccount|null;withdrawals?:Withdrawal[];fundingOrders?:FundingOrder[];version:2;balance:number; cash:number; universal:number; boards:Record<string,number[]>; ledger:Ledger[]; purchases:string[]};
+export type DemoState = {memberNumber?:number;tokenProgram?:TokenProgram;ownerId?:string;playerName?:string;inventory?:Record<string,number[]>;drawCounts?:Record<string,number>;pieceSupply?:Record<string,PieceSupply>;finishers?:Record<string,Finisher[]>;players?:Record<string,Record<string,PlayerProgress>>;listings?:PieceListing[];createdCompetitions?:CreatedCompetition[];rounds?:Record<string,RoundProgress>;earnings?:number;walletVersion?:1;bank?:BankAccount|null;withdrawals?:Withdrawal[];fundingOrders?:FundingOrder[];version:2;balance:number; cash:number; universal:number; boards:Record<string,number[]>; ledger:Ledger[]; purchases:string[]};
 export const initialState:DemoState = {walletVersion:1,earnings:7500,bank:null,withdrawals:[],fundingOrders:[],version:2,balance:18400,cash:100000,universal:1,boards:{"night-bloom":competitions[1].owned,"salt-flats":competitions[2].owned},ledger:[{id:"demo-earnings",label:"Sample marketplace earnings",amount:7500,currency:"NGN",date:"2026-11-13T10:01:00Z"},{id:"welcome",label:"Welcome RYVO credit",amount:20000,currency:"RYVO",date:"2026-11-11T10:00:00Z"},{id:"purchase",label:"Universal Piece purchase",amount:-1600,currency:"RYVO",date:"2026-11-12T10:00:00Z"},{id:"demo-funding",label:"Welcome demo naira balance",amount:100000,currency:"NGN",date:"2026-11-13T10:00:00Z"}],purchases:[]};
 export const CREDIT_RATE=10;
 export const SWAP_FEE=100;
@@ -34,10 +35,18 @@ export const marketplaceFee=(price:number)=>Math.round(price/2)/100;
 export const launchFeeFor=(fee:number,capacity:number,share:5|10)=>roundMoney(fee*capacity*share/200);
 export function oneMonthAfter(iso:string){const d=new Date(iso),day=d.getUTCDate();d.setUTCDate(1);d.setUTCMonth(d.getUTCMonth()+1);const last=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)).getUTCDate();d.setUTCDate(Math.min(day,last));return d.toISOString()}
 export function fragmentLayout(total:number){const rows=Math.max(1,Math.floor(Math.sqrt(total))),base=Math.floor(total/rows),extra=total%rows;const result:{x:number;y:number;width:number;height:number}[]=[];for(let row=0;row<rows;row++){const count=base+(row<extra?1:0);for(let col=0;col<count;col++)result.push({x:col/count,y:row/rows,width:1/count,height:1/rows})}return result}
-export function allCompetitions(s:DemoState,now=0):Competition[]{return [...competitions,...s.createdCompetitions??[]].map(c=>{const r=s.rounds?.[c.id];return {...c,...r,remaining:Math.max(0,c.remaining-(s.finishers?.[c.id]?.length??0)),days:r?.endsAt&&now?Math.max(0,Math.ceil((Date.parse(r.endsAt)-Math.max(now,r.startedAt?Date.parse(r.startedAt):now))/86400000)):c.days}})}
+export function allCompetitions(s:DemoState,now=0):Competition[]{return [...competitions,...s.createdCompetitions??[]].map(c=>{const r=s.rounds?.[c.id];return {...c,...r,status:(r?.status??c.status)==="upcoming"?"open":(r?.status??c.status),remaining:Math.max(0,c.remaining-(s.finishers?.[c.id]?.length??0)),days:r?.endsAt&&now?Math.max(0,Math.ceil((Date.parse(r.endsAt)-Math.max(now,r.startedAt?Date.parse(r.startedAt):now))/86400000)):c.days}})}
 export function validListing(l:unknown):l is PieceListing{if(!l||typeof l!=="object")return false;const a=l as PieceListing;return typeof a.id==="string"&&a.id.length>=10&&a.id.length<=100&&typeof a.competitionId==="string"&&Number.isInteger(a.index)&&a.index>=0&&a.index<50&&Number.isSafeInteger(a.price)&&a.price>=(a.currency==="RYVO"?1:500)&&a.price<=1000000&&(a.currency===undefined||a.currency==="RYVO"||a.currency==="NGN")&&typeof a.ownerId==="string"&&a.ownerId.length<=100&&typeof a.ownerName==="string"&&a.ownerName.length<=80&&["active","sold","cancelled"].includes(a.status)&&Number.isFinite(Date.parse(a.listedAt))}
-function progressRounds(s:DemoState,now:number){s.rounds??={};for(const c of [...competitions,...s.createdCompetitions??[]]){s.rounds[c.id]??={joined:c.joined,status:c.status,...(c.status==="active"?{startedAt:c.id==="night-bloom"?"2026-11-03T10:00:00.000Z":"2026-10-21T10:00:00.000Z",endsAt:c.id==="night-bloom"?"2026-12-03T10:00:00.000Z":"2026-11-21T10:00:00.000Z"}:{})};const r=s.rounds[c.id];if(r.status==="open"&&r.joined>=c.capacity){r.status="active";r.startedAt=new Date(now).toISOString();r.endsAt=oneMonthAfter(r.startedAt)}if(r.status==="active"&&r.endsAt&&Date.parse(r.endsAt)<=now)r.status="ended"}
-if(!Object.values(s.rounds).some(r=>r.status==="open")){const next=[...competitions,...s.createdCompetitions??[]].find(c=>s.rounds![c.id]?.status==="upcoming");if(next)s.rounds[next.id].status="open"}}
+function progressRounds(s:DemoState,now:number){
+ s.rounds??={};
+ for(const c of [...competitions,...s.createdCompetitions??[]]){
+  s.rounds[c.id]??={joined:c.joined,status:c.status,...(c.status==="active"?{startedAt:c.id==="night-bloom"?"2026-11-03T10:00:00.000Z":"2026-10-21T10:00:00.000Z",endsAt:c.id==="night-bloom"?"2026-12-03T10:00:00.000Z":"2026-11-21T10:00:00.000Z"}:{})};
+  const r=s.rounds[c.id];
+  if(r.status==="upcoming")r.status="open"; // Migrate previously queued registrations.
+  if(r.status==="open"&&r.joined>=c.capacity){r.status="active";r.startedAt=new Date(now).toISOString();r.endsAt=oneMonthAfter(r.startedAt)}
+  if(r.status==="active"&&r.endsAt&&Date.parse(r.endsAt)<=now)r.status="ended";
+ }
+}
 
 
 export const DEMO_STORAGE_KEY = "ryvo-demo-wallet-v2";
@@ -50,7 +59,9 @@ export function isDemoState(value: unknown): value is DemoState {
  if (s.version !== 2 || !validMoney(s.cash) || !amount(s.balance) || !amount(s.universal)) return false;
  if (!s.boards || typeof s.boards !== "object" || Array.isArray(s.boards)) return false;
  if(s.ownerId!==undefined&&(typeof s.ownerId!=="string"||s.ownerId.length>100))return false;
- if(s.createdCompetitions!==undefined&&(!Array.isArray(s.createdCompetitions)||s.createdCompetitions.length>20||!s.createdCompetitions.every(c=>c&&/^custom-[a-z0-9-]{10,80}$/.test(c.id)&&typeof c.title==="string"&&c.title.length>=3&&c.title.length<=70&&typeof c.artist==="string"&&c.artist.length<=80&&typeof c.description==="string"&&c.description.length<=1200&&Number.isInteger(c.total)&&c.total>=10&&c.total<=50&&Number.isInteger(c.capacity)&&c.capacity>=2&&c.capacity<=10000&&[500,1000,2000].includes(c.fee)&&Number.isInteger(c.winners)&&c.winners>=1&&c.winners<=c.capacity&&[5,10].includes(c.creatorShare)&&validMoney(c.launchFee)&&c.launchFee===launchFeeFor(c.fee,c.capacity,c.creatorShare)&&typeof c.creatorId==="string"&&c.status==="upcoming"&&c.joined===0&&c.theme===`upload:${c.artworkKey}`&&typeof c.requestId==="string"&&c.requestId.length<=100&&typeof c.artworkKey==="string"&&/^asset-[a-z0-9-]{10,80}$/.test(c.artworkKey)&&typeof c.coverKey==="string"&&/^asset-[a-z0-9-]{10,80}$/.test(c.coverKey)&&Number.isFinite(Date.parse(c.createdAt)))))return false;
+ if(s.createdCompetitions!==undefined&&(!Array.isArray(s.createdCompetitions)||s.createdCompetitions.length>20||!s.createdCompetitions.every(c=>c&&/^custom-[a-z0-9-]{10,80}$/.test(c.id)&&typeof c.title==="string"&&c.title.length>=3&&c.title.length<=70&&typeof c.artist==="string"&&c.artist.length<=80&&typeof c.description==="string"&&c.description.length<=1200&&Number.isInteger(c.total)&&c.total>=10&&c.total<=50&&Number.isInteger(c.capacity)&&c.capacity>=2&&c.capacity<=10000&&[500,1000,2000].includes(c.fee)&&Number.isInteger(c.winners)&&c.winners>=1&&c.winners<=c.capacity&&[5,10].includes(c.creatorShare)&&validMoney(c.launchFee)&&c.launchFee===launchFeeFor(c.fee,c.capacity,c.creatorShare)&&typeof c.creatorId==="string"&&["upcoming","open"].includes(c.status)&&c.joined===0&&c.theme===`upload:${c.artworkKey}`&&typeof c.requestId==="string"&&c.requestId.length<=100&&typeof c.artworkKey==="string"&&/^asset-[a-z0-9-]{10,80}$/.test(c.artworkKey)&&typeof c.coverKey==="string"&&/^asset-[a-z0-9-]{10,80}$/.test(c.coverKey)&&Number.isFinite(Date.parse(c.createdAt)))))return false;
+ if(s.memberNumber!==undefined&&(!Number.isSafeInteger(s.memberNumber)||s.memberNumber<1))return false;
+ if(s.tokenProgram!==undefined&&!validTokenProgram(s.tokenProgram))return false;
  const definitions=allCompetitions(s);
  const record=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==="object"&&!Array.isArray(v);
  if(s.playerName!==undefined&&(typeof s.playerName!=="string"||s.playerName.length>50))return false;
@@ -83,6 +94,7 @@ export function upgradeDemoWallet(snapshot:DemoState):DemoState {
  if(!s.walletVersion){s.earnings=7500;s.bank=null;s.withdrawals=[];s.fundingOrders=[];s.walletVersion=1;s.ledger.unshift({id:"demo-earnings",label:"Sample marketplace earnings",amount:7500,currency:"NGN",date:new Date().toISOString()});}
  s.fundingOrders??=[];s.withdrawals??=[];s.earnings??=7500;s.bank??=null;s.listings??=[];s.createdCompetitions??=[];s.ownerId??="guest";
  initializePieces(s,[...competitions,...s.createdCompetitions]);
+ if(s.memberNumber){for(const [id,rows] of Object.entries(s.finishers??{})){const win=rows.find(row=>row.ownerId===s.ownerId);if(win){s.tokenProgram??={distributed:0,awards:[]};awardWinningTokens(s.tokenProgram,s.ownerId!,id,s.memberNumber,win.completedAt)}}}
  return s;
 }
 export function settleDemoWithdrawals(snapshot:DemoState,now=Date.now()):DemoState {
@@ -100,6 +112,7 @@ function awardCompletion(s:DemoState,id:string){
  const ordinal=base.winners-base.remaining+rows.length,cents=Math.round(base.prize*100);
  const reward=(Math.floor(cents/base.winners)+(ordinal<cents%base.winners?1:0))/100;
  const completedAt=new Date().toISOString();
+ if(s.memberNumber){s.tokenProgram??={distributed:0,awards:[]};awardWinningTokens(s.tokenProgram,s.ownerId!,id,s.memberNumber,completedAt)}
  rows.push({ownerId:s.ownerId!,name:s.playerName||"Player",completedAt,reward});
  s.earnings=roundMoney(s.earnings!+reward);
  s.ledger.unshift({id:crypto.randomUUID(),label:`Demo competition prize · ${game.title}`,amount:reward,currency:"NGN",date:completedAt});
@@ -173,11 +186,12 @@ export function applyDemoAction(snapshot: DemoState, action: string, id: unknown
   if(typeof p.title!=="string"||p.title.trim().length<3||p.title.length>70||typeof p.description!=="string"||p.description.trim().length<20||p.description.length>1200||typeof p.artist!=="string"||p.artist.length<2||p.artist.length>80||!Number.isInteger(p.total)||p.total<10||p.total>50||!Number.isInteger(p.capacity)||p.capacity<2||p.capacity>10000||!Number.isInteger(p.winners)||p.winners<1||p.winners>p.capacity||![500,1000,2000].includes(p.fee)||![5,10].includes(p.creatorShare)||!/^asset-[a-z0-9-]{10,80}$/.test(p.artworkKey)||!/^asset-[a-z0-9-]{10,80}$/.test(p.coverKey))throw Error("Check your artwork, 10–50 fragments, capacity, winner slots and entry fee.");
   const fee=launchFeeFor(p.fee,p.capacity,p.creatorShare);if(s.cash<fee)throw Error("Insufficient demo naira for the launch fee.");
   const date=new Date().toISOString();s.cash=roundMoney(s.cash-fee);
-  const game:CreatedCompetition={id:`custom-${p.requestId}`,title:p.title.trim(),description:p.description.trim(),artist:p.artist,category:"Digital Art",theme:`upload:${p.artworkKey}`,artworkKey:p.artworkKey,coverKey:p.coverKey,total:p.total,owned:[],fee:p.fee,capacity:p.capacity,joined:0,winners:p.winners,remaining:p.winners,days:30,status:"upcoming",prize:roundMoney(p.fee*p.capacity*0.2),creatorId:s.ownerId!,launchFee:fee,creatorShare:p.creatorShare,createdAt:date,requestId:p.requestId};
-  s.createdCompetitions!.push(game);s.rounds![game.id]={joined:0,status:"upcoming"};
+  const game:CreatedCompetition={id:`custom-${p.requestId}`,title:p.title.trim(),description:p.description.trim(),artist:p.artist,category:"Digital Art",theme:`upload:${p.artworkKey}`,artworkKey:p.artworkKey,coverKey:p.coverKey,total:p.total,owned:[],fee:p.fee,capacity:p.capacity,joined:0,winners:p.winners,remaining:p.winners,days:30,status:"open",prize:roundMoney(p.fee*p.capacity*0.2),creatorId:s.ownerId!,launchFee:fee,creatorShare:p.creatorShare,createdAt:date,requestId:p.requestId};
+  s.createdCompetitions!.push(game);s.rounds![game.id]={joined:0,status:"open"};
   s.ledger.unshift({id:`launch:${p.requestId}`,label:`Competition launch · ${game.title}`,amount:-fee,currency:"NGN",date});
  } else if(action==="fill-demo-registration"){
-  const current=allCompetitions(s).find(c=>c.status==="open");if(!current)throw Error("No registration is open.");
+  const target=typeof id==="string"?id:(payload as {competitionId?:string})?.competitionId;
+  const current=allCompetitions(s).find(c=>c.status==="open"&&(!target||c.id===target));if(!current)throw Error("This competition is not open for registration.");
   s.rounds![current.id].joined=current.capacity;
  } else if(action==="save-bank"){
   const bank=payload as BankAccount;

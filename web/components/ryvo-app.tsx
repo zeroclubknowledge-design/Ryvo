@@ -6,7 +6,7 @@ import Link from "next/link";
 import { NotificationsPage, ProfilePage, getNotifications, useDemoAccount } from "@/components/account-pages";
 import { GameDiscovery } from "@/components/game-discovery";
 import { CreateCompetition } from "@/components/create-competition";
-import { currentDemoSession, signOutDemo, accountWalletKey, persistAccountWallet } from "@/lib/demo-auth";
+import { currentDemoSession, currentDemoMemberNumber, signOutDemo, accountWalletKey, persistAccountWallet } from "@/lib/demo-auth";
 import { atomicBrowserWrite, MARKET_KEY, mergeMarket, readMarket } from "@/lib/demo-market";
 import { hydrateWorld, WORLD_KEY, worldSnapshot } from "@/lib/demo-world";
 import { ReferralsPage } from "@/components/referrals-page";
@@ -46,6 +46,7 @@ export function RyvoApp({initialView="explore",collectionId,boardView=false}:{in
    let wallet:unknown=null;
    try { if(cached)wallet=JSON.parse(cached); } catch {}
    const restored=settleDemoWithdrawals(hydrateWorld(isDemoState(wallet)?wallet:initialState));
+   restored.memberNumber=currentDemoMemberNumber();
    localStorage.setItem(DEMO_STORAGE_KEY,JSON.stringify(restored));
    persistAccountWallet(restored);setMarket(mergeMarket(restored));localStorage.setItem(WORLD_KEY,worldSnapshot(restored));setSession(currentDemoSession());setClock(Date.now());
    setState(restored);setReady(true);
@@ -86,7 +87,7 @@ export function RyvoApp({initialView="explore",collectionId,boardView=false}:{in
    const pay=async()=>{
     const cached=localStorage.getItem(DEMO_STORAGE_KEY);const raw:unknown=cached?JSON.parse(cached):state;
     if(!isDemoState(raw))throw Error("Please reload to initialize your demo wallet.");
-    const latest=settleDemoWithdrawals(hydrateWorld(raw));latest.playerName=account.profile.name;
+    const latest=settleDemoWithdrawals(hydrateWorld(raw));latest.playerName=account.profile.name;latest.memberNumber=currentDemoMemberNumber();
     const post=async(wallet:DemoState,action:string,id?:string,index?:number,payload?:unknown)=>{const r=await fetch("/api/demo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,id,index,state:wallet,payload})});const data=await r.json();if(!r.ok)throw Error(data.error||"Unable to complete this demo action.");if(!isDemoState(data))throw Error("Unable to update the demo wallet.");return data};
     let data:DemoState;let catalog=readMarket();const extra:[string,string][]=[];
     if(action==="buy-listing"){
@@ -94,7 +95,7 @@ export function RyvoApp({initialView="explore",collectionId,boardView=false}:{in
      const sellerRaw=localStorage.getItem(accountWalletKey(listing.ownerId));const seller:unknown=sellerRaw?JSON.parse(sellerRaw):null;if(!isDemoState(seller))throw Error("This seller’s demo wallet is unavailable in this browser.");
      const sellerReady=settleDemoWithdrawals({...hydrateWorld(seller),pieceSupply:latest.pieceSupply});latest.pieceSupply=sellerReady.pieceSupply;
      data=await post(latest,"buy-listing",undefined,undefined,listing);
-     const sellerUpdate=await post({...sellerReady,pieceSupply:data.pieceSupply,finishers:data.finishers,players:data.players,rounds:data.rounds},"settle-sale",undefined,undefined,{listingId:listing.id,buyerId:latest.ownerId??"guest"});data.players=sellerUpdate.players;
+     const sellerUpdate=await post({...sellerReady,pieceSupply:data.pieceSupply,finishers:data.finishers,players:data.players,rounds:data.rounds,tokenProgram:data.tokenProgram},"settle-sale",undefined,undefined,{listingId:listing.id,buyerId:latest.ownerId??"guest"});data.players=sellerUpdate.players;
      extra.push([accountWalletKey(listing.ownerId),JSON.stringify(sellerUpdate)]);catalog=catalog.map(l=>l.id===listing.id?{...l,status:"sold",buyerId:latest.ownerId}:l);
     }else{data=await post(latest,action,id,index,payload)}
     if((action==="redeem-universal"||action==="buy-draw")&&id){const revealed=data.inventory?.[id]?.findIndex((count,index)=>count>(latest.inventory?.[id]?.[index]??0));if(revealed!==undefined&&revealed>=0)successMessage=`Piece #${String(revealed+1).padStart(2,"0")} revealed. ${latest.boards[id]?.includes(revealed)?"Duplicate added to your inventory—keep it or list it.":"A new slot is filled on your board."}`}
@@ -103,7 +104,7 @@ export function RyvoApp({initialView="explore",collectionId,boardView=false}:{in
     setState(data);setClock(Date.now());setMarket(catalog);setSelected(null);
    };
    if(navigator.locks)await navigator.locks.request("ryvo-demo-payment",pay);else await pay();
-   const messages:Record<string,string>={join:"Registration paid in naira. Equivalent RYVO credits added to your wallet.","redeem-universal":"Universal Piece redeemed. A random copy has been added to your inventory.",swap:"Swap complete. Naira added to your withdrawable balance.",sell:"Credits sold. Naira added to your withdrawable balance.",fund:"Your RYVO wallet has been funded.","save-bank":"Test bank account saved.",withdraw:"Demo withdrawal requested. Your payout is processing.","list-piece":"One copy listed. Any other copies stay in your inventory.","cancel-listing":"Listing cancelled. One copy returned to your inventory.",launch:"Launch fee paid. Your competition is in the registration queue.","fill-demo-registration":"Demo registration filled. The next game is open and the one-month clock has started."};
+   const messages:Record<string,string>={join:"Registration paid in naira. Equivalent RYVO credits added to your wallet.","redeem-universal":"Universal Piece redeemed. A random copy has been added to your inventory.",swap:"Swap complete. Naira added to your withdrawable balance.",sell:"Credits sold. Naira added to your withdrawable balance.",fund:"Your RYVO wallet has been funded.","save-bank":"Test bank account saved.",withdraw:"Demo withdrawal requested. Your payout is processing.","list-piece":"One copy listed. Any other copies stay in your inventory.","cancel-listing":"Listing cancelled. One copy returned to your inventory.",launch:"Launch fee paid. Your competition is open for registration. Share it with your community.","fill-demo-registration":"Demo registration filled. This competition’s one-month clock has started."};
    setToast(successMessage||messages[action]||"Demo purchase complete. The piece is on your board.");return true;
   }catch(e){setError(e instanceof Error?e.message:"Unable to complete this demo action.");return false}
   finally{paymentPending.current=false;setBusy(false)}
@@ -127,7 +128,7 @@ export function RyvoApp({initialView="explore",collectionId,boardView=false}:{in
  {view==="wallet"&&<WalletPage state={state} ready={ready} busy={busy} error={error} onAction={(action,payload)=>act(action,undefined,undefined,payload)}/>}
  {view==="p2p"&&<P2PPage state={state} ready={ready} busy={busy} error={error} onAction={(action,payload)=>act(action,undefined,undefined,payload)}/>}
  {view==="notifications"&&<NotificationsPage notices={notices} read={account.read} onRead={account.markRead} onClear={account.hideNotices} onRestore={account.restoreNotices}/>}
- {view==="profile"&&<><ProfilePage state={state} profile={account.profile} initials={account.initials} onSave={account.saveProfile}/><section className="session-actions">{session?<><p>Signed in to this browser’s demo as {session.email}</p><button className="secondary" onClick={()=>{signOutDemo();window.location.assign("/signin")}}>Sign out</button></>:<><p>Save your progress to a demo account in this browser.</p><Link className="primary" href="/signup">Sign up</Link><Link className="secondary" href="/signin">Sign in</Link></>}</section></>}
+ {view==="profile"&&<><ProfilePage state={state} profile={account.profile} initials={account.initials} onSave={account.saveProfile} onLogout={()=>{signOutDemo();window.location.assign("/signin")}}/><section className="session-actions">{session?<><p>Signed in to this browser’s demo as {session.email}</p></>:<><p>Save your progress to a demo account in this browser.</p><Link className="primary" href="/signup">Sign up</Link><Link className="secondary" href="/signin">Sign in</Link></>}</section></>}
  {view==="create"&&(session?<CreateCompetition state={state} ready={ready} busy={busy} error={error} playerName={account.profile.name} onAction={(action,payload)=>act(action,undefined,undefined,payload)}/>:<section className="creator-signin"><p className="eyebrow">YOUR ART. YOUR NEXT CHALLENGE.</p><h1>Create your creator profile.</h1><p>Sign up or sign in to launch a competition with your demo account.</p><Link className="primary" href="/signup?next=/create">Sign up & create <Icon name="arrow"/></Link><Link className="secondary" href="/signin?next=/create">Sign in</Link></section>)}
  {view==="referrals"&&<ReferralsPage username={account.profile.username}/>}
  </>}
@@ -140,13 +141,13 @@ export function RyvoApp({initialView="explore",collectionId,boardView=false}:{in
 function PageTitle({eyebrow,title,subtitle}:{eyebrow:string;title:string;subtitle:string}){return <div className="page-heading standalone"><div><p className="eyebrow">{eyebrow}</p><h1>{title}</h1><p className="subheading">{subtitle}</p></div></div>}
 function CollectionCard({c,favorite,onFavorite,onOpen}:{c:Competition;favorite:boolean;onFavorite:()=>void;onOpen:()=>void}){
  const registration=Math.min(100,Math.round(c.joined/c.capacity*100));
- const statusLabel=c.status==="open"?"Open to join":c.status==="ended"?"Round ended":c.status==="upcoming"?"In the queue":"In progress";
+ const statusLabel=c.status==="open"?"Open to join":c.status==="ended"?"Round ended":c.status==="upcoming"?"Registration open":"In progress";
  return <article className="collection-card">
   <div className="card-art"><button className="art-open" onClick={onOpen} aria-label={`Explore ${c.title}`}><Artwork theme={c.coverKey?`upload:${c.coverKey}`:c.theme}/></button><span className={`status-badge ${c.status}`}><i/>{statusLabel}</span><button className={`favorite ${favorite?"is-saved":""}`} aria-label={`${favorite?"Unsave":"Save"} ${c.title}`} aria-pressed={favorite} onClick={onFavorite}><Icon name="heart" size={18}/></button><span className="piece-count"><Icon name="boards" size={14}/>{c.total} pieces</span><div className="challenge-art-caption"><span>{c.category}</span><h3>{c.title}</h3></div></div>
   <div className="card-content"><h3 className="challenge-row-title"><button onClick={onOpen}>{c.title}</button></h3><p className="artist"><span className={`mini-avatar ${c.theme}`}>{c.artist.split(" ").map(s=>s[0]).join("")}</span>{c.artist}<span className="verified" aria-label="Verified creator"><Icon name="check" size={12}/></span></p>
-   <div className="challenge-round-state">{c.status!=="open"&&<p><Icon name="time" size={14}/>{c.status==="active"?`${c.days} ${c.days===1?"day":"days"} left to complete your board`:c.status==="upcoming"?"Waiting for its registration turn":"This competition has finished"}</p>}<div className="challenge-player-count"><span>Players registered</span><b>{c.joined.toLocaleString()} / {c.capacity.toLocaleString()}</b></div><meter min={0} max={c.capacity} value={c.joined} aria-label={`${c.title} registration: ${registration}% full`}/><small>{c.status==="open"?`${Math.max(0,c.capacity-c.joined).toLocaleString()} places left · Next game opens when full`:c.status==="upcoming"?`${c.capacity.toLocaleString()} players needed to start`:"Registration complete"}</small></div>
+   <div className="challenge-round-state">{c.status!=="open"&&<p><Icon name="time" size={14}/>{c.status==="active"?`${c.days} ${c.days===1?"day":"days"} left to complete your board`:c.status==="upcoming"?"Open for registration":"This competition has finished"}</p>}<div className="challenge-player-count"><span>Players registered</span><b>{c.joined.toLocaleString()} / {c.capacity.toLocaleString()}</b></div><meter min={0} max={c.capacity} value={c.joined} aria-label={`${c.title} registration: ${registration}% full`}/><small>{c.status==="open"?`${Math.max(0,c.capacity-c.joined).toLocaleString()} places left · Play starts when full`:c.status==="upcoming"?`${c.capacity.toLocaleString()} players needed to start`:"Registration complete"}</small></div>
    <div className="card-meta"><div><span>Registration</span><b>{money(c.fee)}</b><small>+ {credit(c.fee*10)} credit</small></div><div><span>Winner slots</span><b>{c.remaining}<small> / {c.winners}</small></b></div></div>
-   <button className="challenge-card-action" onClick={onOpen} aria-label={`View challenge: ${c.title}`}><span>View challenge</span><Icon name="arrow" size={17}/></button>
+   <div className="challenge-card-footer"><button className="challenge-card-action" onClick={onOpen} aria-label={`View challenge: ${c.title}`}><span>View challenge</span><Icon name="arrow" size={17}/></button><span className="challenge-prize-pool"><small>Winner prize pool</small><b>{money(c.prize)}</b></span></div>
   </div>
  </article>
 }

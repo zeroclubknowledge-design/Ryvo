@@ -43,4 +43,18 @@ Product boxes and text inputs are borderless; focus uses tonal keyboard feedback
 
 All product selects use the shared `RyvoSelect` component, built on Base UI. Use borderless dark rounded popup cards, a tonal selected row, green check mark, keyboard/typeahead support, Escape/outside-tap dismissal and viewport-aware placement. Inside native wallet dialogs, portal the menu into that dialog so it stays in the top layer. Never introduce a device-native visible select in player, merchant or future admin screens.
 
-All back controls use a soft pink tint from Ryvo’s palette. Onboarding has one footer Back control beneath its primary action on each step; remove the duplicate above the progress indicator. Keep authentication and other app back controls in their existing locations.
+All back controls use a soft pink tint from Ryvo’s palette. Onboarding has one footer Back control beneath its primary action on each step; remove the duplicate above the progress indicator. Signup and signin also keep Back in the footer, below their form. Other app back controls keep their existing locations.
+
+## RYVO Token and profile refinements
+
+RYVO Token has its own public `/ryvo-token` page, linked below RYVO Credit. Keep Token separate from spendable Credit and naira. Supply is 10,000,000: 8,000,000 community and 2,000,000 team. A registered player’s signup ordinal sets their reward on each eligible winning collection: 1–1,000 = 100; 1,001–10,000 = 50; 10,001–100,000 = 10; 100,001–1,000,000 = 5; later = 1. Pay once per player/competition, including migration of recorded wins. Cap community awards at 8,000,000, reducing the final award when necessary. The glowing circular Launching soon control explains that milestone; never claim the demo has minted or launched a live token.
+
+Wallet shows earned tokens, the player’s tier and community distribution progress. Counts are derived from browser-local demo award records and labelled accordingly. Production global signup ordering, distribution, minting and launch need shared authenticated services.
+
+Landing drawer exit takes 380ms and delays visibility hiding until the slide completes. Demo buttons in its drawer, header and footer use pink. Profile has one Edit control by the avatar, compact icon badges under the username, and Log out in the banner menu. The lower View my boards action stands alone. Wallet and profile activity rows keep inset horizontal padding.
+
+## Immediate creator registrations and prize pools
+
+A paid creator launch opens its own registration immediately. Multiple competitions can register players at the same time. Previously queued records migrate to open registration without resetting payment or join counts. Each competition’s one-month play clock still starts only when its own capacity fills. No queue or next-registration handoff remains in the player/creator copy. Demo fill controls target an individual competition. Creation confirmation offers a copyable collection link, labelled as browser-local demo sharing.
+
+The home creator panel uses the exact selected Create purple (#6338bc), with light text and a dark purple action. Featured art shows the full shared winner prize pool at top right; compact challenge rows show it beside View challenge. Amounts come from each competition’s prize field, not registration revenue or a made-up figure.

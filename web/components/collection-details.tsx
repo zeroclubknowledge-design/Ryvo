@@ -50,7 +50,7 @@ export function CollectionDetails({competition:c,state,ready,busy,error,saved,on
       <h2>{money(c.fee)}<small> registration</small></h2>
       <p className="entry-card-description">Register in naira and receive equivalent RYVO credit. Buy random pieces when registration fills.</p>
       <div className="collection-benefits"><span><Icon name="check" size={15}/> {credit(c.fee*10)} issued after payment</span><span><Icon name="check" size={15}/> Registration paid in naira</span></div>
-      <button className="primary collection-cta" disabled={!ready||busy||c.status!=="open"} onClick={onJoin}>{busy?"Starting your board…":c.status==="open"?`Register for ${money(c.fee)}`:c.status==="upcoming"?"Next in the registration queue":"Registration closed"}<Icon name="arrow" size={18}/></button>
+      <button className="primary collection-cta" disabled={!ready||busy||c.status!=="open"} onClick={onJoin}>{busy?"Starting your board…":c.status==="open"?`Register for ${money(c.fee)}`:c.status==="upcoming"?"Open for registration":"Registration closed"}<Icon name="arrow" size={18}/></button>
       <p className="collection-demo-note">Demo naira pays the registration fee. Equivalent RYVO credits are added immediately. No real money is charged.</p>
      </>}
     </div>

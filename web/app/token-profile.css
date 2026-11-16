@@ -1,0 +1,69 @@
+/* Let the drawer finish its return journey before hiding it. */
+@media(max-width:600px) {
+ .landing .landing-sidebar { visibility:hidden; opacity:0; transform:translateX(-105%); transition:transform 380ms cubic-bezier(.32,.72,0,1),opacity 280ms ease,visibility 0s linear 380ms; }
+ .landing .landing-sidebar.open { visibility:visible; opacity:1; transform:translateX(0); transition:transform 380ms cubic-bezier(.32,.72,0,1),opacity 200ms ease,visibility 0s; }
+ .landing .landing-scrim { visibility:hidden; opacity:0; transition:opacity 280ms ease,visibility 0s linear 280ms; }
+ .landing.menu-open .landing-scrim { visibility:visible; opacity:1; transition:opacity 280ms ease,visibility 0s; }
+}
+.landing-sidebar nav>a[href='/explore'],.landing-header>a[href='/explore'],.landing-footer>a[href='/explore'] { background:#e5b7ed !important; color:#2b1231 !important; border:0; border-radius:999px; padding:12px 18px; font-weight:750; }
+.landing-top-links { gap:22px; }
+.profile-identity-top { align-items:center; justify-content:space-between; gap:20px; }
+.profile-page .profile-identity-top .profile-edit-button { display:inline-flex; align-items:center; justify-content:center; gap:15px; width:auto; max-width:170px; min-height:40px; padding:12px 18px; border-radius:999px; background:#28351e; font-size:11px; }
+.profile-page .profile-name-row { display:block; }
+.profile-page .profile-badges { display:flex; flex-wrap:wrap; justify-content:flex-start; gap:8px; margin-top:14px; }
+.profile-page .profile-badges>span { display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border-radius:999px; background:#20251c; color:#c5d0bb; font-size:10px; line-height:1.2; border:0; }
+.profile-page .profile-badges>span:last-child { background:#2b2033; color:#d1b9df; }
+.profile-board-action { display:flex; align-items:center; justify-content:center; gap:24px; width:max-content; grid-column:1/-1; margin-top:25px; }
+.profile-menu-popup { min-width:155px; padding:6px; background:#24281f; border:0; border-radius:15px; box-shadow:0 12px 28px #0006; transform-origin:var(--transform-origin); transition:opacity 150ms ease,transform 150ms cubic-bezier(.23,1,.32,1); }
+.profile-menu-popup[data-starting-style],.profile-menu-popup[data-ending-style] { opacity:0; transform:translateY(-4px); }
+.profile-menu-item { display:flex; align-items:center; justify-content:space-between; gap:30px; padding:13px 14px; min-height:43px; font-size:13px; color:#ebc6ec; border-radius:10px; outline:none; cursor:pointer; }
+.profile-menu-item[data-highlighted] { background:#3a2940; }
+.wallet-activity-section .ledger { padding:8px 20px !important; border-radius:20px; }
+.profile-page .profile-activity>div:last-child { padding:7px 18px; }
+.profile-page .profile-activity article { padding-inline:6px; gap:15px; }
+/* RYVO Token: pre-launch rewards, clearly separate from game credits. */
+.token-page { max-width:1120px; padding:65px 30px 0; margin:auto; }
+.token-hero { display:grid; grid-template-columns:1.4fr 1fr; align-items:center; gap:50px; padding:35px 0 90px; }
+.token-status { display:inline-block; color:#d7addf; background:#271b2c; border-radius:999px; padding:9px 13px; font-size:10px; font-weight:650; letter-spacing:.06em; }
+.token-hero h1 { font-size:clamp(40px,5vw,67px); line-height:1.04; font-weight:850; letter-spacing:-.04em; margin:25px 0; }
+.token-hero h1 em { color:#e5b7ed; font-style:normal; }.token-hero p { color:#a8b19f; font-size:14px; line-height:1.9; max-width:42ch; margin-bottom:27px; }.token-hero .primary { display:inline-flex; gap:27px; align-items:center; }
+.token-emblem { aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:17px; border-radius:50%; background:radial-gradient(at 30% 20%,#48334e,#1a2015 70%); box-shadow:0 22px 45px #0005; }
+.token-emblem img { object-fit:contain; width:135px; height:135px; }.token-emblem b { font-size:32px; font-weight:800; letter-spacing:-.04em; }.token-emblem>span { color:#baabc4; font-size:9px; letter-spacing:.12em; }
+.token-allocation { display:grid; grid-template-columns:1fr 1.3fr; gap:65px; padding:55px 0; }.token-page h2 { font-size:clamp(29px,3.5vw,43px); font-weight:800; letter-spacing:-.04em; line-height:1.1; margin:0 0 20px; }.token-page p { color:#a5b09a; font-size:13px; line-height:1.9; }.token-allocation-track { display:flex; height:13px; gap:6px; margin:6px 0 25px; }.token-allocation-track span:first-child { width:80%; background:#e5b7ed; border-radius:999px; }.token-allocation-track span:last-child { width:20%; background:#60b800; border-radius:999px; }
+.token-allocation-figures { display:grid; grid-template-columns:1fr 1fr; gap:30px; }.token-allocation-figures b { font-size:47px; font-weight:800; letter-spacing:-.04em; }.token-allocation-figures b small { font-size:20px; }.token-allocation-figures article:first-child b { color:#e5b7ed; }.token-allocation-figures article:last-child b { color:#8cd24a; }.token-allocation-figures h3 { font-size:14px; font-weight:700; margin-top:7px; }.token-allocation-figures p { font-size:11px; }
+.token-rewards { padding:65px 0; }.token-rewards>div:first-child { max-width:600px; margin-bottom:35px; }.token-tier-table { background:#11170d; border-radius:22px; padding:13px 25px; }.token-tier-table article { display:flex; gap:25px; align-items:center; padding:24px 0; }.token-tier-table article>span { font-size:10px; color:#76896b; }.token-tier-table article>div { flex:1; }.token-tier-table h3 { margin:0; font-size:15px; font-weight:650; }.token-tier-table article>div>small { display:block; color:#aece92; margin-top:7px; font-size:10px; }.token-tier-table article>b { text-align:right; font-size:30px; font-weight:800; color:#e4b6ed; }.token-tier-table article>b>small { display:block; font-size:9px; font-weight:400; color:#9eac93; margin-top:6px; }.token-rules { display:grid; gap:7px; margin-top:25px; }.token-rules p { display:flex; gap:14px; align-items:flex-start; margin:4px 0; font-size:12px; }.token-rules svg { margin-top:4px; flex-shrink:0; width:15px; height:15px; color:#a1c67d; }
+.token-launch { text-align:center; padding:60px 0 85px; }.token-distribution { text-align:left; margin:25px 0; }.token-distribution>div { display:flex; justify-content:space-between; gap:15px; font-size:11px; align-items:baseline; color:#acb69f; }.token-distribution b { color:#dce9d1; font-size:15px; font-variant-numeric:tabular-nums; }.token-distribution b small { color:#839475; font-weight:400; font-size:11px; }.token-distribution progress { appearance:none; display:block; width:100%; height:7px; border:0; border-radius:999px; overflow:hidden; margin:14px 0; background:#27321f; }.token-distribution progress::-webkit-progress-bar { background:#27321f; }.token-distribution progress::-webkit-progress-value { background:#a6d96c; border-radius:999px; }.token-distribution progress::-moz-progress-bar { background:#a6d96c; }.token-distribution p { font-size:10px; color:#91a17f; margin:0; }.token-distribution p>b { font-size:10px; font-weight:600; }.token-launch>.token-distribution { max-width:680px; margin:35px auto 25px; }.token-launch>p { max-width:55ch; margin:20px auto; }.token-launch-button { position:relative; isolation:isolate; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; width:165px; height:165px; border-radius:50%; background:#edc1f4; color:#2c1133; font-size:21px; font-weight:800; line-height:1.12; margin:45px auto 35px; }
+.token-launch-button::before { content:""; position:absolute; inset:-10px; border-radius:50%; background:radial-gradient(circle,#e761ed99,#c44bd666 55%,transparent 72%); filter:blur(13px); z-index:-1; animation:tokenBeacon 2.4s ease-in-out infinite; }.token-launch-button::after { content:""; position:absolute; inset:0; border-radius:50%; background:#edc1f4; z-index:-1; }.token-launch>small { display:block; max-width:65ch; color:#89977e; font-size:10px; line-height:1.8; margin:auto; }.token-launch-explanation { padding:16px 20px; background:#22172a; border-radius:15px; color:#d1b9df !important; }
+.token-wallet-card { padding:28px; background:#24182b; border-radius:23px; margin:25px 0; }.token-card-heading { display:flex; align-items:center; justify-content:space-between; gap:15px; }.token-card-heading>span { display:flex; align-items:center; gap:9px; font-size:13px; color:#e2caec; }.token-card-heading img { object-fit:contain; }.token-card-heading>b { color:#be9fcc; font-weight:500; font-size:8px; letter-spacing:.08em; padding:6px 9px; background:#35213e; border-radius:999px; }.token-earned { display:flex; gap:15px; align-items:baseline; margin:25px 0 10px; }.token-earned strong { color:#f0d7f6; font-size:47px; font-weight:800; letter-spacing:-.04em; }.token-earned>span { font-size:12px; color:#c7a9d4; }.token-wallet-card>p { font-size:12px; color:#bca3c8; line-height:1.8; }.token-wallet-rate { display:inline-block; margin:12px 0 2px; font-size:10px; color:#dfc2ed; }.token-wallet-card .token-distribution { margin:22px 0; }.token-wallet-card .token-distribution progress { background:#46304e; }.token-wallet-card>a { display:flex; align-items:center; justify-content:space-between; color:#eacaf7; font-size:12px; font-weight:650; }.token-wallet-card>small { display:block; font-size:9px; line-height:1.7; color:#b69cc0; margin-top:18px; }
+@keyframes tokenBeacon { 0%,100% { opacity:.55; transform:scale(.97); } 50% { opacity:1; transform:scale(1.05); } }
+@media(max-width:700px) {
+ .token-page { padding:35px 20px 0; }.token-hero { grid-template-columns:1fr; gap:35px; padding:15px 0 35px; }.token-hero h1 { font-size:43px; }.token-hero p { font-size:12px; }.token-emblem { width:230px; margin:0 auto; }.token-emblem img { width:95px; height:95px; }.token-emblem b { font-size:25px; }.token-emblem>span { font-size:8px; }.token-allocation { grid-template-columns:1fr; gap:25px; padding:45px 0; }.token-allocation-figures { gap:25px; }.token-allocation-figures b { font-size:42px; }.token-rewards { padding:35px 0; }.token-tier-table { padding:5px 17px; }.token-tier-table article { gap:12px; padding:22px 0; }.token-tier-table h3 { font-size:12px; }.token-tier-table article>b { font-size:26px; }.token-tier-table article>b>small { font-size:8px; max-width:12ch; line-height:1.5; }.token-tier-table article>span { font-size:9px; }.token-distribution>div { flex-wrap:wrap; gap:8px; }.token-launch { padding:40px 0 65px; }.token-launch-button { width:150px; height:150px; }.token-wallet-card { padding:24px; }.token-card-heading>span { font-size:12px; }.token-earned { display:block; }.token-earned>span { display:block; margin-top:5px; }.profile-page .profile-identity-top .profile-edit-button { font-size:10px; min-height:37px; padding:10px 15px; gap:10px; }.profile-page .profile-badges { margin-top:12px; }.profile-board-action { width:100%; }.wallet-activity-section .ledger { padding:6px 16px !important; }.profile-page .profile-activity>div:last-child { padding:5px 12px; }
+}
+@media(prefers-reduced-motion:reduce) { .landing .landing-sidebar,.landing .landing-scrim,.profile-menu-popup { transition:none; }.token-launch-button::before { animation:none; opacity:.7; } }
+.auth-panel .auth-footer { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; padding-top:30px; }
+.auth-panel .auth-footer .back-pill { width:max-content; margin-bottom:5px; }
+:root { --ryvo-create:#6338bc; }
+.app-shell .floating-taskbar>a[href='/create'].active { background:var(--ryvo-create); }
+.home-launch { background:var(--ryvo-create); color:#fff; }
+.home-launch-label { color:#f3eaff; }
+.home-launch h2 { color:#fff; }
+.home-launch p { color:#e0d1f4; }
+.home-launch>a { background:#2d1454; color:#f3eaff; }
+.home-prize-pool { position:absolute; top:23px; right:23px; display:flex; flex-direction:column; gap:5px; text-align:right; padding:11px 14px; border-radius:16px; background:#10170cbd; color:#eff8e6; }
+.home-prize-pool>b { font-size:18px; font-weight:800; letter-spacing:-.025em; }
+.home-prize-pool>small { font-size:8px; color:#c6d8b5; }
+.challenge-card-footer { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:12px; margin-top:15px; }
+.app-shell .challenge-card-footer .challenge-card-action { margin:0; padding:7px 0; width:auto; justify-content:flex-start; font-size:10px; }
+.challenge-card-footer .challenge-card-action svg { display:none; }
+.challenge-prize-pool { display:flex; flex-direction:column; align-items:flex-end; gap:5px; color:#d6e9c5; }
+.challenge-prize-pool>small { font-size:8px; color:#93a585; }.challenge-prize-pool>b { font-size:14px; font-weight:700; }
+.creator-registration-row { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:16px 0; background:#172010; border-radius:16px; padding:14px 16px; }
+.creator-registration-row .creator-queue-row { flex:1; min-width:180px; padding:0; margin:0; background:transparent; }
+.creator-registration-row>.secondary { font-size:10px; padding:10px 14px; min-height:38px; }
+@media(max-width:600px) {
+ .home-prize-pool { right:20px; top:20px; padding:10px 12px; }
+ .home-prize-pool>b { font-size:16px; }
+ .challenge-card-footer { gap:7px; margin-top:13px; }.challenge-prize-pool>b { font-size:13px; }.challenge-prize-pool>small { font-size:7px; }
+ .app-shell .challenge-card-footer .challenge-card-action { font-size:9px; }
+ .creator-registration-row { padding:16px; }
+}

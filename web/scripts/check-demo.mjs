@@ -18,7 +18,7 @@ assert.equal((await post({action:'join',id:'harbour-lights'},null)).status,400);
 const [a,b]=await Promise.all([post({action:'join',id:'harbour-lights'}),post({action:'join',id:'harbour-lights'})]);assert.equal(a.body.cash,99000);assert.equal(b.body.cash,99000);assert.deepEqual(seed,original);assert.deepEqual(await read(),seed);
 for(let total=10;total<=50;total++){assert.equal(Array.from({length:total},(_,i)=>pieceDrawPrice(10000,total,i)).reduce((a,b)=>a+b),10000);assert.equal(fragmentLayout(total).length,total)}
 assert.equal(pieceDrawPrice(10000,20,0),500);assert.equal(drawCopy([2,0,1],()=>2),2);assert.equal(drawCopy([2,0,1],()=>1),0);assert.throws(()=>drawCopy([0,0],()=>0));assert.throws(()=>drawCopy([-1,2],()=>0));
-console.log('Passed: naira registration issues equivalent RYVO once, empty starting inventory, registration lock, queue advancement, exact draw pricing and finite-stock selection.');
+console.log('Passed: naira registration issues equivalent RYVO once, empty starting inventory, registration lock, independent registration, exact draw pricing and finite-stock selection.');
 
 const bank={bank:'Demo Bank',accountNumber:'0123456789',accountName:'Demo Tester'};
 assert.equal((await post({action:'save-bank',payload:{...bank,accountNumber:'123'}})).status,400);
@@ -89,16 +89,15 @@ assert.deepEqual((await post({action:'redeem-universal',id:'night-bloom',payload
 console.log('Passed: paid and gifted random draws allow duplicates, consume finite supply, preserve unique progress, reject depleted supply and award an idempotent demo prize.');
 
 const launchPayload={title:'Test Round',description:'An uploaded artwork for a new competition.',artist:'Demo Creator',total:13,capacity:2,winners:1,fee:1000,creatorShare:5,artworkKey:'asset-11111111-1111-1111-1111-111111111111',coverKey:'asset-22222222-2222-2222-2222-222222222222',requestId:'33333333-3333-3333-3333-333333333333'};
-const launched=await post({action:'launch',payload:launchPayload});assert.equal(launched.status,200);assert.equal(launched.body.cash,99950);assert.equal(launched.body.createdCompetitions.length,1);assert.equal(launched.body.createdCompetitions[0].launchFee,50);const gameId=launched.body.createdCompetitions[0].id;assert.equal(launched.body.rounds[gameId].status,'upcoming');
+const launched=await post({action:'launch',payload:launchPayload});assert.equal(launched.status,200);assert.equal(launched.body.cash,99950);assert.equal(launched.body.createdCompetitions.length,1);assert.equal(launched.body.createdCompetitions[0].launchFee,50);const gameId=launched.body.createdCompetitions[0].id;assert.equal(launched.body.rounds[gameId].status,'open');
 assert.deepEqual((await post({action:'launch',payload:launchPayload},launched.body)).body,launched.body);
 const higherShare=await post({action:'launch',payload:{...launchPayload,creatorShare:10}});assert.equal(higherShare.body.cash,99900);
 for(const change of [{total:9},{total:51},{total:12.5},{capacity:1},{winners:3},{creatorShare:7},{fee:999},{artworkKey:'invalid'}])assert.equal((await post({action:'launch',payload:{...launchPayload,...change}})).status,400);
 assert.equal((await post({action:'launch',payload:launchPayload},{...seed,cash:49})).status,400);
-assert.equal((await post({action:'join',id:gameId},launched.body)).status,400,'Queued games cannot be joined');
-const advance1=await post({action:'fill-demo-registration'},launched.body);assert.equal(advance1.body.rounds['harbour-lights'].status,'active');assert.equal(advance1.body.rounds['paper-lanterns'].status,'open');
-const advance2=await post({action:'fill-demo-registration'},advance1.body);assert.equal(advance2.body.rounds[gameId].status,'open');assert.equal(advance2.body.rounds[gameId].startedAt,undefined);
-const customJoin=await post({action:'join',id:gameId},advance2.body);assert.equal(customJoin.status,200);assert.equal(customJoin.body.rounds[gameId].joined,1);
-const live=await post({action:'fill-demo-registration'},customJoin.body);assert.equal(live.body.rounds[gameId].status,'active');assert.equal(live.body.rounds[gameId].endsAt,oneMonthAfter(live.body.rounds[gameId].startedAt));
+const customJoin=await post({action:'join',id:gameId},launched.body);assert.equal(customJoin.status,200);assert.equal(customJoin.body.rounds[gameId].joined,1);assert.equal(customJoin.body.rounds[gameId].startedAt,undefined);
+const secondLaunch=await post({action:'launch',payload:{...launchPayload,requestId:'independent-second-round'}},customJoin.body);assert.equal(secondLaunch.status,200);const secondId=secondLaunch.body.createdCompetitions[1].id;assert.equal(secondLaunch.body.rounds[secondId].status,'open');
+const live=await post({action:'fill-demo-registration',id:gameId},secondLaunch.body);assert.equal(live.body.rounds[gameId].status,'active');assert.equal(live.body.rounds[gameId].endsAt,oneMonthAfter(live.body.rounds[gameId].startedAt));assert.equal(live.body.rounds[secondId].status,'open');assert.equal(live.body.rounds['harbour-lights'].status,'open');
+const oldQueued=structuredClone(launched.body);oldQueued.createdCompetitions[0].status='upcoming';oldQueued.rounds[gameId].status='upcoming';const migratedRegistration=await post({action:'settle'},oldQueued);assert.equal(migratedRegistration.status,200);assert.equal(migratedRegistration.body.rounds[gameId].status,'open');
 
 const customDraw=await post({action:'buy-draw',id:gameId,payload:{requestId:'custom-piece-draw'}},live.body);assert.equal(customDraw.status,200);assert.equal(customDraw.body.balance,live.body.balance-pieceDrawPrice(10000,13,0));
 const closing=structuredClone(live.body);closing.boards[gameId]=Array.from({length:12},(_,i)=>i);closing.inventory[gameId]=Array(13).fill(1);closing.inventory[gameId][12]=0;closing.pieceSupply[gameId].remaining.fill(0);closing.pieceSupply[gameId].remaining[12]=1;
@@ -109,13 +108,13 @@ assert.equal(oneMonthAfter('2026-01-31T12:34:00.000Z'),'2026-02-28T12:34:00.000Z
 let example={...structuredClone(initialState),ownerId:'example-player',boards:{},balance:0};
 example=applyDemoAction(example,'launch',undefined,undefined,{...launchPayload,total:20,capacity:100,winners:2,requestId:'example-100-player-round'});
 const exampleId=example.createdCompetitions[0].id;
-example=applyDemoAction(example,'fill-demo-registration');example=applyDemoAction(example,'fill-demo-registration');example=applyDemoAction(example,'join',exampleId);assert.equal(example.balance,10000);assert.equal(example.pieceSupply[exampleId].remaining.reduce((a,b)=>a+b),2000);
-example=applyDemoAction(example,'fill-demo-registration');
+example=applyDemoAction(example,'join',exampleId);assert.equal(example.balance,10000);assert.equal(example.pieceSupply[exampleId].remaining.reduce((a,b)=>a+b),2000);
+example=applyDemoAction(example,'fill-demo-registration',exampleId);
 for(let i=0;i<20;i++)example=applyDemoAction(example,'buy-draw',exampleId,undefined,{requestId:`example-paid-draw-${i}`});
 assert.equal(example.balance,0);assert.equal(example.inventory[exampleId].reduce((a,b)=>a+b),20);assert.equal(example.pieceSupply[exampleId].remaining.reduce((a,b)=>a+b),1980);assert.ok(isDemoState(example));
 const stock=Array(20).fill(100),distributed=Array(20).fill(0);for(let i=0;i<2000;i++){const index=drawCopy(stock,()=>0);stock[index]--;distributed[index]++}assert.deepEqual(distributed,Array(20).fill(100));assert.throws(()=>drawCopy(stock,()=>0));
 const bad=structuredClone(example);bad.inventory[exampleId][0]=-1;assert.equal(isDemoState(bad),false);const badStock=structuredClone(example);badStock.pieceSupply[exampleId].remaining[0]=101;assert.equal(isDemoState(badStock),false);
-console.log('Passed: creator launch rules, queue ordering, one-month expiry, first-completion prize settlement, winner-limit closure, 100x20 supply and exactly 10,000 r/ for 20 paid draws.');
+console.log('Passed: creator launch rules, immediate independent registration and queued-wallet migration, one-month expiry, first-completion prize settlement, winner-limit closure, 100x20 supply and exactly 10,000 r/ for 20 paid draws.');
 
 // Existing local accounts reserve their copies once before new shared draws.
 const {hydrateWorld,worldSnapshot,WORLD_KEY}=await import('../lib/demo-world.ts');
@@ -131,3 +130,24 @@ storedWallets.set(WORLD_KEY,worldSnapshot(migratedWorld));
 assert.deepEqual(hydrateWorld(migratedWorld).pieceSupply,migratedWorld.pieceSupply,'Shared legacy copies must not be reserved twice');
 delete globalThis.localStorage;
 console.log('Passed: all existing local wallets reserve legacy copies once in the shared finite supply.');
+
+const {tokenRate,awardWinningTokens,earnedTokens,validTokenProgram,COMMUNITY_ALLOCATION}=await import('../lib/token-program.ts');
+for(const [member,expected] of [[1,100],[1000,100],[1001,50],[10000,50],[10001,10],[100000,10],[100001,5],[1000000,5],[1000001,1],[9999999,1],[0,0]])assert.equal(tokenRate(member),expected);
+const pool={distributed:0,awards:[]},awardDate='2026-11-16T12:00:00.000Z';
+assert.equal(awardWinningTokens(pool,'token-player','round-one',1001,awardDate),50);
+assert.equal(awardWinningTokens(pool,'token-player','round-one',1001,awardDate),0);
+assert.equal(awardWinningTokens(pool,'token-player','round-two',1001,awardDate),50);
+assert.equal(earnedTokens(pool,'token-player'),100);assert.equal(earnedTokens(pool,'other-player'),0);assert.ok(validTokenProgram(pool));
+const almostFull={distributed:COMMUNITY_ALLOCATION-25,awards:[]};assert.equal(awardWinningTokens(almostFull,'final-player','last-round',1,awardDate),25);assert.equal(almostFull.distributed,COMMUNITY_ALLOCATION);assert.equal(awardWinningTokens(almostFull,'another-player','another-round',1,awardDate),0);
+assert.equal(validTokenProgram({...pool,distributed:COMMUNITY_ALLOCATION+1}),false);assert.equal(validTokenProgram({...pool,awards:[...pool.awards,pool.awards[0]]}),false);
+const tokenWin=await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'token-winning-draw-1'}},{...structuredClone(nearlyDone),memberNumber:1001});assert.equal(tokenWin.status,200);assert.equal(tokenWin.body.tokenProgram.distributed,50);assert.equal(earnedTokens(tokenWin.body.tokenProgram,tokenWin.body.ownerId),50);
+const tokenRetry=await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'token-winning-draw-1'}},tokenWin.body);assert.equal(tokenRetry.status,200);assert.deepEqual(tokenRetry.body.tokenProgram,tokenWin.body.tokenProgram);
+const migratedTokenWin=await post({action:'settle'},{...structuredClone(win.body),memberNumber:1});assert.equal(migratedTokenWin.status,200);assert.equal(migratedTokenWin.body.tokenProgram.distributed,100);
+const secondMigration=await post({action:'settle'},migratedTokenWin.body);assert.deepEqual(secondMigration.body.tokenProgram,migratedTokenWin.body.tokenProgram);
+const noSlots={...structuredClone(nearlyDone),memberNumber:1,finishers:{'night-bloom':Array.from({length:8},(_,i)=>({ownerId:`prior-winner-${i}`,name:'Prior winner',completedAt:awardDate,reward:2400}))}};
+const notWinner=await post({action:'redeem-universal',id:'night-bloom',payload:{requestId:'no-token-slots-left'}},noSlots);assert.equal(notWinner.status,200);assert.equal(notWinner.body.tokenProgram?.distributed??0,0);
+console.log('Passed: token signup tiers, per-winning-collection rewards, cap-limited final allocation, account isolation, retry protection, prior-winner migration and no rewards outside winning slots.');
+
+const tokenPage=await fetch(base+'/ryvo-token');assert.equal(tokenPage.status,200);assert.match(await tokenPage.text(),/10,000,000/);
+
+const payloadFill=await post({action:'fill-demo-registration',payload:{competitionId:secondId}},secondLaunch.body);assert.equal(payloadFill.status,200);assert.equal(payloadFill.body.rounds[secondId].status,'active');assert.equal(payloadFill.body.rounds[gameId].status,'open');

@@ -9,14 +9,14 @@ From `web`, run `npm ci`, then `npm run dev`. For a production preview use `npm 
 ## Current game economy
 
 - Register in naira. Every ₦1 paid grants 10 r/; a ₦1,000 registration grants 10,000 r/. New boards start empty. Each new demo account has ₦100,000 spending money.
-- Collecting, Universal Piece redemption and trading unlock only when registration reaches capacity. Disabled actions explain this. Filling a competition starts its one-calendar-month clock and opens the next queued registration; there is no grace month.
+- Collecting, Universal Piece redemption and trading unlock only when registration reaches capacity. Disabled actions explain this. Each paid creator launch opens registration immediately, independently of other competitions. Filling its capacity starts its own one-calendar-month clock; there is no grace month.
 - Supply is finite: each piece type has as many copies as player places. A 100-player, 20-type competition has 2,000 physical copies.
 - Paid random draws use RYVO. The first full set's number of draws costs exactly the entry credit, with integer rounding distributed across draws. Twenty draws for a 10,000 r/ entry cost 500 r/ each. Draws can repeat types, so this does not guarantee completing a board in twenty draws.
 - A gifted Universal Piece reveals one random copy without charging credit. Gifts and paid draws consume the same finite supply. Retry protection prevents double consumption.
 - Pieces shows physical quantities and duplicates separately from unique board progress. List one copy for a chosen whole-credit price. Listing the last copy empties its slot; listing a duplicate leaves another owned copy on the board. Cancellation returns that copy.
 - Marketplace offers are actual browser-local player listings. New offers use RYVO; historical naira offers remain compatible. Buying transfers one copy, including possible duplicates. Sellers receive naira earnings at 10 r/ per ₦1, minus the displayed 0.5% fee.
 - First valid complete boards receive simulated naira prize shares once, up to the configured winner count. The leaderboard uses local player progress and recorded finishers. Sample competitions retain their existing reserved winner slots.
-- Creator uploads support 10–50 fragments, launch-fee review, paid queue placement and a labelled demo registration-fill control.
+- Creator uploads support 10–50 fragments, launch-fee review, immediate paid registration launch and a labelled demo registration-fill control.
 
 ## Product flows
 
@@ -34,8 +34,16 @@ No real money is charged, transferred or paid out. New accounts include a separa
 
 `public/other-side.png` is generated explorer artwork; supporting sculptures use CSS. Public font files include their licence.
 
-Regression coverage includes naira registration, exact draw pricing, finite stock, duplicates, gift consumption, single-copy listing/cancellation, seller settlement, prize limits, account isolation, migration, queue timing, wallet funding, swaps, withdrawals and route availability. Browser checks also verify registration locks and a sale between two local demo accounts.
+Regression coverage includes naira registration, exact draw pricing, finite stock, duplicates, gift consumption, single-copy listing/cancellation, seller settlement, prize limits, account isolation, migration, independent registration timing, wallet funding, swaps, withdrawals and route availability. Browser checks also verify registration locks and a sale between two local demo accounts.
 
 ## Current visual direction
 
 The landing, app home and shared product surfaces follow the inspected Fantrade reference: black canvas, bold Montserrat headings, compact neutral cards, open wallet balances, pill controls and floating navigation. Ryvo retains its logo, green actions, purple selected Create state and all existing game mechanics. The shared system is in `app/ryvo-system.css`; `DESIGN.md` records the decisions.
+
+## Pre-launch token programme
+
+`/ryvo-token` explains the supplied 10,000,000-token supply and 80% community / 20% team allocation. Browser-local signup order selects a fixed reward tier for each eligible winning collection (100, 50, 10, 5 or 1 tokens). Completion and token awards are idempotent; recorded prior wins can migrate without repeating prizes. Community distribution is capped at 8,000,000; the final award is reduced to the remaining balance. Tokens cannot be spent, swapped or withdrawn in this demo.
+
+The wallet displays earned token records and shared local distribution progress. These are demo records, not on-chain tokens or real platform-wide counters. Live issuance needs authenticated global signup order, transactional award storage, a network/contract, and a separate launch process. The current bounded local history is for demonstrations, not production-scale distribution.
+
+Creator registrations no longer queue: old queued records migrate to open and targeted demo-fill controls affect only the selected competition. Custom artwork and links still require this browser’s demo data; public cross-device sharing needs the production database and object storage.
