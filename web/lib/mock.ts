@@ -28,13 +28,14 @@ export type Board = {
 };
 
 const nf = new Intl.NumberFormat("en-NG");
-const money = new Intl.NumberFormat("en-NG", {
+const money = new Intl.NumberFormat("en-US", {
   style: "currency",
-  currency: "NGN",
-  maximumFractionDigits: 0,
+  currency: "USD",
+  minimumFractionDigits: 2,
 });
 
-export const naira = (n: number) => money.format(n);
+/** Mock prices are legacy naira units, shown in dollars at ₦100 = $1. */
+export const usd = (n: number) => money.format(n / 100);
 export const ryvo = (n: number) => `${nf.format(n)} RYVO`;
 export const count = (n: number) => nf.format(n);
 

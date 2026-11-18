@@ -9,7 +9,7 @@ import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } fro
 import { Icon } from "@/components/collection-art";
 import { SolanaProvider, useSolanaBalances } from "@/components/solana-provider";
 import { loadCashout } from "@/lib/cashout";
-import { credit, type DemoState } from "@/lib/demo";
+import { credit, money, type DemoState } from "@/lib/demo";
 import { SOLANA_NETWORK, USDC_SCALE, shortAddress } from "@/lib/solana-config";
 
 type Activity = DemoState["ledger"][number];
@@ -36,8 +36,8 @@ function WalletScreen({ creditBalance, activity, signedIn, tokenCard }: { credit
   const { connected } = useWallet();
   const connectRef = useRef<HTMLElement>(null);
   const earnings = useEarnings(signedIn);
-  // Naira is retired from the wallet: only RYVO Credit and USDC activity show here.
-  const rows = activity.filter((entry) => entry.currency !== "NGN");
+  // Cash entries are stored in legacy naira units; money() shows them in dollars.
+  const rows = activity;
 
   const focusConnect = () => {
     connectRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -88,7 +88,7 @@ function WalletScreen({ creditBalance, activity, signedIn, tokenCard }: { credit
               <div key={entry.id}>
                 <Icon name="wallet" />
                 <p><b>{entry.label}</b><small>{new Date(entry.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</small></p>
-                <strong>{entry.amount < 0 ? "−" : "+"}{credit(Math.abs(entry.amount))}</strong>
+                <strong>{entry.amount < 0 ? "−" : "+"}{entry.currency === "NGN" ? money(Math.abs(entry.amount)) : credit(Math.abs(entry.amount))}</strong>
               </div>
             ))}
           </div>

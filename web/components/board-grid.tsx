@@ -1,5 +1,5 @@
 import { artworkBackground, cellAspect, slicePosition } from "@/lib/artwork";
-import { naira, type Piece } from "@/lib/mock";
+import { usd, type Piece } from "@/lib/mock";
 
 type Props = {
   pieces: Piece[];
@@ -34,7 +34,7 @@ export function BoardGrid({ pieces, cols, rows, seed, compact = false }: Props) 
               owned
                 ? `Piece ${piece.code}, owned`
                 : `Piece ${piece.code}, missing${
-                    piece.listingPrice ? `, listed at ${naira(piece.listingPrice)}` : ", no listings"
+                    piece.listingPrice ? `, listed at ${usd(piece.listingPrice)}` : ", no listings"
                   }`
             }
           >
@@ -69,7 +69,7 @@ export function BoardGrid({ pieces, cols, rows, seed, compact = false }: Props) 
                   )}
                   {!compact && (
                     <span className="tabular mt-0.5 text-[10px] text-ink-soft">
-                      {piece.listingPrice ? naira(piece.listingPrice) : "no listing"}
+                      {piece.listingPrice ? usd(piece.listingPrice) : "no listing"}
                     </span>
                   )}
                 </div>

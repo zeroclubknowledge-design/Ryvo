@@ -23,11 +23,21 @@ export type PieceListing={id:string;competitionId:string;index:number;price:numb
 export type CreatedCompetition=Competition&{creatorId:string;launchFee:number;creatorShare:5|10;createdAt:string;requestId:string;description:string;artworkKey:string;coverKey:string};
 export type RoundProgress={joined:number;status:Competition["status"];startedAt?:string;endsAt?:string};
 export type DemoState = {platformPlayers?:number;memberNumber?:number;tokenProgram?:TokenProgram;ownerId?:string;playerName?:string;inventory?:Record<string,number[]>;drawCounts?:Record<string,number>;pieceSupply?:Record<string,PieceSupply>;finishers?:Record<string,Finisher[]>;players?:Record<string,Record<string,PlayerProgress>>;listings?:PieceListing[];createdCompetitions?:CreatedCompetition[];rounds?:Record<string,RoundProgress>;earnings?:number;walletVersion?:1;bank?:BankAccount|null;withdrawals?:Withdrawal[];fundingOrders?:FundingOrder[];version:2;balance:number; cash:number; universal:number; boards:Record<string,number[]>; ledger:Ledger[]; purchases:string[]};
-export const initialState:DemoState = {walletVersion:1,earnings:7500,bank:null,withdrawals:[],fundingOrders:[],version:2,balance:18400,cash:100000,universal:1,boards:{"night-bloom":competitions[1].owned,"salt-flats":competitions[2].owned},ledger:[{id:"demo-earnings",label:"Sample marketplace earnings",amount:7500,currency:"NGN",date:"2026-11-13T10:01:00Z"},{id:"welcome",label:"Welcome RYVO credit",amount:20000,currency:"RYVO",date:"2026-11-11T10:00:00Z"},{id:"purchase",label:"Universal Piece purchase",amount:-1600,currency:"RYVO",date:"2026-11-12T10:00:00Z"},{id:"demo-funding",label:"Welcome demo naira balance",amount:100000,currency:"NGN",date:"2026-11-13T10:00:00Z"}],purchases:[]};
+export const initialState:DemoState = {walletVersion:1,earnings:7500,bank:null,withdrawals:[],fundingOrders:[],version:2,balance:18400,cash:100000,universal:1,boards:{"night-bloom":competitions[1].owned,"salt-flats":competitions[2].owned},ledger:[{id:"demo-earnings",label:"Sample marketplace earnings",amount:7500,currency:"NGN",date:"2026-11-13T10:01:00Z"},{id:"welcome",label:"Welcome RYVO credit",amount:20000,currency:"RYVO",date:"2026-11-11T10:00:00Z"},{id:"purchase",label:"Universal Piece purchase",amount:-1600,currency:"RYVO",date:"2026-11-12T10:00:00Z"},{id:"demo-funding",label:"Welcome demo balance",amount:100000,currency:"NGN",date:"2026-11-13T10:00:00Z"}],purchases:[]};
 export const CREDIT_RATE=10;
 export const SWAP_FEE=100;
 export const credit=(n:number)=>`${n.toLocaleString()} r/`;
-export const money=(n:number)=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",maximumFractionDigits:2,minimumFractionDigits:0}).format(n);
+/**
+ * Amounts are stored in legacy naira units. Players now see US dollars at a
+ * fixed ₦100 = $1, which keeps every credit amount unchanged: 10 r/ per stored
+ * unit is 1,000 r/ per $1.
+ */
+export const NAIRA_PER_USD=100;
+export const CREDITS_PER_USD=CREDIT_RATE*NAIRA_PER_USD;
+const usdFormat=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:2});
+export const money=(n:number)=>usdFormat.format(n/NAIRA_PER_USD);
+/** P2P merchants are paid by local bank transfer, so their quotes stay in naira. */
+export const localMoney=(n:number)=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",maximumFractionDigits:2,minimumFractionDigits:0}).format(n);
 
 export const validMoney=(n:unknown):n is number=>typeof n==="number"&&Number.isFinite(n)&&n>=0&&n<=1e12&&Math.abs(n*100-Math.round(n*100))<0.001;
 export const roundMoney=(n:number)=>Math.round(n*100)/100;
@@ -125,7 +135,7 @@ export function applyDemoAction(snapshot: DemoState, action: string, id: unknown
  if (action === "join") {
   if(!c||c.status!=="open")throw Error("This competition is not open for registration.");
   if(s.boards[c.id])throw Error("You have already joined this competition.");
-  if(s.cash<c.fee)throw Error(`You need ${money(c.fee)} in demo naira to register.`);
+  if(s.cash<c.fee)throw Error(`You need ${money(c.fee)} in your demo balance to register.`);
   if(!Number.isSafeInteger(s.balance+c.fee*CREDIT_RATE))throw Error("RYVO balance limit reached.");
   s.cash=roundMoney(s.cash-c.fee);s.balance+=c.fee*CREDIT_RATE;s.boards[c.id]=[];
   initializePieces(s,[...competitions,...s.createdCompetitions!]);
@@ -168,7 +178,7 @@ export function applyDemoAction(snapshot: DemoState, action: string, id: unknown
   const game=allCompetitions(s).find(c=>c.id===l.competitionId);
   if(!game||game.status!=="active"||!s.boards[game.id])throw Error("Join an available competition before buying a piece.");
   if(l.index>=game.total)throw Error("Invalid fragment.");
-  if(l.currency==="RYVO"){if(s.balance<l.price)throw Error("Insufficient RYVO credit.");s.balance-=l.price}else{if(s.cash<l.price)throw Error("Insufficient demo naira balance.");s.cash=roundMoney(s.cash-l.price)}
+  if(l.currency==="RYVO"){if(s.balance<l.price)throw Error("Insufficient RYVO credit.");s.balance-=l.price}else{if(s.cash<l.price)throw Error("Insufficient demo balance.");s.cash=roundMoney(s.cash-l.price)}
   s.inventory![game.id][l.index]++;syncBoard(s,game.id);s.purchases.push(`listing:${l.id}`);
   s.ledger.unshift({id:`buy:${l.id}`,label:`Piece #${String(l.index+1).padStart(2,"0")} · ${game.title}`,amount:-l.price,currency:l.currency??"NGN",date:new Date().toISOString()});
   awardCompletion(s,game.id);
@@ -184,7 +194,7 @@ export function applyDemoAction(snapshot: DemoState, action: string, id: unknown
   if(s.createdCompetitions!.some(c=>c.requestId===p.requestId))return s;
   if(s.createdCompetitions!.length>=20)throw Error("Your demo competition limit is 20.");
   if(typeof p.title!=="string"||p.title.trim().length<3||p.title.length>70||typeof p.description!=="string"||p.description.trim().length<20||p.description.length>1200||typeof p.artist!=="string"||p.artist.length<2||p.artist.length>80||!Number.isInteger(p.total)||p.total<10||p.total>50||!Number.isInteger(p.capacity)||p.capacity<2||p.capacity>10000||!Number.isInteger(p.winners)||p.winners<1||p.winners>p.capacity||![500,1000,2000].includes(p.fee)||![5,10].includes(p.creatorShare)||!/^asset-[a-z0-9-]{10,80}$/.test(p.artworkKey)||!/^asset-[a-z0-9-]{10,80}$/.test(p.coverKey))throw Error("Check your artwork, 10–50 fragments, capacity, winner slots and entry fee.");
-  const fee=launchFeeFor(p.fee,p.capacity,p.creatorShare);if(s.cash<fee)throw Error("Insufficient demo naira for the launch fee.");
+  const fee=launchFeeFor(p.fee,p.capacity,p.creatorShare);if(s.cash<fee)throw Error("Insufficient demo balance for the launch fee.");
   const date=new Date().toISOString();s.cash=roundMoney(s.cash-fee);
   const game:CreatedCompetition={id:`custom-${p.requestId}`,title:p.title.trim(),description:p.description.trim(),artist:p.artist,category:"Digital Art",theme:`upload:${p.artworkKey}`,artworkKey:p.artworkKey,coverKey:p.coverKey,total:p.total,owned:[],fee:p.fee,capacity:p.capacity,joined:0,winners:p.winners,remaining:p.winners,days:30,status:"open",prize:roundMoney(p.fee*p.capacity*0.2),creatorId:s.ownerId!,launchFee:fee,creatorShare:p.creatorShare,createdAt:date,requestId:p.requestId};
   s.createdCompetitions!.push(game);s.rounds![game.id]={joined:0,status:"open"};
@@ -204,7 +214,7 @@ export function applyDemoAction(snapshot: DemoState, action: string, id: unknown
   if(!order||typeof order.orderId!=="string"||order.orderId.length<10||order.orderId.length>100)throw Error("Invalid funding order.");
   if((s.fundingOrders??[]).some(o=>o.id===order.orderId))return s;
   if(!merchant||!Number.isSafeInteger(order.amount)||order.amount<merchant.minimum||order.amount>merchant.maximum)throw Error("Enter an amount within the merchant’s naira limits.");
-  if(s.cash<order.amount)throw Error("Insufficient demo naira for this transfer.");
+  if(s.cash<order.amount)throw Error("Insufficient demo balance for this transfer.");
   const credits=order.amount*merchant.rate;
   if(!Number.isSafeInteger(s.balance+credits))throw Error("Demo balance limit reached.");
   const date=new Date().toISOString();s.cash-=order.amount;s.balance+=credits;
@@ -225,14 +235,14 @@ export function applyDemoAction(snapshot: DemoState, action: string, id: unknown
   if(!validMoney(roundMoney(s.earnings!+naira)))throw Error("Demo balance limit reached.");
   s.balance-=order.amount;s.earnings=roundMoney(s.earnings!+naira);
   const date=new Date().toISOString();
-  s.ledger.unshift({id:order.requestId,label:action==="swap"?`Swap debit · includes ${fee} r/ fee`:`P2P sale · ${merchant!.name}`,amount:-order.amount,currency:"RYVO",date},{id:crypto.randomUUID(),label:action==="swap"?"Swap to naira":"P2P sale proceeds",amount:naira,currency:"NGN",date});
+  s.ledger.unshift({id:order.requestId,label:action==="swap"?`Swap debit · includes ${fee} r/ fee`:`P2P sale · ${merchant!.name}`,amount:-order.amount,currency:"RYVO",date},{id:crypto.randomUUID(),label:action==="swap"?"Swap to USDC":"P2P sale proceeds",amount:naira,currency:"NGN",date});
  } else if(action==="withdraw"){
   const request=payload as {amount:number;requestId:string};
   if(!request||typeof request.requestId!=="string"||request.requestId.length<10||request.requestId.length>100)throw Error("Invalid withdrawal request.");
   if((s.withdrawals??[]).some(w=>w.id===request.requestId))return s;
   if(!s.bank)throw Error("Add a test bank account before withdrawing.");
   if((s.withdrawals??[]).some(w=>w.status==="pending"))throw Error("A withdrawal is already processing. Please wait for it to finish.");
-  if(!validMoney(request.amount)||request.amount<500)throw Error("The demo withdrawal minimum is ₦500.");
+  if(!validMoney(request.amount)||request.amount<500)throw Error("The demo withdrawal minimum is $5.00.");
   if(request.amount>(s.earnings??0))throw Error("Withdrawals can only use your available earnings, not RYVO credits or demo spending money.");
   s.earnings=roundMoney(s.earnings!-request.amount);
   const date=new Date().toISOString();

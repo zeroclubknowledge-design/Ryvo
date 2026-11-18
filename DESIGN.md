@@ -29,7 +29,7 @@ Build, demo regression checks and browser checks cover landing, mobile menu, dis
 
 ## Product rules
 
-Register in naira and receive 10 r/ per ₦1. Boards start empty; draws and trades unlock when capacity fills. A competition lasts one month. Supply equals capacity × piece types; random draws can duplicate. Listing moves one copy, and a unique slot stays filled if another copy remains owned. New player listings use RYVO; seller proceeds and simulated prizes enter naira earnings. Browser-local demo state does not authorize real payments.
+Register in dollars and receive 1,000 r/ per $1 (see Dollar pricing). Boards start empty; draws and trades unlock when capacity fills. A competition lasts one month. Supply equals capacity × piece types; random draws can duplicate. Listing moves one copy, and a unique slot stays filled if another copy remains owned. New player listings use RYVO; seller proceeds and simulated prizes enter naira earnings. Browser-local demo state does not authorize real payments.
 
 ## Loading feedback
 
@@ -94,3 +94,9 @@ Player, merchant and admin pages have no footer; the floating taskbar is the pag
 The wallet page leads with Ryvo's own Solana connect panel instead of a generic adapter popup: detected wallets as rows with their icons and a green Connect chip, a plain no-wallet state with Phantom and Solflare links, and on Android the Solana Mobile adapter labelled "Wallet app on this phone". Connected, it shows the wallet, a copyable short address, live USDC (in dollars) and SOL balances, and Disconnect. Connecting never moves funds.
 
 Naira is retired from the wallet. RYVO Credit keeps its card with Fund, Swap and P2P; Fund points to wallet connection until on-chain checkout opens, and P2P opens the merchant directory. Available to withdraw reads the USDC cash-out ledger and shows dollars at 1 USDC = $1; nothing is converted from naira. Wallet activity lists RYVO Credit entries only.
+
+## Dollar pricing
+
+Players see US dollars everywhere except P2P merchant trades. RYVO Credit is 1,000 r/ per $1. Fees, prizes, earnings and listings are still stored in legacy naira units and shown in dollars at a fixed ₦100 = $1 (`money()` in `lib/demo.ts`), so every credit amount stays the same: a stored 1,000 is a $10 entry that issues 10,000 r/. Withdrawals are paid in USDC to the connected Solana wallet.
+
+P2P merchants keep their local currency because players pay them by local bank transfer: merchant offers, orders, stock and wholesale quotes use `localMoney()` and read in naira. Old naira earnings cannot be cashed out as USDC (enforced in the cash-out migration).

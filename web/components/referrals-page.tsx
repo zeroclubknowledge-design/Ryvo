@@ -20,10 +20,10 @@ import {
 import { supabase } from "@/lib/supabase";
 
 const referralMoney = (value: number) =>
-  new Intl.NumberFormat("en-NG", {
+  new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "NGN",
-    minimumFractionDigits: 0,
+    currency: "USD",
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
 
@@ -61,7 +61,7 @@ export function ReferralsPage({
 }) {
   const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState("");
-  const [entry, setEntry] = useState("1000");
+  const [entry, setEntry] = useState("10");
   const [count, setCount] = useState("5");
   const [preview, setPreview] = useState<ReferralScheme>("level");
   const [open, setOpen] = useState(false);
@@ -102,7 +102,7 @@ export function ReferralsPage({
   const valid =
     Number.isSafeInteger(amount) &&
     amount > 0 &&
-    amount <= 1000000 &&
+    amount <= 10000 &&
     Number.isSafeInteger(referrals) &&
     referrals >= 1 &&
     referrals <= 10000;
@@ -317,7 +317,7 @@ export function ReferralsPage({
               ? `Commission follows Ryvo’s total player count. You are in the ${populationTier.label.toLowerCase()} phase, so you earn ${rate}% of eligible registration fees from players you refer.`
               : `Commission follows your level. At level ${level.level} · ${level.name} you earn ${rate}% of eligible registration fees from players you refer.`}
           </p>
-          <span>Example: an eligible ₦1,000 entry → ₦{(1000 * rate) / 100} for you.</span>
+          <span>Example: an eligible $10 entry → {referralMoney((10 * rate) / 100)} for you.</span>
         </div>
         <div className="squad-hero-art">
           <Image className="squad-ryvo-logo" src="/ryvo-logo.png" alt="" width={220} height={220} />
@@ -408,12 +408,12 @@ export function ReferralsPage({
           {scheme && <p className="squad-calculator-locked">Locked to your {schemeLabel(scheme).toLowerCase()}.</p>}
           <div className="squad-calculator-inputs">
             <label>
-              Entry value per player (₦)
+              Entry value per player ($)
               <input
-                aria-label="Entry value per player in naira"
+                aria-label="Entry value per player in dollars"
                 type="number"
                 min={1}
-                max={1000000}
+                max={10000}
                 step={1}
                 value={entry}
                 onChange={e => setEntry(e.target.value)}
@@ -445,10 +445,10 @@ export function ReferralsPage({
             </div>
           ) : (
             <p className="error">
-              Enter whole naira amounts from 1 to 1,000,000 and a referral count from 1 to 10,000.
+              Enter whole dollar amounts from 1 to 10,000 and a referral count from 1 to 10,000.
             </p>
           )}
-          <small>Entry values are shown in naira equivalent. Registration provides RYVO Credit for piece purchases.</small>
+          <small>Entry values are shown in US dollars. Registration provides RYVO Credit for piece purchases.</small>
         </section>
       </div>
 
