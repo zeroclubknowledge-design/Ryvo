@@ -84,3 +84,7 @@ Load Montserrat through Next.js local fonts with preload and metric-adjusted fal
 Three restrained material effects lift the product without changing its grammar. Liquid glass (`LiquidGlass`, after dashersw/liquid-glass-js) bakes a rounded-rect bezel height field into an SVG displacement map with slight RGB dispersion and applies it as a backdrop filter, so it refracts live content including WebGL artwork. It is used on the landing hero caption, the closing Explore pill and the app floating taskbar. Chromium refracts; other engines and reduced-transparency users get frosted glass.
 
 The landing close is a stage: a slow brand water-plane gradient (the ruucm/shadergradient look, written as a react-three-fiber shader because the published bundle targets an older three.js and rewrites its global shader chunks) behind the Ryvo mark rendered in Paper's liquid-metal shader (paper-design/liquid-logo). Both load with next/dynamic and mount only while the section is near the viewport, so the page never holds the hero artwork context and the stage at once. Reduced motion freezes both; a static mark shows until the shader is ready.
+
+## In-app chrome trims
+
+Player, merchant and admin pages have no footer; the floating taskbar is the page end, and content keeps clear of it with bottom padding. Explore's heading stands alone (How to play lives in the banner action) and the balance appears only in the header, not as a separate RYVO Credit block. Create uses the same short heading grammar as Explore: `Launch.`

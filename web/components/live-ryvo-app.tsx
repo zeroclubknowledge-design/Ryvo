@@ -80,7 +80,6 @@ export function LiveRyvoApp({
   const [live, setLive] = useState<Live | null>(null);
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
-  const [help, setHelp] = useState(false);
   const [filter, setFilter] = useState("All collections");
 
   useEffect(() => {
@@ -294,46 +293,21 @@ export function LiveRyvoApp({
                 <>
                   <div className="play-home-heading">
                     <h1>Let’s play.</h1>
-                    <button onClick={() => setHelp(value => !value)} aria-expanded={help}>
-                      <Icon name="help" />
-                      How to play
-                    </button>
                   </div>
-                  {help && (
-                    <section className="live-help">
-                      <h2>Collect. Connect. Complete.</h2>
-                      <p>
-                        Choose a competition and register in naira to receive RYVO Credit. Once registration fills,
-                        collect random pieces, trade duplicates and race to finish your board within the available
-                        winner slots.
-                      </p>
-                    </section>
-                  )}
                   <SceneBanner
                     title="Your next move. A whole new picture."
                     text="Find the pieces. Trade your extras. Play for the complete board."
                     href="/how-it-works"
                     label="How to play"
                   />
-                  <div className="live-home-grid">
-                    <Link className="home-credit" href="/wallet">
-                      <span>
-                        Your RYVO Credit
-                        <Icon name="arrow" size={16} />
-                      </span>
-                      <strong>
-                        {price}
-                        <small>r/</small>
-                      </strong>
-                      <p>Your next move starts here.</p>
-                    </Link>
+                  <div className="live-home-grid live-home-grid-single">
                     <section className="home-launch">
                       <div className="home-launch-label">
                         <Image src="/ryvo-logo.png" alt="" width={28} height={28} />
                         <span>Made by you. Played by everyone.</span>
                       </div>
                       <h2>
-                        Turn your art into
+                        Turn your art into{" "}
                         <br />
                         the next challenge.
                       </h2>
@@ -560,8 +534,10 @@ export function LiveRyvoApp({
 
               {initialView === "create" && (
                 <>
-                  <h1>Launch a competition.</h1>
-                  <p className="subheading">Upload your artwork. Set the challenge. Bring your community.</p>
+                  <div className="play-home-heading">
+                    <h1>Launch.</h1>
+                  </div>
+                  <p className="subheading create-subheading">Upload your artwork. Set the challenge. Bring your community.</p>
                   <section className="live-launch-preview">
                     <div className="live-launch-art">
                       <Artwork theme="explorer" />
@@ -593,12 +569,6 @@ export function LiveRyvoApp({
             </>
           )}
         </main>
-        <footer className="page-footer">
-          <span>© 2026 Ryvo. Your next round awaits.</span>
-          <Link className="footer-how-to" href="/how-it-works">
-            How to play <Icon name="arrow" size={14} />
-          </Link>
-        </footer>
       </div>
     </div>
   );
