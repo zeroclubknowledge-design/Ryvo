@@ -10,6 +10,7 @@ import type { User } from "@supabase/supabase-js";
 import { BackLink } from "@/components/back-button";
 import { Artwork, Icon } from "@/components/collection-art";
 import { CollectionOpening } from "@/components/collection-opening";
+import { LiquidGlass } from "@/components/premium/liquid-glass";
 import { EditProfile } from "@/components/edit-profile";
 import { MerchantDirectory } from "@/components/merchant-directory";
 import { NavigationFeedback } from "@/components/navigation-feedback";
@@ -194,7 +195,7 @@ export function LiveRyvoApp({
       <a className="skip-to-game" href="#ryvo-content">
         Skip to game
       </a>
-      <nav className="floating-taskbar" aria-label="App navigation">
+      <LiquidGlass as="nav" className="floating-taskbar" aria-label="App navigation" bezel={14} refraction={28}>
         {navigation.map(([key, label]) => (
           <Link
             key={key}
@@ -211,7 +212,7 @@ export function LiveRyvoApp({
             <NavigationFeedback active={active === key} />
           </Link>
         ))}
-      </nav>
+      </LiquidGlass>
       <div className="workspace">
         <header className="topbar">
           <Link href="/" className="app-brand">

@@ -14,6 +14,10 @@ import { useRouter } from "next/navigation";
 
 import { Artwork, Icon } from "@/components/collection-art";
 
+import { ClosingStage } from "@/components/premium/closing-stage";
+
+import { LiquidGlass } from "@/components/premium/liquid-glass";
+
 
 
 export function LandingFrame({children,active}:{children:ReactNode;active?:string}){
@@ -62,13 +66,13 @@ export function LandingFrame({children,active}:{children:ReactNode;active?:strin
 
 export function LandingPage(){return <LandingFrame>
 
- <section className="ryvo-hero"><span className="ryvo-hero-watermark" aria-hidden>RYVO</span><div className="ryvo-hero-copy"><h1>ONE ARTWORK.<br/><em><span className="hero-race-pink">YOUR RACE TO</span> COMPLETE IT.</em></h1><p>Collect the pieces. Trade your extras. Be one of the first to complete your board and share the prize.</p><div className="ryvo-hero-actions"><Link className="primary" href="/onboarding">Start playing <Icon name="arrow" size={18}/></Link><Link className="secondary" href="/explore">Explore challenges</Link></div></div><div className="ryvo-hero-art"><Artwork theme="explorer" scene/><div className="hero-art-caption"><span>THE OTHER SIDE</span><b>12 pieces. One complete picture.</b><Link href="/collection/harbour-lights" aria-label="Explore The Other Side"><Icon name="arrow"/></Link></div></div></section>
+ <section className="ryvo-hero"><span className="ryvo-hero-watermark" aria-hidden>RYVO</span><div className="ryvo-hero-copy"><h1>ONE ARTWORK.<br/><em><span className="hero-race-pink">YOUR RACE TO</span> COMPLETE IT.</em></h1><p>Collect the pieces. Trade your extras. Be one of the first to complete your board and share the prize.</p><div className="ryvo-hero-actions"><Link className="primary" href="/onboarding">Start playing <Icon name="arrow" size={18}/></Link><Link className="secondary" href="/explore">Explore challenges</Link></div></div><div className="ryvo-hero-art"><Artwork theme="explorer" scene/><LiquidGlass className="hero-art-caption" bezel={22} refraction={44}><span>THE OTHER SIDE</span><b>12 pieces. One complete picture.</b><Link href="/collection/harbour-lights" aria-label="Explore The Other Side"><Icon name="arrow"/></Link></LiquidGlass></div></section>
 
  <section className="ryvo-play-section"><div className="ryvo-section-title"><h2>MORE THAN<br/>A COLLECTION.</h2><p>Every artwork is a race. Every piece is a move. Your board is yours to complete.</p></div><div className="ryvo-feature-grid"><Link className="ryvo-feature-tile tile-board" href="/how-it-works"><h3>THE PICTURE<br/>COMES TOGETHER.</h3><div className="landing-live-board"><Artwork theme="bloom"/><div>{Array.from({length:12},(_,i)=><i key={i} className={[2,6,9].includes(i)?"missing":""}/>)}</div></div><p>Draw pieces, keep the ones you need, and find a place for every fragment.</p><Icon name="arrow"/></Link><Link className="ryvo-feature-tile tile-trade" href="/discover"><h3>EXTRA PIECES.<br/>NEW POSSIBILITIES.</h3><div className="landing-trade-preview"><div><Artwork theme="explorer"/><b>Piece #04<small>Available to trade</small></b><Icon name="arrow" size={19}/></div><div><Artwork theme="bloom"/><b>Piece #09<small>Find your missing piece</small></b><Icon name="arrow" size={19}/></div></div><p>List your duplicates at your price. Trade with players in your competition.</p><Icon name="arrow"/></Link><Link className="ryvo-feature-tile tile-create" href="/create"><Image src="/ryvo-logo.png" alt="" width={48} height={48}/><h3>YOUR ART.<br/>EVERYONE’S NEXT GAME.</h3><p>Choose 10–50 pieces, set the player count, and open registration immediately.</p><span>Create a challenge <Icon name="arrow" size={19}/></span></Link><Link className="ryvo-feature-tile tile-invite" href="/referrals"><h3>BRING YOUR SQUAD.<br/>SHARE THE REWARDS.</h3><p>Earn 50% on eligible referred entry payments during Ryvo’s first 10,000-player phase.</p><span>See referral rewards <Icon name="arrow" size={19}/></span></Link></div></section>
 
  <section className="ryvo-how-section"><div className="ryvo-section-title"><h2>THREE MOVES.<br/>ONE COMPLETE BOARD.</h2></div><div>{[["01","Join the round","Register in naira and receive equivalent RYVO credit. Play unlocks when all player places fill."],["02","Find your pieces","Open random pieces with RYVO credit. Duplicates happen — keep them or put them up for sale."],["03","Finish first","Trade for missing types and complete your board within the one-month round to race for a winner slot."]].map(([n,t,d])=><article key={n}><span>{n}</span><h3>{t}</h3><p>{d}</p></article>)}</div></section>
 
- <section className="ryvo-final"><Image src="/ryvo-logo.png" alt="" width={66} height={66}/><h2>THE NEXT MOVE<br/>IS YOURS.</h2><p>A new challenge. A blank board. A race worth playing.</p><Link className="primary" href="/onboarding">Get in the game <Icon name="arrow"/></Link></section>
+ <ClosingStage/>
 
  </LandingFrame>}
 

@@ -78,3 +78,9 @@ Profile uses a fixed-ratio shared cover rather than a personal banner. Covers li
 Boards uses a prominent 36–48px `Boards` title. Explore's list heading is `Pick your` / `challenge` on exactly two lines. Footer How to play links use the pink pill treatment.
 
 Load Montserrat through Next.js local fonts with preload and metric-adjusted fallback. Keep static page framing present while fetching data; do not replace the whole page with a short temporary loading panel. Banner entrances and navigation press scaling are removed. Data error messages float above the taskbar instead of pushing the layout down. Preserve the deliberately requested ink logo on collection/board openings.
+
+## Premium surfaces
+
+Three restrained material effects lift the product without changing its grammar. Liquid glass (`LiquidGlass`, after dashersw/liquid-glass-js) bakes a rounded-rect bezel height field into an SVG displacement map with slight RGB dispersion and applies it as a backdrop filter, so it refracts live content including WebGL artwork. It is used on the landing hero caption, the closing Explore pill and the app floating taskbar. Chromium refracts; other engines and reduced-transparency users get frosted glass.
+
+The landing close is a stage: a slow brand water-plane gradient (the ruucm/shadergradient look, written as a react-three-fiber shader because the published bundle targets an older three.js and rewrites its global shader chunks) behind the Ryvo mark rendered in Paper's liquid-metal shader (paper-design/liquid-logo). Both load with next/dynamic and mount only while the section is near the viewport, so the page never holds the hero artwork context and the stage at once. Reduced motion freezes both; a static mark shows until the shader is ready.
