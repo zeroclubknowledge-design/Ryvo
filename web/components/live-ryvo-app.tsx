@@ -433,8 +433,10 @@ export function LiveRyvoApp({
 
               {initialView === "notifications" && (
                 <>
-                  <h1>Notifications</h1>
-                  <p className="subheading">Your game, collection and wallet updates.</p>
+                  <div className="play-home-heading">
+                    <h1>Notifications.</h1>
+                  </div>
+                  <p className="subheading create-subheading">Your game, collection and wallet updates.</p>
                   <SceneBanner
                     title="The game keeps moving."
                     text="Your latest updates, together in one place."
