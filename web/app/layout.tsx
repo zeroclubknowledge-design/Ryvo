@@ -2,6 +2,7 @@ import localFont from "next/font/local";
 import type { Metadata } from "next";
 import { getImageProps } from "next/image";
 import "./globals.css";
+import "./artwork-scene.css";
 import "./product-polish.css";
 import "./game-room.css";
 import "./ryvo-system.css";

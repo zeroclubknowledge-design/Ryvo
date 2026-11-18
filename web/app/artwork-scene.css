@@ -1,0 +1,30 @@
+/* Physical artwork render. The CSS artwork stays as a poster underneath: it is
+   what shows before the scene paints, without WebGL, and under reduced motion. */
+
+.artwork-poster {
+  position: absolute;
+  inset: 0;
+  transition: opacity 420ms var(--ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+
+.artwork.scene-ready .artwork-poster {
+  opacity: 0;
+}
+
+.artwork-scene {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.artwork-scene canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artwork-poster {
+    transition: none;
+  }
+}
