@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { Icon } from "@/components/collection-art";
+import { canRunRichEffects } from "@/components/premium/capability";
 import { LiquidGlass } from "@/components/premium/liquid-glass";
 
 const staticMark = <Image className="liquid-logo-fallback" src="/ryvo-logo-mark.png" alt="" width={148} height={148} />;
@@ -16,14 +17,14 @@ const LiquidLogo = dynamic(() => import("@/components/premium/brand-stage").then
   loading: () => staticMark,
 });
 
-/** True while the element is within one viewport of the screen; WebGL mounts only then. */
+/** True while a capable device has the element close to the screen; WebGL mounts only then. */
 function useNearViewport<T extends Element>() {
   const ref = useRef<T>(null);
   const [near, setNear] = useState(false);
   useEffect(() => {
     const element = ref.current;
-    if (!element) return;
-    const observer = new IntersectionObserver(([entry]) => setNear(entry.isIntersecting), { rootMargin: "100% 0px" });
+    if (!element || !canRunRichEffects()) return;
+    const observer = new IntersectionObserver(([entry]) => setNear(entry.isIntersecting), { rootMargin: "25% 0px" });
     observer.observe(element);
     return () => observer.disconnect();
   }, []);

@@ -55,7 +55,10 @@
   overflow: hidden;
   isolation: isolate;
   padding: 120px 25px 130px;
-  background: radial-gradient(90% 70% at 50% 60%, #2a1450 0%, #0c0a10 60%, #050505 100%);
+  background:
+    radial-gradient(45% 35% at 30% 70%, #c31dc326, transparent 70%),
+    radial-gradient(50% 40% at 72% 35%, #6338bc40, transparent 70%),
+    radial-gradient(90% 70% at 50% 60%, #2a1450 0%, #0c0a10 60%, #050505 100%);
 }
 .ryvo-final-backdrop { position: absolute; inset: 0; z-index: -2; opacity: 0; animation: ryvo-stage-in 1.2s 120ms cubic-bezier(.2,.8,.2,1) forwards; }
 .ryvo-final-backdrop canvas, .brand-gradient-canvas { position: absolute !important; inset: 0; width: 100% !important; height: 100% !important; }

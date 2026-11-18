@@ -1,5 +1,6 @@
 "use client";
 
+import { canRunRichEffects } from "@/components/premium/capability";
 import { useEffect, useId, useRef, useState, type ComponentPropsWithoutRef, type ElementType } from "react";
 
 /**
@@ -11,8 +12,8 @@ import { useEffect, useId, useRef, useState, type ComponentPropsWithoutRef, type
  * displacement map and applied as a backdrop filter, so it refracts live
  * content — including WebGL artwork — without a page snapshot.
  *
- * Chromium is the only engine that accepts an SVG filter in backdrop-filter.
- * Everywhere else, and for users who ask for reduced transparency, the
+ * Chromium is the only engine that accepts an SVG filter in backdrop-filter,
+ * and refraction only runs on desktop-class devices. Everywhere else, and for users who ask for reduced transparency, the
  * surface falls back to the frosted treatment in premium.css.
  */
 
@@ -38,7 +39,7 @@ function supportsRefraction() {
   const ua = navigator.userAgent;
   const chromium = /Chrome\/|Chromium\/|Edg\//.test(ua) && !/iPhone|iPad|iPod/.test(ua);
   const reducedTransparency = window.matchMedia("(prefers-reduced-transparency: reduce)").matches;
-  refractionSupport = chromium && !reducedTransparency;
+  refractionSupport = chromium && !reducedTransparency && canRunRichEffects();
   return refractionSupport;
 }
 

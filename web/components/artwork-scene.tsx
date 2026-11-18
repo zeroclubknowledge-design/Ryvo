@@ -96,6 +96,17 @@ export default function ArtworkScene({
     return () => query.removeEventListener("change", apply);
   }, []);
 
+  // Stop the render loop while the hero is off-screen so it does not compete
+  // with other GPU work further down the page.
+  const [onScreen, setOnScreen] = useState(true);
+  useEffect(() => {
+    const element = host.current;
+    if (!live || !element || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [live]);
+
   useEffect(() => () => disposeStudio.current?.(), []);
 
   return (
@@ -104,7 +115,7 @@ export default function ArtworkScene({
         <SceneBoundary>
           <Canvas
             dpr={[1, 1.75]}
-            frameloop={motion ? "always" : "demand"}
+            frameloop={motion && onScreen ? "always" : "demand"}
             camera={{ position: [0, 0, 5.4], fov: 38 }}
             gl={(defaults) =>
               studioRenderer(defaults.canvas as HTMLCanvasElement)
