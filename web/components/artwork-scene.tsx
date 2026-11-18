@@ -28,15 +28,31 @@ export function isSceneTheme(theme: string): theme is SceneTheme {
   return (THEMES as string[]).includes(theme);
 }
 
+const CONTEXT_ATTRIBUTES: WebGLContextAttributes = {
+  alpha: true,
+  antialias: true,
+  powerPreference: "high-performance",
+};
+
+let webglSupport: boolean | null = null;
+
+/**
+ * Three renders with WebGL2 only, so probe WebGL2 once on a throwaway canvas
+ * and release the context immediately. Asking one canvas for a second context
+ * type is what makes browsers refuse the request with "Canvas has an existing
+ * context of a different type".
+ */
 function supportsWebgl() {
+  if (webglSupport !== null) return webglSupport;
   try {
     const probe = document.createElement("canvas");
-    return Boolean(
-      probe.getContext("webgl2") ?? probe.getContext("webgl"),
-    );
+    const context = probe.getContext("webgl2");
+    webglSupport = Boolean(context);
+    context?.getExtension("WEBGL_lose_context")?.loseContext();
   } catch {
-    return false;
+    webglSupport = false;
   }
+  return webglSupport;
 }
 
 export default function ArtworkScene({
@@ -90,11 +106,9 @@ export default function ArtworkScene({
             dpr={[1, 1.75]}
             frameloop={motion ? "always" : "demand"}
             camera={{ position: [0, 0, 5.4], fov: 38 }}
-            gl={{
-              alpha: true,
-              antialias: true,
-              powerPreference: "high-performance",
-            }}
+            gl={(defaults) =>
+              studioRenderer(defaults.canvas as HTMLCanvasElement)
+            }
             onCreated={({ gl, scene }) => {
               gl.setClearColor(0x000000, 0);
               disposeStudio.current?.();
@@ -189,6 +203,21 @@ function basePose(theme: SceneTheme): [number, number, number] {
   if (theme === "bloom") return [0.06, -0.18, 0];
   if (theme === "explorer") return [0.04, -0.24, 0];
   return [0.14, -0.26, 0];
+}
+
+/**
+ * Three asks the canvas for its own context and logs a hard console error when
+ * the canvas already holds a context of another type. Creating the context
+ * here keeps that failure silent: without one the poster underneath stays.
+ */
+function studioRenderer(canvas: HTMLCanvasElement) {
+  const context = canvas.getContext("webgl2", CONTEXT_ATTRIBUTES);
+  if (!context) throw new Error("WebGL2 is unavailable for this artwork.");
+  return new THREE.WebGLRenderer({
+    canvas,
+    context: context as unknown as WebGLRenderingContext,
+    ...CONTEXT_ATTRIBUTES,
+  });
 }
 
 /**
