@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { createPortal } from "react-dom";
 
 import type { User } from "@supabase/supabase-js";
 
@@ -40,8 +41,10 @@ const levelBands = [
  * A player can earn commission through exactly one programme, and the choice is
  * made once: the level programme (the rate follows the level earned by
  * completing boards) or the population programme (the rate follows how many
- * players Ryvo has, starting high while the platform is small). Both readings
- * of an activated account come from the stored scheme, never from local state.
+ * players Ryvo has, starting high while the platform is small). Until a
+ * programme is activated the page only offers one button; that button opens
+ * the two programmes over a blurred page, and choosing one records it on the
+ * account for good.
  */
 export function ReferralsPage({
   username,
@@ -60,20 +63,38 @@ export function ReferralsPage({
   const [copied, setCopied] = useState("");
   const [entry, setEntry] = useState("1000");
   const [count, setCount] = useState("5");
-  const [choice, setChoice] = useState<ReferralScheme | null>(null);
-  const [activating, setActivating] = useState(false);
+  const [preview, setPreview] = useState<ReferralScheme>("level");
+  const [open, setOpen] = useState(false);
+  const [activating, setActivating] = useState<ReferralScheme | null>(null);
+  const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+  const trigger = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setOrigin(window.location.origin), 0);
     return () => clearTimeout(timer);
   }, []);
 
+  // The programme dialog is modal: the page behind it stops scrolling, and the
+  // button that opened it takes focus back once the dialog closes.
+  useEffect(() => {
+    if (!open) return;
+    const opener = trigger.current;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    panel.current?.focus();
+    return () => {
+      document.body.style.overflow = previous;
+      opener?.focus();
+    };
+  }, [open]);
+
   const link = origin && username ? `${origin}/onboarding?ref=${encodeURIComponent(username)}` : "";
   const populationTier = populationTierFor(players);
-  // Before the choice is locked the calculator previews the highlighted
-  // programme so nobody has to activate an account to see their rate.
-  const shown = scheme ?? choice ?? "level";
+  // Before the choice is locked the calculator previews a programme, so nobody
+  // has to activate an account just to see their rate.
+  const shown = scheme ?? preview;
   const rate = shown === "population" ? populationTier.rate : level.rate;
 
   const amount = Number(entry);
@@ -88,7 +109,7 @@ export function ReferralsPage({
   const reward = valid ? (amount * referrals * rate) / 100 : 0;
 
   async function activate(next: ReferralScheme) {
-    setActivating(true);
+    setActivating(next);
     setError("");
     try {
       const db = supabase();
@@ -99,11 +120,36 @@ export function ReferralsPage({
       const { data, error: saveError } = await db.auth.updateUser({ data: { referral_scheme: next } });
       if (saveError || !data.user) throw Error("Your programme couldn’t be activated. Please try again.");
       onUser(data.user);
-      setChoice(null);
+      setStatus(`${schemeLabel(next)} activated. Your commission is locked to this account.`);
+      setOpen(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unable to activate your referral programme.");
     } finally {
-      setActivating(false);
+      setActivating(null);
+    }
+  }
+
+  function closeDialog() {
+    if (activating) return;
+    setOpen(false);
+  }
+
+  // Keeps Tab inside the dialog while it is open, so the blurred page behind it
+  // never takes focus.
+  function keepFocusInside(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Tab") return;
+    const items = panel.current?.querySelectorAll<HTMLElement>(
+      'button:not(:disabled),a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])',
+    );
+    if (!items?.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
     }
   }
 
@@ -118,115 +164,145 @@ export function ReferralsPage({
           <p className="subheading">More players in the game. More rewards for you.</p>
         </div>
         <span className={`squad-phase ${scheme ? "" : "is-open"}`}>
-          {scheme ? `${schemeLabel(scheme)} · Locked` : "CHOOSE YOUR PROGRAMME"}
+          {scheme ? `${schemeLabel(scheme)} · Locked` : "PROGRAMME NOT ACTIVE"}
         </span>
       </div>
 
+      {status && (
+        <p className="squad-activated" role="status">
+          {status}
+        </p>
+      )}
+
       {!scheme && (
-        <section className="squad-scheme">
-          <div className="squad-scheme-head">
-            <div>
-              <p className="eyebrow">ONE DECISION. YOUR ACCOUNT KEEPS IT.</p>
-              <h2>
-                Choose how you earn.
-                <br />
-                It cannot be changed.
-              </h2>
-              <p>
-                Ryvo runs two commission programmes. Pick the one that suits how you play, confirm it once, and every
-                referral on this account follows that programme from then on.
-              </p>
-            </div>
-            <span className="squad-lock">
-              <Icon name="time" size={16} />
-              Permanent choice
-            </span>
+        <section className="squad-activate">
+          <div>
+            <p className="eyebrow">REFERRAL PROGRAMME</p>
+            <h2>Activate to start earning.</h2>
+            <p>Two programmes. One permanent choice per account. Your commission follows whichever you pick.</p>
           </div>
-
-          <div className="squad-scheme-grid">
-            <article className={`squad-scheme-card ${shown === "level" ? "is-chosen" : ""}`}>
-              <p className="eyebrow">LEVEL PROGRAMME</p>
-              <h3>Your level sets your rate.</h3>
-              <p>Complete boards, reach a level, and earn a bigger share of every referred registration fee.</p>
-              <div className="squad-scheme-list">
-                {levelBands.map(band => (
-                  <div key={band.levels} className={level.rate === band.rate ? "is-current" : ""}>
-                    <span>{band.levels}</span>
-                    <b>{band.rate}%</b>
-                  </div>
-                ))}
-              </div>
-              <p className="squad-scheme-now">
-                You are level {level.level} · {level.name} → <b>{level.rate}% now</b>
-              </p>
-              <button
-                className="primary"
-                disabled={!username || activating}
-                onClick={() => setChoice("level")}
-              >
-                Choose level programme
-              </button>
-            </article>
-
-            <article className={`squad-scheme-card ${shown === "population" ? "is-chosen" : ""}`}>
-              <p className="eyebrow">POPULATION PROGRAMME</p>
-              <h3>Ryvo’s size sets your rate.</h3>
-              <p>The rate starts at its highest while the platform is small, then steps down as Ryvo grows.</p>
-              <div className="squad-scheme-list">
-                {POPULATION_TIERS.map(tier => (
-                  <div key={tier.from} className={populationTier.from === tier.from ? "is-current" : ""}>
-                    <span>{tier.label}</span>
-                    <b>{tier.rate}%</b>
-                  </div>
-                ))}
-              </div>
-              <p className="squad-scheme-now">
-                Ryvo now: {players.toLocaleString()} players → <b>{populationTier.rate}% now</b>
-              </p>
-              <button
-                className="primary"
-                disabled={!username || activating}
-                onClick={() => setChoice("population")}
-              >
-                Choose population programme
-              </button>
-            </article>
+          <div className="squad-activate-action">
+            <button className="primary" ref={trigger} disabled={!username} onClick={() => setOpen(true)}>
+              Activate Referral Program
+              <Icon name="arrow" size={17} />
+            </button>
+            <p>
+              {username
+                ? "Nothing is charged. The programme cannot be switched later."
+                : "Sign in to activate a programme on your account."}
+            </p>
           </div>
-
-          {!username && (
-            <p className="squad-scheme-note">
-              Sign in to activate a programme. Your account records the choice, not this browser.
-            </p>
-          )}
-
-          {choice && (
-            <div className="squad-confirm" role="group" aria-label="Confirm your referral programme">
-              <div>
-                <p className="eyebrow">CONFIRM BEFORE YOU CONTINUE</p>
-                <h3>Activate the {schemeLabel(choice).toLowerCase()}?</h3>
-                <p>
-                  You start at <b>{choice === "population" ? populationTier.rate : level.rate}%</b> commission. This
-                  choice is final: your account cannot switch programmes later.
-                </p>
-              </div>
-              <div className="squad-confirm-actions">
-                <button className="primary" disabled={activating} onClick={() => void activate(choice)}>
-                  {activating ? "Activating…" : "Activate permanently"}
-                </button>
-                <button className="secondary" disabled={activating} onClick={() => setChoice(null)}>
-                  Not yet
-                </button>
-              </div>
-            </div>
-          )}
-
-          {error && (
-            <p className="error" role="alert">
-              {error}
-            </p>
-          )}
         </section>
       )}
+
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="squad-choice-backdrop"
+            onMouseDown={event => {
+              if (event.target === event.currentTarget) closeDialog();
+            }}
+            onKeyDown={event => {
+              if (event.key === "Escape") closeDialog();
+              else keepFocusInside(event);
+            }}
+          >
+            <div
+              className="squad-choice"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="squad-choice-title"
+              aria-describedby="squad-choice-copy"
+              tabIndex={-1}
+              ref={panel}
+            >
+              <div className="squad-choice-head">
+                <div>
+                  <p className="eyebrow">TWO PROGRAMMES. ONE CHOICE.</p>
+                  <h2 id="squad-choice-title">How should you earn?</h2>
+                  <p id="squad-choice-copy">
+                    Activating a programme records it on your account immediately. It cannot be changed afterwards, so
+                    pick the one that suits how you play.
+                  </p>
+                </div>
+                <button
+                  className="squad-choice-close"
+                  type="button"
+                  aria-label="Close programme selection"
+                  disabled={Boolean(activating)}
+                  onClick={closeDialog}
+                >
+                  <Icon name="close" size={18} />
+                </button>
+              </div>
+
+              <div className="squad-scheme-grid">
+                <article className="squad-scheme-card squad-choice-card">
+                  <p className="eyebrow">LEVEL PROGRAMME</p>
+                  <h3>Your level sets your rate.</h3>
+                  <p>Complete boards, reach a level, and earn a bigger share of every referred registration fee.</p>
+                  <div className="squad-scheme-list">
+                    {levelBands.map(band => (
+                      <div key={band.levels} className={level.rate === band.rate ? "is-current" : ""}>
+                        <span>{band.levels}</span>
+                        <b>{band.rate}%</b>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="squad-scheme-now">
+                    You are level {level.level} · {level.name} → <b>{level.rate}% now</b>
+                  </p>
+                  <button
+                    className="primary"
+                    type="button"
+                    disabled={Boolean(activating)}
+                    onClick={() => void activate("level")}
+                  >
+                    {activating === "level" ? "Activating…" : "Activate level programme"}
+                  </button>
+                </article>
+
+                <article className="squad-scheme-card squad-choice-card">
+                  <p className="eyebrow">POPULATION PROGRAMME</p>
+                  <h3>Ryvo’s size sets your rate.</h3>
+                  <p>The rate starts at its highest while the platform is small, then steps down as Ryvo grows.</p>
+                  <div className="squad-scheme-list">
+                    {POPULATION_TIERS.map(tier => (
+                      <div key={tier.from} className={populationTier.from === tier.from ? "is-current" : ""}>
+                        <span>{tier.label}</span>
+                        <b>{tier.rate}%</b>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="squad-scheme-now">
+                    Ryvo now: {players.toLocaleString()} players → <b>{populationTier.rate}% now</b>
+                  </p>
+                  <button
+                    className="primary"
+                    type="button"
+                    disabled={Boolean(activating)}
+                    onClick={() => void activate("population")}
+                  >
+                    {activating === "population" ? "Activating…" : "Activate population programme"}
+                  </button>
+                </article>
+              </div>
+
+              {error && (
+                <p className="error" role="alert">
+                  {error}
+                </p>
+              )}
+
+              <p className="squad-choice-foot">
+                Commission applies to eligible competition entry payments from players who join with your invite link. No
+                charge is made now.
+              </p>
+            </div>
+          </div>,
+          document.body,
+        )}
 
       <section className="squad-hero">
         <div>
@@ -321,7 +397,7 @@ export function ReferralsPage({
               label="Referral programme"
               value={shown}
               onValueChange={value => {
-                if (!scheme && isReferralScheme(value)) setChoice(value);
+                if (!scheme && isReferralScheme(value)) setPreview(value);
               }}
               options={[
                 { value: "level", label: `Level programme · ${level.rate}%` },
