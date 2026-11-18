@@ -12,6 +12,7 @@ import "./token-profile.css";
 import "./live-product.css";
 import "./operations.css";
 import "./player-profile.css";
+import "./account-editing.css";
 const montserrat=localFont({src:"../public/fonts/Montserrat-Variable.ttf",weight:"100 900",display:"block",preload:true,variable:"--font-ryvo",adjustFontFallback:"Arial"});
 export const metadata: Metadata = { title: "Ryvo — Collect. Connect. Complete.", description: "Choose a competition. Collect the pieces. Complete your board. Get in the Ryvo game." };
 const loaderLogo=getImageProps({src:"/ryvo-logo.png",alt:"",width:192,height:192}).props.src;
