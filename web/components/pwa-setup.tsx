@@ -1,0 +1,104 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+/** Chrome's install event; not yet in the DOM typings. */
+type InstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: "accepted" | "dismissed" }> };
+
+const DISMISS_KEY = "ryvo-install-dismissed-at";
+const DISMISS_FOR = 14 * 24 * 60 * 60 * 1000;
+
+function recentlyDismissed() {
+  try {
+    const at = Number(localStorage.getItem(DISMISS_KEY));
+    return Number.isFinite(at) && Date.now() - at < DISMISS_FOR;
+  } catch {
+    return false;
+  }
+}
+
+function isStandalone() {
+  return window.matchMedia("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+}
+
+function isIosSafari() {
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  return ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
+}
+
+/**
+ * Registers the service worker and offers installation: Chrome/Edge/Samsung
+ * get the native install prompt (which installs Ryvo as an Android app),
+ * iPhone Safari gets Add to Home Screen instructions.
+ */
+export function PwaSetup() {
+  const [prompt, setPrompt] = useState<InstallPromptEvent | null>(null);
+  const [mode, setMode] = useState<"hidden" | "install" | "ios">("hidden");
+
+  useEffect(() => {
+    if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
+      navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" }).catch(() => {});
+    }
+    if (isStandalone()) return;
+
+    let timer = 0;
+    const onPrompt = (event: Event) => {
+      event.preventDefault();
+      setPrompt(event as InstallPromptEvent);
+      if (!recentlyDismissed()) timer = window.setTimeout(() => setMode("install"), 2500);
+    };
+    const onInstalled = () => { setMode("hidden"); setPrompt(null); };
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+    if (isIosSafari() && !recentlyDismissed()) timer = window.setTimeout(() => setMode("ios"), 2500);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  const dismiss = () => {
+    setMode("hidden");
+    try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch { /* storage blocked */ }
+  };
+
+  const install = async () => {
+    if (!prompt) return;
+    await prompt.prompt();
+    const { outcome } = await prompt.userChoice;
+    setPrompt(null);
+    if (outcome === "accepted") setMode("hidden");
+    else dismiss();
+  };
+
+  if (mode === "hidden") return null;
+
+  return (
+    <aside className="pwa-install" role="dialog" aria-labelledby="pwa-install-title" aria-describedby="pwa-install-copy">
+      <Image src="/icon-192.png" alt="" width={48} height={48} />
+      <div>
+        <b id="pwa-install-title">Get the Ryvo app</b>
+        <p id="pwa-install-copy">
+          {mode === "ios" ? (
+            <>Tap <ShareGlyph /> Share, then <strong>Add to Home Screen</strong>.</>
+          ) : (
+            "Install Ryvo on your phone for full-screen play."
+          )}
+        </p>
+      </div>
+      {mode === "install" && <button className="pwa-install-action" onClick={() => void install()}>Install</button>}
+      <button className="pwa-install-close" aria-label="Not now" onClick={dismiss}>×</button>
+    </aside>
+  );
+}
+
+function ShareGlyph() {
+  return (
+    <svg className="pwa-share-glyph" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+      <path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}

@@ -100,3 +100,9 @@ Naira is retired from the wallet. RYVO Credit keeps its card with Fund, Swap and
 Players see US dollars everywhere except P2P merchant trades. RYVO Credit is 1,000 r/ per $1. Fees, prizes, earnings and listings are still stored in legacy naira units and shown in dollars at a fixed ₦100 = $1 (`money()` in `lib/demo.ts`), so every credit amount stays the same: a stored 1,000 is a $10 entry that issues 10,000 r/. Withdrawals are paid in USDC to the connected Solana wallet.
 
 P2P merchants keep their local currency because players pay them by local bank transfer: merchant offers, orders, stock and wholesale quotes use `localMoney()` and read in naira. Old naira earnings cannot be cashed out as USDC (enforced in the cash-out migration).
+
+## Installable app (PWA)
+
+Ryvo is installable: `app/manifest.ts` (standalone, portrait, #050505, opens on Explore, shortcuts to Explore, Boards and Wallet), icons generated from the logo on the black canvas (192, 512, maskable 512, Apple touch 180), and `public/sw.js`. The service worker caches only hashed `/_next/static` files, fonts, icons and `offline.html`; pages always come from the network and fall back to the branded offline screen, and API, Supabase and Solana requests are never intercepted. Bump `VERSION` in `sw.js` when its caching rules change.
+
+`PwaSetup` registers the worker in production and shows a dismissible "Get the Ryvo app" card (above the taskbar on app screens): Chrome, Edge and Samsung Internet use the native install prompt, which installs Ryvo as an Android app; iPhone Safari gets Share → Add to Home Screen instructions. Dismissal is remembered for 14 days per browser.
