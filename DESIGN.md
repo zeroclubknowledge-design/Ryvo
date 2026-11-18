@@ -88,3 +88,9 @@ The landing close is a stage: a slow brand water-plane gradient (the ruucm/shade
 ## In-app chrome trims
 
 Player, merchant and admin pages have no footer; the floating taskbar is the page end, and content keeps clear of it with bottom padding. Explore's heading stands alone (How to play lives in the banner action) and the balance appears only in the header, not as a separate RYVO Credit block. Create uses the same short heading grammar as Explore: `Launch.`
+
+## Wallet (Solana)
+
+The wallet page leads with Ryvo's own Solana connect panel instead of a generic adapter popup: detected wallets as rows with their icons and a green Connect chip, a plain no-wallet state with Phantom and Solflare links, and on Android the Solana Mobile adapter labelled "Wallet app on this phone". Connected, it shows the wallet, a copyable short address, live USDC (in dollars) and SOL balances, and Disconnect. Connecting never moves funds.
+
+Naira is retired from the wallet. RYVO Credit keeps its card with Fund, Swap and P2P; Fund points to wallet connection until on-chain checkout opens, and P2P opens the merchant directory. Available to withdraw reads the USDC cash-out ledger and shows dollars at 1 USDC = $1; nothing is converted from naira. Wallet activity lists RYVO Credit entries only.

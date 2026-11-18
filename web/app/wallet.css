@@ -1,0 +1,115 @@
+/* Ryvo wallet: Solana connect panel, credit and earnings cards. */
+
+.wallet-hub { display: grid; gap: 22px; margin-top: 26px; }
+
+/* ---------- Connect panel ---------- */
+.wallet-connect-panel {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 28px;
+  padding: 28px;
+  background: #111211;
+  scroll-margin: 96px;
+}
+.wallet-connect-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 90% at 100% 0%, #6338bc40, transparent 60%),
+    radial-gradient(50% 70% at 0% 100%, #f828f81a, transparent 65%);
+}
+.wallet-connect-panel.is-connected::before {
+  background:
+    radial-gradient(70% 90% at 100% 0%, #60b80033, transparent 60%),
+    radial-gradient(50% 70% at 0% 100%, #6338bc26, transparent 65%);
+}
+.wallet-connect-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
+.wallet-connect-head img { object-fit: contain; }
+.wallet-network { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: #ffffff0f; color: #d9dcd5; font-size: 11px; font-weight: 650; }
+.wallet-network i { width: 7px; height: 7px; border-radius: 50%; background: linear-gradient(135deg, #9945ff, #14f195); }
+.wallet-connect-panel h2 { margin: 0; font-size: clamp(28px, 3.4vw, 40px); font-weight: 800; line-height: 1.05; letter-spacing: -.04em; color: #f5f5f3; }
+.wallet-connect-copy { max-width: 46ch; margin: 12px 0 24px; font-size: 13px; line-height: 1.7; color: #a0a29e; }
+
+.wallet-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.wallet-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 12px 14px 12px 12px;
+  border-radius: 18px;
+  background: #191a19;
+  color: #f5f5f3;
+  text-align: left;
+  transition: background-color 140ms ease, transform 140ms cubic-bezier(.2,.8,.2,1);
+}
+.wallet-option img { width: 36px; height: 36px; border-radius: 10px; flex: none; }
+.wallet-option b { flex: 1; font-size: 14px; font-weight: 700; }
+.wallet-option span { padding: 8px 13px; border-radius: 999px; background: #60b800; color: #112206; font-size: 11px; font-weight: 750; white-space: nowrap; }
+.wallet-option:active:not(:disabled) { transform: scale(.98); }
+.wallet-option:disabled { cursor: progress; opacity: .7; }
+.wallet-option:focus-visible, .wallet-chip:focus-visible, .wallet-link:focus-visible { outline: 2px solid #f5f5f3; outline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) { .wallet-option:hover:not(:disabled) { background: #222422; } }
+
+.wallet-empty { padding: 20px; border-radius: 18px; background: #191a19; }
+.wallet-empty b { font-size: 14px; color: #f5f5f3; }
+.wallet-empty p { margin: 8px 0 16px; font-size: 12px; line-height: 1.7; color: #a0a29e; }
+.wallet-empty div { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.wallet-chip { display: inline-flex; align-items: center; min-height: 38px; padding: 0 15px; border-radius: 999px; background: #ffffff14; color: #f5f5f3; font-size: 12px; font-weight: 650; white-space: nowrap; }
+@media (hover: hover) and (pointer: fine) { .wallet-chip:hover { background: #ffffff22; } }
+.wallet-link { color: #c9cdc4; font-size: 12px; font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
+
+.wallet-identity { display: flex; align-items: center; gap: 14px; margin: 22px 0; }
+.wallet-identity img { width: 40px; height: 40px; border-radius: 12px; }
+.wallet-identity div { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.wallet-identity b { font-size: 14px; color: #f5f5f3; }
+.wallet-identity span { font-size: 12px; color: #a0a29e; font-variant-numeric: tabular-nums; }
+.wallet-balances { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.wallet-balances div { padding: 16px 18px; border-radius: 18px; background: #191a19; }
+.wallet-balances span { display: block; font-size: 11px; font-weight: 700; letter-spacing: .06em; color: #8d9189; }
+.wallet-balances strong { display: block; margin-top: 8px; font-size: 24px; font-weight: 750; letter-spacing: -.03em; color: #f5f5f3; font-variant-numeric: tabular-nums; }
+.wallet-disconnect { margin-top: 18px; }
+.wallet-connect-error { margin: 14px 0 0; font-size: 12px; color: #ffb4b4; }
+
+/* ---------- Credit and earnings ---------- */
+.ryvo-wallet-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 22px; }
+.ryvo-wallet-card { display: flex; flex-direction: column; border-radius: 28px; padding: 30px; }
+.ryvo-wallet-card>span { font-size: 12px; font-weight: 700; }
+.ryvo-wallet-card>strong { display: block; margin: 22px 0 6px; font-size: clamp(40px, 5vw, 64px); font-weight: 750; letter-spacing: -.045em; line-height: 1; font-variant-numeric: tabular-nums; }
+.ryvo-wallet-card>strong small { margin-left: 10px; font-size: 18px; font-weight: 700; letter-spacing: 0; }
+.ryvo-wallet-card>p { margin: 8px 0 0; font-size: 12px; line-height: 1.6; }
+.wallet-credit { background: #e820ef; color: #211225; }
+.wallet-credit>p { color: #4a1f50; }
+.wallet-earnings { background: #60b800; color: #132100; }
+.wallet-earnings>p { color: #23400a; max-width: 36ch; }
+.wallet-earnings .secondary { margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 12px; background: #23330f; color: #f2f7ec; }
+.wallet-earnings>p + .secondary { margin-top: 24px; }
+.wallet-earnings .secondary:disabled { opacity: .8; cursor: not-allowed; }
+
+.ryvo-wallet-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 76px)); gap: 14px; margin-top: 26px; }
+.ryvo-wallet-actions>a, .ryvo-wallet-actions>button { display: flex; flex-direction: column; align-items: center; gap: 10px; background: none; color: inherit; font-size: 11px; font-weight: 700; text-decoration: none; }
+.ryvo-wallet-actions svg { width: 50px; height: 50px; padding: 15px; border-radius: 50%; background: #1b1219; color: #fff; transition: transform 140ms cubic-bezier(.2,.8,.2,1); }
+.ryvo-wallet-actions>:active:not(:disabled) svg { transform: scale(.94); }
+.ryvo-wallet-actions button:disabled { opacity: .5; cursor: not-allowed; }
+.ryvo-wallet-actions>:focus-visible { outline: 2px solid #211225; outline-offset: 4px; border-radius: 14px; }
+.wallet-card-hint { margin-top: 14px; font-size: 11px; color: #4a1f50; }
+
+@media (max-width: 700px) {
+  .wallet-hub { gap: 16px; margin-top: 20px; }
+  .wallet-connect-panel { padding: 22px; border-radius: 24px; }
+  .wallet-connect-head { margin-bottom: 20px; }
+  .wallet-options { grid-template-columns: 1fr; }
+  .ryvo-wallet-grid { grid-template-columns: 1fr; gap: 16px; }
+  .ryvo-wallet-card { padding: 24px; border-radius: 24px; }
+  .wallet-identity { flex-wrap: wrap; }
+  .wallet-balances strong { font-size: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wallet-option, .ryvo-wallet-actions svg { transition: none; }
+}
+.wallet-option-placeholder { opacity: .5; }

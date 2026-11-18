@@ -10,6 +10,7 @@ import type { User } from "@supabase/supabase-js";
 import { BackLink } from "@/components/back-button";
 import { Artwork, Icon } from "@/components/collection-art";
 import { CollectionOpening } from "@/components/collection-opening";
+import { WalletPage } from "@/components/wallet-page";
 import { LiquidGlass } from "@/components/premium/liquid-glass";
 import { EditProfile } from "@/components/edit-profile";
 import { MerchantDirectory } from "@/components/merchant-directory";
@@ -414,68 +415,15 @@ export function LiveRyvoApp({
                     <>
                       <SceneBanner
                         title="More possibilities in every move."
-                        text="Your RYVO Credit and earnings, all in one place."
+                        text="Your wallet, your RYVO Credit and your earnings, in one place."
                         theme="chrome"
                       />
-                      <div className="live-wallet-grid">
-                        <section className="live-credit-card">
-                          <span>Your RYVO wallet</span>
-                          <strong>
-                            {price}
-                            <small>r/</small>
-                          </strong>
-                          <p>Collect what moves you.</p>
-                          <div className="live-wallet-actions">
-                            <Link href="/wallet/p2p">
-                              <Icon name="spark" />
-                              Fund
-                            </Link>
-                            <button disabled>
-                              <Icon name="wallet" />
-                              Bank account
-                            </button>
-                            <button disabled>
-                              <Icon name="arrow" />
-                              Swap
-                            </button>
-                          </div>
-                        </section>
-                        <section className="live-earnings-card">
-                          <span>Available to withdraw</span>
-                          <strong>{state ? money(state.earnings ?? 0) : "—"}</strong>
-                          <p>Your earnings on Ryvo.</p>
-                          <button className="secondary" disabled>
-                            Withdraw earnings <Icon name="arrow" />
-                          </button>
-                        </section>
-                      </div>
-                      {state && !error && <TokenWalletCard state={state} earned={tokens} />}
-                      <section className="wallet-activity-section">
-                        <h2>
-                          Wallet activity<span className="lime-dot" />
-                        </h2>
-                        {ledger.length ? (
-                          <div className="ledger">
-                            {ledger.map(entry => (
-                              <div key={entry.id}>
-                                <Icon name="wallet" />
-                                <p>
-                                  <b>{entry.label}</b>
-                                  <small>{new Date(entry.date).toLocaleDateString("en-NG")}</small>
-                                </p>
-                                <strong>
-                                  {entry.amount < 0 ? "−" : "+"}
-                                  {entry.currency === "NGN"
-                                    ? money(Math.abs(entry.amount))
-                                    : credit(Math.abs(entry.amount))}
-                                </strong>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="live-empty-copy">Your transactions will appear here.</p>
-                        )}
-                      </section>
+                      <WalletPage
+                        creditBalance={price}
+                        activity={ledger}
+                        signedIn={Boolean(user)}
+                        tokenCard={state && !error ? <TokenWalletCard state={state} earned={tokens} /> : null}
+                      />
                     </>
                   )}
                   {paymentNote}
