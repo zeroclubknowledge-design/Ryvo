@@ -16,6 +16,7 @@ import "./account-editing.css";
 import "./premium.css";
 import "./wallet.css";
 import "./create.css";
+import "./landing.css";
 import "./pwa.css";
 import { PwaSetup } from "@/components/pwa-setup";
 import { SolanaProvider } from "@/components/solana-provider";
