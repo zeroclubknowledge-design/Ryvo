@@ -87,3 +87,24 @@ html[data-splash="out"] .pwa-splash .ryvo-loader-center { animation: pwa-logo-ou
   html[data-splash="out"] .pwa-splash { -webkit-mask-image: none; mask-image: none; animation: pwa-fade 300ms ease forwards; }
 }
 @keyframes pwa-fade { to { opacity: 0; } }
+
+/* ---------- Splash choreography ----------
+   Outline → one ink pass (pink, charcoal, green; 720ms) → the logo settles →
+   "Ryvo" rises in → short hold → exit. Everything waits for the logo image
+   (.is-ready), so a slow load never starts the sequence half-drawn.        */
+.pwa-splash .ryvo-loader .ryvo-loader-ink.ryvo-loader-top { animation: pwa-ink-top 720ms linear 240ms both; animation-play-state: paused; }
+.pwa-splash .ryvo-loader .ryvo-loader-ink.ryvo-loader-middle { animation: pwa-ink-middle 720ms linear 240ms both; animation-play-state: paused; }
+.pwa-splash .ryvo-loader .ryvo-loader-ink.ryvo-loader-green { animation: pwa-ink-green 720ms linear 240ms both; animation-play-state: paused; }
+.pwa-splash .ryvo-loader .ryvo-loader-logo { animation: pwa-logo-settle 420ms cubic-bezier(.2,.8,.2,1) 960ms both; animation-play-state: paused; transform-origin: 50% 50%; }
+.pwa-splash .ryvo-loader .ryvo-loader-wordmark { animation: pwa-word-in 460ms cubic-bezier(.2,.8,.2,1) 1080ms both; animation-play-state: paused; }
+.pwa-splash .ryvo-loader.is-ready .ryvo-loader-ink,
+.pwa-splash .ryvo-loader.is-ready .ryvo-loader-logo,
+.pwa-splash .ryvo-loader.is-ready .ryvo-loader-wordmark { animation-play-state: running; }
+@keyframes pwa-ink-top { 0% { clip-path: inset(0 100% 0 0); } 33.3%, 100% { clip-path: inset(0); } }
+@keyframes pwa-ink-middle { 0%, 33.3% { clip-path: inset(0 0 0 100%); } 66.6%, 100% { clip-path: inset(0); } }
+@keyframes pwa-ink-green { 0%, 66.6% { clip-path: inset(0 100% 0 0); } 100% { clip-path: inset(0); } }
+@keyframes pwa-logo-settle { 0% { transform: scale(1); } 45% { transform: scale(1.06); } 100% { transform: scale(1); } }
+@keyframes pwa-word-in { from { opacity: 0; transform: translateY(10px); letter-spacing: .02em; filter: blur(4px); } to { opacity: 1; transform: none; letter-spacing: -.04em; filter: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .pwa-splash .ryvo-loader .ryvo-loader-ink, .pwa-splash .ryvo-loader .ryvo-loader-logo, .pwa-splash .ryvo-loader .ryvo-loader-wordmark { animation: none; clip-path: inset(0); opacity: 1; }
+}

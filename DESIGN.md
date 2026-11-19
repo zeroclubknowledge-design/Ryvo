@@ -135,7 +135,7 @@ The landing explains, in order: the hero (enter from $5, race to collect every p
 
 ## Installed-app splash
 
-In the installed app only, signed-in players see a splash: the Ryvo ink-pass logo (the same pink → charcoal → green animation as the loader) over a fluid background of slowly drifting, morphing pink, green and purple glows. It exits by surging the colour outward and opening from the centre into the app (700ms). It plays on a fresh launch (`SPLASH_BOOT` in `<head>` sets `html[data-splash]` before first paint, once per app session) for at least 1.7s and until the page has loaded, capped at 4s, and again on return after 10+ minutes away. Browser tabs, signed-out visitors and reloads within a session skip it. Reduced motion keeps the logo static and fades out.
+In the installed app only, signed-in players see a splash: the Ryvo ink-pass logo (the same pink → charcoal → green animation as the loader) over a fluid background of slowly drifting, morphing pink, green and purple glows. It exits by surging the colour outward and opening from the centre into the app (700ms). The sequence plays once, in order: logo outline, then one ink pass (pink, charcoal, green; 720ms) ending fully inked, then the logo settles, and only then does the "Ryvo" word rise in. After a short hold the reveal begins. It waits for the logo image before starting, and the exit waits for the word to finish and the page to load (capped at 5s). It plays on a fresh launch (`SPLASH_BOOT` in `<head>` sets `html[data-splash]` before first paint, once per app session) and again on return after 10+ minutes away. Browser tabs, signed-out visitors and reloads within a session skip it. Reduced motion keeps the logo static and fades out.
 
 ## Competition economy
 
