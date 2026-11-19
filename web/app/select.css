@@ -12,15 +12,15 @@
 .ryvo-select-list { max-height:min(calc(var(--available-height) - 14px),346px); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:none; padding:0; outline:none; }
 .ryvo-select-list::-webkit-scrollbar { display:none; }
 .ryvo-select-option { display:flex; align-items:center; justify-content:space-between; gap:18px; min-height:46px; padding:12px 14px; border:0 !important; outline:none !important; border-radius:11px; color:#cdd6c4; font-size:13px; font-weight:500; line-height:1.5; cursor:pointer; user-select:none; }
-.ryvo-select-option[data-selected] { color:#edf8e2; background:#2c391f; }
+.ryvo-select-option[data-selected] { color:color-mix(in srgb, var(--ryvo-green) 11%, #f5f5f3); background:#2c391f; }
 .ryvo-select-option[data-highlighted] { color:#fff; background:#3b4431; }
-.ryvo-select-check { display:grid; place-items:center; color:#a4de70; width:18px; flex-shrink:0; }
+.ryvo-select-check { display:grid; place-items:center; color:var(--ryvo-green); width:18px; flex-shrink:0; }
 .onboarding-fields .ryvo-select-trigger,.wallet-flow-form label .ryvo-select-trigger,.creator-form label .ryvo-select-trigger,.squad-calculator label .ryvo-select-trigger { margin-top:10px; }
 .sort-label { min-width:0; }.sort-label .ryvo-select-trigger { max-width:170px; }
 .board-market-controls label .ryvo-select-trigger { background:transparent; width:100%; padding:9px 0; border-radius:10px; }
 .wallet-section-title>.ryvo-select-trigger { max-width:180px; }
-body .back-pill,.app-shell .back-pill,.auth-page .back-pill,.onboarding .back-pill,.profile-cover-back { background:#e5b7ed !important; color:#2b1231 !important; border:0 !important; outline:none !important; }
-body .back-pill:focus-visible { background:#f2cdf8 !important; }
+body .back-pill,.app-shell .back-pill,.auth-page .back-pill,.onboarding .back-pill,.profile-cover-back { background:#e5b7ed !important; color:color-mix(in srgb, var(--ryvo-pink) 23%, #050505) !important; border:0 !important; outline:none !important; }
+body .back-pill:focus-visible { background:color-mix(in srgb, var(--ryvo-pink) 26%, #f5f5f3) !important; }
 .onboarding-form .onboarding-step-back { display:flex; margin:20px auto 0; width:max-content; }
 @media(max-width:600px) {
  .ryvo-select-trigger { font-size:14px; min-height:50px; }

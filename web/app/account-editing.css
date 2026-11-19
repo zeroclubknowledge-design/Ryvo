@@ -1,9 +1,9 @@
 /* Player file: level progress on the profile and the full editor route. */
 .player-level-track{max-width:430px;margin:0 0 26px}
 .player-level-track-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;font-size:11px;line-height:1.6;color:#96a587;margin-bottom:10px}
-.player-level-track-head b{font-size:11px;font-weight:650;color:#d7ecbe;white-space:nowrap}
+.player-level-track-head b{font-size:11px;font-weight:650;color:color-mix(in srgb, var(--ryvo-green) 26%, #f5f5f3);white-space:nowrap}
 .player-level-bar{height:8px;border-radius:999px;background:#1e2718;overflow:hidden}
-.player-level-bar>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#60b800,#d9f44a);transition:width .4s cubic-bezier(.2,0,.2,1)}
+.player-level-bar>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#60b800,var(--ryvo-green));transition:width .4s cubic-bezier(.2,0,.2,1)}
 
 .edit-profile-page{max-width:760px;margin:0 auto;padding:14px 0 56px}
 .edit-profile-head{margin:22px 0 30px}
@@ -36,7 +36,7 @@
 .squad-activate-action{display:grid;gap:14px;justify-items:end;text-align:right}
 .squad-activate-action>.primary{min-height:52px;padding:0 26px;white-space:nowrap}
 .squad-activate-action>p{font-size:11px;line-height:1.7;color:#7f9469;margin:0;max-width:270px}
-.squad-activated{margin:26px 0 0;padding:14px 18px;border-radius:16px;background:#22301a;color:#cfe3b9;font-size:12px;line-height:1.7}
+.squad-activated{margin:26px 0 0;padding:14px 18px;border-radius:16px;background:#22301a;color:color-mix(in srgb, var(--ryvo-green) 30%, #f5f5f3);font-size:12px;line-height:1.7}
 
 .squad-choice-backdrop{position:fixed;inset:0;z-index:140;display:grid;place-items:center;padding:28px;background:#050505a8;-webkit-backdrop-filter:blur(16px) saturate(.85);backdrop-filter:blur(16px) saturate(.85);animation:squad-backdrop-in .2s ease-out}
 .squad-choice{position:relative;width:min(1000px,100%);max-height:88vh;overflow:auto;padding:32px;border-radius:26px;background:#1a2115;border:1px solid #ffffff1a;box-shadow:0 40px 120px #000000b3;animation:squad-choice-in .26s cubic-bezier(.2,0,.2,1)}
@@ -63,10 +63,10 @@
 .squad-scheme-list>div{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid #ffffff0f;font-size:11px;color:#b6c9a3}
 .squad-scheme-list>div:last-child{border-bottom:0}
 .squad-scheme-list b{font-size:15px;font-weight:600;color:#9fb782}
-.squad-scheme-list>div.is-current{color:#e8f6d9}
+.squad-scheme-list>div.is-current{color:color-mix(in srgb, var(--ryvo-green) 14%, #f5f5f3)}
 .squad-scheme-list>div.is-current b{color:#60b800}
 .squad-scheme-now{font-size:11px;line-height:1.8;color:#a5c58b;margin:0}
-.squad-scheme-now b{color:#d9f44a}
+.squad-scheme-now b{color:var(--ryvo-green)}
 .squad-scheme-card>.primary{justify-self:start;margin-top:6px}
 .squad-calculator-locked{font-size:11px;line-height:1.8;color:#7b9866;margin-top:10px}
 

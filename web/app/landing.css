@@ -2,7 +2,7 @@
    Same grammar as the rest of the landing: uppercase 850 display headings,
    neutral #111211 panels on the black canvas, green / pink / purple accents. */
 
-.lx-sol-dot { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 50%; background: linear-gradient(135deg, #9945ff, #14f195); }
+.lx-sol-dot { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ryvo-green); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ryvo-green) 25%, transparent); }
 
 /* ---------- Hero trust row ---------- */
 .lx-trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 4px auto 0; padding: 0; list-style: none; }
@@ -12,13 +12,13 @@
 .lx-glance { max-width: 1060px; margin: 18px auto 0; padding: 0 30px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .lx-glance div { display: grid; gap: 6px; padding: 22px 20px; border-radius: 22px; background: #111211; }
 .lx-glance b { font-size: clamp(24px, 3vw, 34px); font-weight: 850; letter-spacing: -.04em; line-height: 1; color: #f5f5f3; }
-.lx-glance div:nth-child(1) b { color: #a8e36a; }
-.lx-glance div:nth-child(2) b { color: #f0a8f0; }
+.lx-glance div:nth-child(1) b { color: var(--ryvo-green); }
+.lx-glance div:nth-child(2) b { color: var(--ryvo-pink-soft); }
 .lx-glance span { font-size: 12.5px; line-height: 1.4; color: #8d9189; }
 
 /* ---------- Shared section ---------- */
 .lx-section { max-width: 1120px; margin: auto; padding: 90px 30px; }
-.lx-kicker { display: inline-flex; align-items: center; gap: 9px; margin: 0 0 16px; font-size: 11px; font-weight: 800; letter-spacing: .14em; color: #a8e36a; }
+.lx-kicker { display: inline-flex; align-items: center; gap: 9px; margin: 0 0 16px; font-size: 11px; font-weight: 800; letter-spacing: .14em; color: var(--ryvo-green); }
 .lx-lede { max-width: 52ch; margin: 0 0 30px; font-size: 15px; line-height: 1.75; color: #a2a69e; }
 
 /* ---------- Solana ---------- */
@@ -26,27 +26,27 @@
 .lx-solana h2 { margin: 0 0 20px; font-size: clamp(34px, 4.5vw, 58px); font-weight: 850; line-height: 1.03; letter-spacing: -.04em; }
 .lx-points { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .lx-points article { display: flex; gap: 14px; padding: 18px; border-radius: 22px; background: #111211; }
-.lx-point-icon { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px; background: #6338bc33; color: #c9b4f5; }
-.lx-points article:nth-child(2) .lx-point-icon { background: #60b80024; color: #a8e36a; }
-.lx-points article:nth-child(3) .lx-point-icon { background: #f828f81f; color: #f0a8f0; }
+.lx-point-icon { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px; background: #6338bc33; color: color-mix(in srgb, var(--ryvo-create) 32%, #f5f5f3); }
+.lx-points article:nth-child(2) .lx-point-icon { background: #60b80024; color: var(--ryvo-green); }
+.lx-points article:nth-child(3) .lx-point-icon { background: #f828f81f; color: var(--ryvo-pink-soft); }
 .lx-points article:nth-child(4) .lx-point-icon { background: #ffffff12; color: #e7eae3; }
 .lx-points h3 { margin: 2px 0 6px; font-size: 15px; font-weight: 750; letter-spacing: -.01em; color: #f5f5f3; }
 .lx-points p { margin: 0; font-size: 12.5px; line-height: 1.6; color: #8d9189; }
 
 /* ---------- Wallet card ---------- */
 .lx-wallet { position: relative; overflow: hidden; isolation: isolate; display: grid; gap: 16px; padding: 26px; border-radius: 28px; background: #121312; box-shadow: inset 0 1px 0 #ffffff12; }
-.lx-wallet::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(80% 70% at 100% 0%, #fcd34d29, transparent 60%), radial-gradient(60% 60% at 0% 100%, #6338bc2e, transparent 65%); }
+.lx-wallet::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(80% 70% at 100% 0%, color-mix(in srgb, var(--ryvo-green) 22%, transparent), transparent 60%), radial-gradient(60% 60% at 0% 100%, #6338bc2e, transparent 65%); }
 .lx-wallet-head { display: flex; align-items: center; gap: 14px; }
-.lx-wallet-head .lx-kicker { margin: 0 0 4px; color: #fcd34d; }
+.lx-wallet-head .lx-kicker { margin: 0 0 4px; color: var(--ryvo-green); }
 .lx-wallet-head h3 { margin: 0; font-size: 28px; font-weight: 850; letter-spacing: -.04em; color: #f5f5f3; }
-.lx-wallet-icon { flex: none; width: 54px; height: 54px; display: grid; place-items: center; border-radius: 16px; background: #fcd34d; color: #1b1405; }
+.lx-wallet-icon { flex: none; width: 54px; height: 54px; display: grid; place-items: center; border-radius: 16px; background: var(--ryvo-green); color: var(--ryvo-green-ink); }
 .lx-wallet-copy { margin: 0; font-size: 13.5px; line-height: 1.6; color: #b4b8b0; }
 .lx-wallet-steps { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; counter-reset: lxw; }
 .lx-wallet-steps li { counter-increment: lxw; display: grid; grid-template-columns: 30px 1fr; gap: 2px 12px; padding: 14px; border-radius: 18px; background: #ffffff08; }
 .lx-wallet-steps li::before { content: counter(lxw); grid-row: span 2; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: #ffffff12; color: #f5f5f3; font-size: 12px; font-weight: 800; }
 .lx-wallet-steps b { font-size: 14px; font-weight: 750; color: #f5f5f3; }
 .lx-wallet-steps span { font-size: 12px; line-height: 1.5; color: #8d9189; }
-.lx-wallet-cta { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; border-radius: 999px; background: #fcd34d; color: #1b1405; font-size: 15px; font-weight: 800; text-decoration: none; transition: transform 140ms cubic-bezier(.2,.8,.2,1), filter 140ms ease; }
+.lx-wallet-cta { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; border-radius: 999px; background: var(--ryvo-green); color: var(--ryvo-green-ink); font-size: 15px; font-weight: 800; text-decoration: none; transition: transform 140ms cubic-bezier(.2,.8,.2,1), filter 140ms ease; }
 .lx-wallet-cta:active { transform: scale(.98); }
 @media (hover: hover) and (pointer: fine) { .lx-wallet-cta:hover { filter: brightness(1.06); } }
 .lx-wallet small { text-align: center; font-size: 11.5px; color: #7d817a; }
@@ -54,9 +54,9 @@
 /* ---------- Steps ---------- */
 .lx-step-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0; padding: 0; list-style: none; }
 .lx-step-list li { display: grid; align-content: start; gap: 10px; padding: 22px; border-radius: 24px; background: #111211; }
-.lx-step-list span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; background: #60b80024; color: #a8e36a; font-size: 13px; font-weight: 850; }
-.lx-step-list li:nth-child(1) span { background: #fcd34d26; color: #fcd34d; }
-.lx-step-list li:nth-child(4) span { background: #f828f81f; color: #f0a8f0; }
+.lx-step-list span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; background: #60b80024; color: var(--ryvo-green); font-size: 13px; font-weight: 850; }
+.lx-step-list li:nth-child(1) span { background: color-mix(in srgb, var(--ryvo-create) 30%, transparent); color: var(--ryvo-purple-soft); }
+.lx-step-list li:nth-child(4) span { background: #f828f81f; color: var(--ryvo-pink-soft); }
 .lx-step-list h3 { margin: 6px 0 0; font-size: 18px; font-weight: 800; letter-spacing: -.03em; color: #f5f5f3; }
 .lx-step-list p { margin: 0; font-size: 12.5px; line-height: 1.65; color: #8d9189; }
 .lx-steps-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
@@ -113,3 +113,16 @@
   .landing .ryvo-hero-actions { grid-template-columns: 1fr; }
   .lx-trust li { padding: 6px 9px; font-size: 10.5px; gap: 6px; }
 }
+
+/* ---------- FAQ in brand colour ---------- */
+.lx-faq details { transition: background-color 180ms ease, box-shadow 180ms ease; }
+.lx-faq summary span { background: color-mix(in srgb, var(--ryvo-green) 18%, transparent); transition: background-color 180ms ease; }
+.lx-faq summary span::before, .lx-faq summary span::after { background: var(--ryvo-green); }
+.lx-faq details[open] { background: color-mix(in srgb, var(--ryvo-green) 7%, #111211); box-shadow: inset 3px 0 0 var(--ryvo-green); }
+.lx-faq details[open] summary span { background: var(--ryvo-green); }
+.lx-faq details[open] summary span::before, .lx-faq details[open] summary span::after { background: var(--ryvo-green-ink); }
+@media (hover: hover) and (pointer: fine) {
+  .lx-faq details:not([open]):hover { background: #161816; }
+  .lx-faq details:not([open]):hover summary span { background: color-mix(in srgb, var(--ryvo-green) 28%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .lx-faq details, .lx-faq summary span { transition: none; } }

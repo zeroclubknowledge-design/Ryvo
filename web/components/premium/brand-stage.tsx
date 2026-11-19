@@ -104,7 +104,7 @@ function WaterPlane({ still }: { still: boolean }) {
     uFrequency: { value: 5.5 },
     uColor1: { value: new THREE.Color("#6338bc") },
     uColor2: { value: new THREE.Color("#140826") },
-    uColor3: { value: new THREE.Color("#c31dc3") },
+    uColor3: { value: new THREE.Color("#f828f8") },
     uBrightness: { value: 1.15 },
     uGrain: { value: 0.06 },
   }), []);

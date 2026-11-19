@@ -9,7 +9,7 @@ h1, h2, h3 { text-wrap: balance; }
 input, textarea { caret-color: var(--ryvo-green); }
 button, a { touch-action: manipulation; }
 button:disabled { transform: none; }
-.skip-to-game { position: fixed; top: 12px; left: 20px; z-index: 100; padding: 14px 20px; border-radius: 12px; background: var(--lime); color: #17200c; transform: translateY(-180%); font-weight: 650; }
+.skip-to-game { position: fixed; top: 12px; left: 20px; z-index: 100; padding: 14px 20px; border-radius: 12px; background: var(--lime); color: color-mix(in srgb, var(--ryvo-green) 24%, #050505); transform: translateY(-180%); font-weight: 650; }
 .skip-to-game:focus { transform: none; }
 #ryvo-content:focus { outline: none; }
 .app-shell main { max-width: 1440px; }
@@ -55,7 +55,7 @@ button:disabled { transform: none; }
 .app-shell .card-title-row>button { min-width: 0; min-height: 44px; }
 .app-shell .artist { gap: 7px; font-size: 11px; color: #aeb8a1; margin-top: 12px; line-height: 1.5; }
 .app-shell .mini-avatar { height: 23px; width: 23px; flex-shrink: 0; font-size: 8px; }
-.app-shell .verified { display: inline-flex; color: #bbd98e; }
+.app-shell .verified { display: inline-flex; color: var(--ryvo-green); }
 .app-shell .status-badge { left: 13px; top: 13px; font-size: 10px; padding: 8px 10px; border-radius: 999px; }
 .app-shell .favorite { width: 40px; height: 40px; top: 10px; right: 10px; }
 .app-shell .piece-count { font-size: 10px; padding: 7px 9px; left: 13px; bottom: 13px; border-radius: 7px; }
@@ -72,7 +72,7 @@ button:disabled { transform: none; }
 .app-shell .card-meta span { font-size: 10px; color: #aeb8a1; }
 .app-shell .card-meta b { font-size: 18px; font-weight: 550; font-variant-numeric: tabular-nums; }
 .app-shell .card-meta small { font-size: 11px; color: #aeb8a1; }
-.challenge-card-action { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 12px 15px; border-radius: 999px; margin-top: 24px; background: #303d24; color: #d0e7ba; font-size: 12px; font-weight: 550; }
+.challenge-card-action { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 12px 15px; border-radius: 999px; margin-top: 24px; background: #303d24; color: color-mix(in srgb, var(--ryvo-green) 29%, #f5f5f3); font-size: 12px; font-weight: 550; }
 .app-shell .floating-taskbar { border-color: #ffffff1c; background: #252725ed; }
 .app-shell .floating-taskbar>a { min-height: 48px; }
 .app-shell :is(.icon-button,.avatar) { min-width: 44px; min-height: 44px; }
