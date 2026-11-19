@@ -19,6 +19,8 @@ import "./create.css";
 import "./landing.css";
 import "./pwa.css";
 import { PwaSetup } from "@/components/pwa-setup";
+import { PwaSplash } from "@/components/pwa-splash";
+import { SPLASH_BOOT } from "@/lib/pwa-splash-boot";
 import { SolanaProvider } from "@/components/solana-provider";
 const montserrat=localFont({src:"../public/fonts/Montserrat-Variable.ttf",weight:"100 900",display:"block",preload:true,variable:"--font-ryvo",adjustFontFallback:"Arial"});
 export const metadata: Metadata = {
@@ -31,4 +33,4 @@ export const metadata: Metadata = {
 };
 export const viewport: Viewport = { themeColor: "#050505", colorScheme: "dark", width: "device-width", initialScale: 1 };
 const loaderLogo=getImageProps({src:"/ryvo-logo.png",alt:"",width:192,height:192}).props.src;
-export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) { return <html lang="en"><head><link rel="preload" as="image" href={loaderLogo}/></head><body className={`${montserrat.className} ${montserrat.variable}`}><SolanaProvider>{children}</SolanaProvider><PwaSetup/></body></html>; }
+export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) { return <html lang="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html:SPLASH_BOOT}}/><link rel="preload" as="image" href={loaderLogo}/></head><body className={`${montserrat.className} ${montserrat.variable}`}><SolanaProvider>{children}</SolanaProvider><PwaSetup/><PwaSplash/></body></html>; }

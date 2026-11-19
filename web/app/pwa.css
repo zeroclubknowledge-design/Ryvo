@@ -36,3 +36,54 @@ body:has(.floating-taskbar) .pwa-install { bottom: calc(max(12px, env(safe-area-
 @media (display-mode: standalone) {
   body { overscroll-behavior-y: none; }
 }
+
+/* ---------- Installed-app splash ---------- */
+@property --pwa-hole { syntax: "<length-percentage>"; inherits: false; initial-value: 0%; }
+.pwa-splash { display: none; }
+html[data-splash] .pwa-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: block;
+  overflow: hidden;
+  background: #050505;
+  isolation: isolate;
+}
+html[data-splash] { overflow: hidden; }
+/* The logo screen keeps its own ink animation; the fluid layer replaces its flat background. */
+.pwa-splash .ryvo-loader { position: absolute; z-index: 1; background: transparent; }
+.pwa-splash .ryvo-loader::before { display: none; }
+.pwa-splash .ryvo-loader-logo { filter: drop-shadow(0 18px 50px #000000b3); }
+
+.pwa-splash-fluid { position: absolute; inset: -20%; filter: blur(60px) saturate(1.2); }
+.pwa-blob { position: absolute; width: 62vmax; height: 62vmax; border-radius: 42% 58% 61% 39% / 45% 41% 59% 55%; opacity: .55; will-change: transform; }
+.pwa-blob.is-pink { left: 2%; top: 4%; background: radial-gradient(circle at 40% 40%, #f828f8, #f828f800 68%); animation: pwa-drift-a 7s ease-in-out infinite alternate, pwa-morph 6s ease-in-out infinite alternate; }
+.pwa-blob.is-green { right: 0; bottom: 0; background: radial-gradient(circle at 60% 60%, #60b800, #60b80000 68%); animation: pwa-drift-b 8s ease-in-out infinite alternate, pwa-morph 7s ease-in-out -2s infinite alternate; }
+.pwa-blob.is-purple { left: 30%; top: 34%; width: 52vmax; height: 52vmax; background: radial-gradient(circle, #6338bc, #6338bc00 70%); opacity: .7; animation: pwa-drift-c 9s ease-in-out infinite alternate, pwa-morph 8s ease-in-out -4s infinite alternate; }
+@keyframes pwa-drift-a { to { transform: translate(14vmax, 10vmax) rotate(40deg) scale(1.1); } }
+@keyframes pwa-drift-b { to { transform: translate(-16vmax, -8vmax) rotate(-35deg) scale(1.15); } }
+@keyframes pwa-drift-c { to { transform: translate(-6vmax, 12vmax) rotate(60deg) scale(.9); } }
+@keyframes pwa-morph { to { border-radius: 58% 42% 39% 61% / 55% 59% 41% 45%; } }
+
+/* Entry: the fluid swells in from the dark. */
+html[data-splash="in"] .pwa-splash-fluid { animation: pwa-fluid-in 900ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes pwa-fluid-in { from { opacity: 0; transform: scale(.85); } }
+
+/* Exit: the colour surges outward and opens from the centre into the app. */
+html[data-splash="out"] .pwa-splash {
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--pwa-hole), #000 calc(var(--pwa-hole) + 14%));
+  mask-image: radial-gradient(circle at 50% 50%, transparent var(--pwa-hole), #000 calc(var(--pwa-hole) + 14%));
+  animation: pwa-open 700ms cubic-bezier(.65,0,.35,1) forwards;
+}
+html[data-splash="out"] .pwa-splash-fluid { animation: pwa-surge 700ms cubic-bezier(.65,0,.35,1) forwards; }
+html[data-splash="out"] .pwa-splash .ryvo-loader-center { animation: pwa-logo-out 420ms cubic-bezier(.4,0,1,1) forwards; }
+@keyframes pwa-open { from { --pwa-hole: 0%; } to { --pwa-hole: 120%; } }
+@keyframes pwa-surge { to { transform: scale(1.35); filter: blur(80px) saturate(1.5); } }
+@keyframes pwa-logo-out { to { opacity: 0; transform: scale(1.12); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pwa-blob, html[data-splash="in"] .pwa-splash-fluid, html[data-splash="out"] .pwa-splash-fluid, html[data-splash="out"] .pwa-splash .ryvo-loader-center { animation: none; }
+  html[data-splash="out"] .pwa-splash { -webkit-mask-image: none; mask-image: none; animation: pwa-fade 300ms ease forwards; }
+}
+@keyframes pwa-fade { to { opacity: 0; } }
