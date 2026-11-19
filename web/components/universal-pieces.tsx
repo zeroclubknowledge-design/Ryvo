@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { Icon } from "@/components/collection-art";
 import { RyvoSelect } from "@/components/ryvo-select";
 import { supabase } from "@/lib/supabase";
 
@@ -20,6 +21,8 @@ async function call<T>(action: string, payload: Record<string, unknown> = {}) {
 }
 
 const usd = (cents: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
+/** Seller proceeds at 1,000 r/ = $1 less 0.5%, to the tenth of a cent (USDC has six decimals). */
+const proceeds = (credits: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 3 }).format((credits * 995) / 1e6);
 const tokens = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 4 });
 const daysLeft = (iso: string) => Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000));
 
@@ -93,7 +96,7 @@ export function UniversalPieces({ signedIn, onChanged }: { signedIn: boolean; on
       ) : (
         <div className="up-card">
           <div className="up-count">
-            <span className="up-glyph" aria-hidden="true">✳</span>
+            <span className="up-glyph" aria-hidden="true"><Icon name="spark" size={20} /></span>
             <div><b>{free.length} available{listed.length ? ` · ${listed.length} listed` : ""}</b>
               <span>{next ? `Next expires in ${daysLeft(next.expiresAt)} day${daysLeft(next.expiresAt) === 1 ? "" : "s"}` : "All your pieces are listed"}</span></div>
           </div>
@@ -119,7 +122,7 @@ export function UniversalPieces({ signedIn, onChanged }: { signedIn: boolean; on
               </label>
               <label className="lc-field">Price in RYVO Credit
                 <input type="text" inputMode="numeric" value={priceText} onChange={(e) => setPriceText(e.target.value.replace(/\D/g, "").slice(0, 7))} aria-invalid={price < 100 || price > 1_000_000} />
-                <small>{price >= 100 ? `You receive ${usd(price * 0.0995)} after the 0.5% fee.` : "Minimum 100 r/."}</small>
+                <small>{price >= 100 ? `You receive ${proceeds(price)} after the 0.5% fee.` : "Minimum 100 r/."}</small>
               </label>
               <div className="up-confirm-actions">
                 <button className="lc-ghost" onClick={() => setListing(false)}>Back</button>
@@ -189,7 +192,7 @@ export function UniversalMarket({ competitionId, onBought }: { competitionId: st
       <ul>
         {rows?.map((r) => (
           <li key={r.id}>
-            <span className="up-glyph" aria-hidden="true">✳</span>
+            <span className="up-glyph" aria-hidden="true"><Icon name="spark" size={20} /></span>
             <b>{r.price.toLocaleString()} r/</b>
             {r.mine ? <span className="up-mine">Your listing</span> : confirming === r.id ? (
               <span className="up-buy-confirm">
