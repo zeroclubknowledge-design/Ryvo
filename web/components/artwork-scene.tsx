@@ -248,7 +248,7 @@ function buildStudio(gl: THREE.WebGLRenderer, scene: THREE.Scene) {
   const panels: [string, number, [number, number, number], number][] = [
     ["#f4f7ef", 4.4, [0, 3.6, 2.4], 5.5],
     ["#dfe4dc", 1.6, [0, 1.2, 5], 6],
-    ["#60b800", 1.1, [-2.6, 1.9, -3.6], 3.6],
+    ["#a8e36a", 1.1, [-2.6, 1.9, -3.6], 3.6],
     ["#5b47a8", 1.4, [3.6, 1.2, -1.8], 4.2],
     ["#f0f3ec", 1.1, [4.6, 0.4, -0.6], 3.4],
     ["#9aa396", 1.2, [-4.2, 2.2, -2.6], 5],
@@ -381,10 +381,10 @@ function Orbit() {
       <mesh position={[1.14, 0.24, 0.32]} scale={0.11}>
         <sphereGeometry args={[0.55, 24, 24]} />
         <meshPhysicalMaterial
-          color="#60b800"
+          color="#a8e36a"
           metalness={0.5}
           roughness={0.2}
-          emissive="#60b800"
+          emissive="#a8e36a"
           emissiveIntensity={0.45}
         />
       </mesh>

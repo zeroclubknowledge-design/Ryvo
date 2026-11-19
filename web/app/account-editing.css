@@ -3,18 +3,18 @@
 .player-level-track-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;font-size:11px;line-height:1.6;color:#96a587;margin-bottom:10px}
 .player-level-track-head b{font-size:11px;font-weight:650;color:color-mix(in srgb, var(--ryvo-green) 26%, #f5f5f3);white-space:nowrap}
 .player-level-bar{height:8px;border-radius:999px;background:#1e2718;overflow:hidden}
-.player-level-bar>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#60b800,var(--ryvo-green));transition:width .4s cubic-bezier(.2,0,.2,1)}
+.player-level-bar>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--ryvo-green),var(--ryvo-green));transition:width .4s cubic-bezier(.2,0,.2,1)}
 
 .edit-profile-page{max-width:760px;margin:0 auto;padding:14px 0 56px}
 .edit-profile-head{margin:22px 0 30px}
 .edit-profile-head h1{font-size:clamp(34px,5vw,52px);font-weight:800;line-height:1.06;letter-spacing:-.04em;margin:16px 0 12px}
-.edit-profile-head h1>span{color:#60b800}
+.edit-profile-head h1>span{color:var(--ryvo-green)}
 .edit-profile-head>p:last-child{color:#a7afa0;font-size:14px;line-height:1.8;margin:0}
 .edit-profile-form{display:grid;gap:22px;padding:28px;background:#13190f;border-radius:26px}
 .edit-profile-form>label{display:grid;gap:10px;color:#a5b198;font-size:12px}
 .edit-profile-form input,.edit-profile-form textarea{width:100%;padding:16px 18px;background:#222b1b;color:#fff;border:0;border-radius:15px;font:inherit;font-size:16px;outline:none}
 .edit-profile-form textarea{resize:vertical;min-height:110px;line-height:1.7}
-.edit-profile-form input:focus-visible,.edit-profile-form textarea:focus-visible{box-shadow:0 0 0 3px #60b80045}
+.edit-profile-form input:focus-visible,.edit-profile-form textarea:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb, var(--ryvo-green) 27%, transparent)}
 .edit-profile-form small{font-size:11px;line-height:1.7;color:#7e8c70}
 .edit-profile-photo{display:flex;align-items:center;gap:24px;padding-bottom:26px;border-bottom:1px solid #ffffff12}
 .edit-profile-photo h2{font-size:16px;font-weight:650;letter-spacing:-.01em;margin:0 0 8px}
@@ -30,7 +30,7 @@
 
 /* Referral programme: one button, then a permanent choice over a blurred page. */
 .squad-phase.is-open{background:#2b2130;color:#e5b7ed}
-.squad-activate{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center;margin:30px 0;padding:32px;border-radius:24px;background:#1a2115;border:1px solid #60b80033}
+.squad-activate{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center;margin:30px 0;padding:32px;border-radius:24px;background:#1a2115;border:1px solid color-mix(in srgb, var(--ryvo-green) 20%, transparent)}
 .squad-activate h2{font-size:clamp(26px,3vw,36px);line-height:1.14;font-weight:550;letter-spacing:-1.2px;margin:14px 0 10px}
 .squad-activate>div>p:not(.eyebrow){font-size:12px;line-height:1.9;color:#93a681;max-width:520px;margin:0}
 .squad-activate-action{display:grid;gap:14px;justify-items:end;text-align:right}
@@ -41,7 +41,7 @@
 .squad-choice-backdrop{position:fixed;inset:0;z-index:140;display:grid;place-items:center;padding:28px;background:#050505a8;-webkit-backdrop-filter:blur(16px) saturate(.85);backdrop-filter:blur(16px) saturate(.85);animation:squad-backdrop-in .2s ease-out}
 .squad-choice{position:relative;width:min(1000px,100%);max-height:88vh;overflow:auto;padding:32px;border-radius:26px;background:#1a2115;border:1px solid #ffffff1a;box-shadow:0 40px 120px #000000b3;animation:squad-choice-in .26s cubic-bezier(.2,0,.2,1)}
 .squad-choice:focus{outline:none}
-.squad-choice:focus-visible{box-shadow:0 0 0 3px #60b80055,0 40px 120px #000000b3}
+.squad-choice:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb, var(--ryvo-green) 33%, transparent),0 40px 120px #000000b3}
 .squad-choice-head{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;margin-bottom:24px}
 .squad-choice-head h2{font-size:clamp(26px,3vw,38px);line-height:1.14;font-weight:550;letter-spacing:-1.2px;margin:14px 0 10px}
 .squad-choice-head>div>p:not(.eyebrow){font-size:12px;line-height:1.9;color:#93a681;max-width:620px;margin:0}
@@ -64,7 +64,7 @@
 .squad-scheme-list>div:last-child{border-bottom:0}
 .squad-scheme-list b{font-size:15px;font-weight:600;color:#9fb782}
 .squad-scheme-list>div.is-current{color:color-mix(in srgb, var(--ryvo-green) 14%, #f5f5f3)}
-.squad-scheme-list>div.is-current b{color:#60b800}
+.squad-scheme-list>div.is-current b{color:var(--ryvo-green)}
 .squad-scheme-now{font-size:11px;line-height:1.8;color:#a5c58b;margin:0}
 .squad-scheme-now b{color:var(--ryvo-green)}
 .squad-scheme-card>.primary{justify-self:start;margin-top:6px}

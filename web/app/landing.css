@@ -27,7 +27,7 @@
 .lx-points { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .lx-points article { display: flex; gap: 14px; padding: 18px; border-radius: 22px; background: #111211; }
 .lx-point-icon { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px; background: #6338bc33; color: color-mix(in srgb, var(--ryvo-create) 32%, #f5f5f3); }
-.lx-points article:nth-child(2) .lx-point-icon { background: #60b80024; color: var(--ryvo-green); }
+.lx-points article:nth-child(2) .lx-point-icon { background: color-mix(in srgb, var(--ryvo-green) 14%, transparent); color: var(--ryvo-green); }
 .lx-points article:nth-child(3) .lx-point-icon { background: #f828f81f; color: var(--ryvo-pink-soft); }
 .lx-points article:nth-child(4) .lx-point-icon { background: #ffffff12; color: #e7eae3; }
 .lx-points h3 { margin: 2px 0 6px; font-size: 15px; font-weight: 750; letter-spacing: -.01em; color: #f5f5f3; }
@@ -54,7 +54,7 @@
 /* ---------- Steps ---------- */
 .lx-step-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0; padding: 0; list-style: none; }
 .lx-step-list li { display: grid; align-content: start; gap: 10px; padding: 22px; border-radius: 24px; background: #111211; }
-.lx-step-list span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; background: #60b80024; color: var(--ryvo-green); font-size: 13px; font-weight: 850; }
+.lx-step-list span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; background: color-mix(in srgb, var(--ryvo-green) 14%, transparent); color: var(--ryvo-green); font-size: 13px; font-weight: 850; }
 .lx-step-list li:nth-child(1) span { background: color-mix(in srgb, var(--ryvo-create) 30%, transparent); color: var(--ryvo-purple-soft); }
 .lx-step-list li:nth-child(4) span { background: #f828f81f; color: var(--ryvo-pink-soft); }
 .lx-step-list h3 { margin: 6px 0 0; font-size: 18px; font-weight: 800; letter-spacing: -.03em; color: #f5f5f3; }
@@ -190,4 +190,57 @@
 @media (prefers-reduced-motion: reduce) {
   .lp-piece, .lp-piece.is-placed .lp-glass, .lp-slot.is-hint, .lp-win, .lp-win-card { animation: none; }
   .lp-piece { transition: none; }
+}
+
+/* ---------- Brand colour mix ----------
+   Green = actions and completion. Soft pink = money and rewards.
+   Purple = the game and platform. Each section uses all three. */
+.lx-glance div:nth-child(3) b { color: var(--ryvo-purple-soft); }
+.lx-glance div:nth-child(4) b { color: var(--ryvo-green); }
+.lx-glance div:nth-child(1) { box-shadow: inset 0 3px 0 var(--ryvo-green); }
+.lx-glance div:nth-child(2) { box-shadow: inset 0 3px 0 var(--ryvo-pink-soft); }
+.lx-glance div:nth-child(3) { box-shadow: inset 0 3px 0 var(--ryvo-create); }
+.lx-glance div:nth-child(4) { box-shadow: inset 0 3px 0 var(--ryvo-green); }
+
+.lx-trust li:nth-child(2)::before, .lx-trust li:nth-child(3)::before { content: ""; width: 8px; height: 8px; border-radius: 50%; }
+.lx-trust li:nth-child(2)::before { background: var(--ryvo-pink-soft); }
+.lx-trust li:nth-child(3)::before { background: var(--ryvo-purple-soft); }
+
+/* Solana section: platform → purple kicker. */
+.lx-solana-copy .lx-kicker { color: var(--ryvo-purple-soft); }
+.lx-solana-copy .lx-kicker .lx-sol-dot { background: var(--ryvo-create); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ryvo-create) 35%, transparent); }
+
+/* Solflare card keeps Solflare's own yellow — it's their brand, not Ryvo's. */
+.lx-wallet { --solflare: #fcd34d; --solflare-ink: #1b1405; }
+.lx-wallet::before { background: radial-gradient(80% 70% at 100% 0%, color-mix(in srgb, var(--solflare) 16%, transparent), transparent 60%), radial-gradient(60% 60% at 0% 100%, color-mix(in srgb, var(--ryvo-create) 18%, transparent), transparent 65%); }
+.lx-wallet-icon { background: var(--solflare); color: var(--solflare-ink); }
+.lx-wallet-head .lx-kicker { color: var(--solflare); }
+.lx-wallet-cta { background: var(--solflare); color: var(--solflare-ink); }
+.lx-step-list li:nth-child(1) span { background: color-mix(in srgb, #fcd34d 15%, transparent); color: #fcd34d; }
+
+/* Four steps: purple → pink → green → green-on-finish. */
+.lx-step-list li:nth-child(1) { box-shadow: inset 0 3px 0 #fcd34d; }
+.lx-step-list li:nth-child(2) span { background: color-mix(in srgb, var(--ryvo-pink) 18%, transparent); color: var(--ryvo-pink-soft); }
+.lx-step-list li:nth-child(2) { box-shadow: inset 0 3px 0 var(--ryvo-pink-soft); }
+.lx-step-list li:nth-child(3) span { background: color-mix(in srgb, var(--ryvo-create) 30%, transparent); color: var(--ryvo-purple-soft); }
+.lx-step-list li:nth-child(3) { box-shadow: inset 0 3px 0 var(--ryvo-create); }
+.lx-step-list li:nth-child(4) span { background: var(--ryvo-green); color: var(--ryvo-green-ink); }
+.lx-step-list li:nth-child(4) { box-shadow: inset 0 3px 0 var(--ryvo-green); }
+
+/* Practice board: pink kicker, purple-tinted stage, green completion. */
+.lp { background: #0d0e0d radial-gradient(70% 60% at 100% 0%, color-mix(in srgb, var(--ryvo-create) 22%, transparent), transparent 65%), radial-gradient(50% 50% at 0% 100%, color-mix(in srgb, var(--ryvo-pink) 10%, transparent), transparent 70%); }
+.lp-head .lx-kicker { color: var(--ryvo-pink-soft); }
+.lp-meter i { background: linear-gradient(90deg, var(--ryvo-create), var(--ryvo-pink-soft) 55%, var(--ryvo-green)); }
+
+/* FAQ: each question takes one brand colour in turn. */
+.lx-faq details { --faq-tone: var(--ryvo-green); --faq-ink: var(--ryvo-green-ink); }
+.lx-faq details:nth-child(3n+2) { --faq-tone: var(--ryvo-pink-soft); --faq-ink: #2b1231; }
+.lx-faq details:nth-child(3n) { --faq-tone: var(--ryvo-purple-soft); --faq-ink: #1c1033; }
+.lx-faq summary span { background: color-mix(in srgb, var(--faq-tone) 20%, transparent); }
+.lx-faq summary span::before, .lx-faq summary span::after { background: var(--faq-tone); }
+.lx-faq details[open] { background: color-mix(in srgb, var(--faq-tone) 8%, #111211); box-shadow: inset 3px 0 0 var(--faq-tone); }
+.lx-faq details[open] summary span { background: var(--faq-tone); }
+.lx-faq details[open] summary span::before, .lx-faq details[open] summary span::after { background: var(--faq-ink); }
+@media (hover: hover) and (pointer: fine) {
+  .lx-faq details:not([open]):hover summary span { background: color-mix(in srgb, var(--faq-tone) 30%, transparent); }
 }

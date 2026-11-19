@@ -50,7 +50,7 @@
 
 
 /* Ryvo logo palette: sampled pink, green and charcoal. */
-:root{--ryvo-pink:#f828f8;--ryvo-green:#60b800;--ryvo-charcoal:#202020}
+:root{--ryvo-pink:#f828f8;--ryvo-green:#a8e36a;--ryvo-charcoal:#202020}
 /* Tailwind's margin reset overrides the browser's automatic dialog centering. */
 dialog{position:fixed;inset:0;margin:auto;height:fit-content;max-height:calc(100dvh - 32px)}
 .toast{left:50%}
@@ -151,7 +151,7 @@ dialog[aria-label="How Ryvo works"]{max-width:600px}
 /* Selected tabs use soft filled shapes in place of underline dividers. */
 .collection-detail-tabs>button.active::after,.board-section-tabs>button.active::after,.notification-filter-tabs>button.active::after{display:none}
 .collection-detail-tabs>button,.board-section-tabs>button,.notification-filter-tabs>button{padding:12px 16px;border-radius:20px}
-.collection-detail-tabs>button.active,.board-section-tabs>button.active,.notification-filter-tabs>button.active{background:#60b80020}
+.collection-detail-tabs>button.active,.board-section-tabs>button.active,.notification-filter-tabs>button.active{background:color-mix(in srgb, var(--ryvo-green) 13%, transparent)}
 .quick-stats>div,.landing-sidebar{border-right:0}
 .card-divider{display:none}
 @media(max-width:1000px){.landing-ticker-group{min-width:calc(100vw - 200px)}}

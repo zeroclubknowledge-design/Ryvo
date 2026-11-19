@@ -160,7 +160,14 @@ Each paid entry by a referred player pays the referrer their rate × Ryvo's 50% 
 
 ## One brand palette
 
-Every accent derives from the tokens in `ryvo-system.css :root`: `--ryvo-green` #60b800 (with `--ryvo-green-ink` #112206 for text on green), `--ryvo-pink` #f828f8, `--ryvo-pink-soft` #e5b7ed, `--ryvo-create` #6338bc and `--ryvo-purple-soft`, a light purple mixed from brand purple. Never add another green, pink or purple hex. Use the token directly for vivid accents, `color-mix(in srgb, var(--token) N%, #050505)` for tinted dark surfaces, and `color-mix(..., #f5f5f3)` for tinted light text. Neutral greys, red error text, the 3D artwork and illustrations, and the USDC and SOL token icons are the only exceptions. Partner brands (Solana, Solflare) are named in Ryvo's colours, not theirs.
+Every accent derives from the tokens in `ryvo-system.css :root`:
+- `--ryvo-green` #a8e36a, the friendly light green, which replaced the deep #60b800. Use `--ryvo-green-ink` #112206 for text on green.
+- `--ryvo-pink` #f828f8 and `--ryvo-pink-soft` #e5b7ed.
+- `--ryvo-create` #6338bc (purple) and `--ryvo-purple-soft`, a light purple mixed from it.
+
+Never hard-code a green, pink or purple. Use the token for vivid accents, `color-mix(in srgb, var(--token) N%, #050505)` for tinted dark surfaces, and `color-mix(..., #f5f5f3)` for tinted light text. The only exceptions are neutral greys, red error text, artwork images, the USDC and SOL token icons, and partner brands shown as themselves: the Solflare card keeps Solflare's yellow (#fcd34d).
+
+The landing page uses all three brand colours together, not one: green for actions and completion, soft pink for money and rewards, purple for the game and platform. The at-a-glance figures, trust chips and four steps each carry a different colour, and the FAQ cycles green, pink and purple question by question.
 
 ## Landing practice board
 
