@@ -31,7 +31,7 @@ function JoinPanel({ competition: c, user, joined, onJoined }: Props) {
     if (!publicKey || !signTransaction) return;
     setError("");
     try {
-      const paid = await payCompetition({ kind: "entry", competitionId: c.id }, { publicKey, signTransaction }, setStage);
+      const paid = await payCompetition({ kind: "entry", competitionId: c.id, expectedMicro: c.fee * 10000 }, { publicKey, signTransaction }, setStage);
       if (paid.status === "paid") { setResult("joined"); onJoined(); }
       else if (paid.status === "refund_due") setResult("refund");
     } catch (e) {

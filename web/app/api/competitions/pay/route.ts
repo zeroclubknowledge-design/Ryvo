@@ -79,6 +79,11 @@ export async function POST(req: Request) {
       });
       if (error) return fail(error.code === 'PGRST202' ? 'The competition payments database update has not been applied yet.' : error.message);
       const amount = BigInt((data as { amountMicro: number }).amountMicro);
+      // Never ask the wallet for a different amount than the screen showed.
+      if (body.expectedMicro != null && String(body.expectedMicro) !== amount.toString()) {
+        await serviceClient().from('ryvo_competition_payments').update({ status: 'expired' }).eq('id', (data as { id: string }).id);
+        return fail(`The price changed to ${(Number(amount) / 1e6).toFixed(2)} USDC. Refresh the page and review it before paying.`);
+      }
 
       const [lamports, usdc] = await Promise.all([
         connection.getBalance(payer, 'confirmed'),

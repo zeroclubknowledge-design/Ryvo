@@ -131,7 +131,7 @@ function CreateFlow({ user, artist, onLaunched, restore }: { user: User | null; 
     try {
       const result = await payCompetition(
         {
-          kind: "launch", competitionId,
+          kind: "launch", competitionId, expectedMicro: launchFee * 10000,
           draft: { title: title.trim(), description: story.trim(), artist, fee, capacity, winners, creatorShare: CREATOR_SHARE, total, artworkPath: artwork.path, coverPath: (cover ?? artwork).path },
         },
         { publicKey, signTransaction },

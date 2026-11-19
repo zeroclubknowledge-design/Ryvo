@@ -30,7 +30,7 @@ const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * the payment is looked up on-chain by its reference before giving up.
  */
 export async function payCompetition(
-  input: { kind: "launch" | "entry"; competitionId: string; draft?: LaunchDraft },
+  input: { kind: "launch" | "entry"; competitionId: string; draft?: LaunchDraft; expectedMicro: number },
   wallet: { publicKey: PublicKey; signTransaction: (tx: Transaction) => Promise<Transaction> },
   onStage: (stage: PayStage) => void,
 ): Promise<PayResult> {
