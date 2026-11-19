@@ -24,8 +24,8 @@ export function TrustRow() {
   return (
     <ul className="lx-trust" aria-label="Why Ryvo">
       <li><i className="lx-sol-dot" aria-hidden="true" />Built on Solana</li>
-      <li>Pay in USDC — digital dollars</li>
-      <li>Entries from $5</li>
+      <li>Paid in USDC</li>
+      <li>From $5</li>
     </ul>
   );
 }
