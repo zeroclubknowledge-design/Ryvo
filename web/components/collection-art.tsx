@@ -11,10 +11,17 @@ export function Artwork({theme,className="",scene=false}:{theme:string;className
 
  const [ready,setReady]=useState(false);
 
- const poster=theme.startsWith("upload:")?<UploadedArtwork assetKey={theme.slice(7)}/>:theme==="explorer"?<div className="explorer-image"/>:theme==="bloom"?<div className="bloom-sculpture">{Array.from({length:8},(_,i)=><i key={i} style={{transform:`rotate(${i*45}deg) rotateY(25deg)`}}/>)}<b/></div>:theme==="chrome"?<div className="chrome-sculpture"><i/><b/><span/></div>:<div className="orbit-sculpture"><i/><b/><span/></div>;
+ const poster=theme.startsWith("art:")?<StoredArtwork path={theme.slice(4)}/>:theme.startsWith("upload:")?<UploadedArtwork assetKey={theme.slice(7)}/>:theme==="explorer"?<div className="explorer-image"/>:theme==="bloom"?<div className="bloom-sculpture">{Array.from({length:8},(_,i)=><i key={i} style={{transform:`rotate(${i*45}deg) rotateY(25deg)`}}/>)}<b/></div>:theme==="chrome"?<div className="chrome-sculpture"><i/><b/><span/></div>:<div className="orbit-sculpture"><i/><b/><span/></div>;
 
- return <div className={`artwork art-${theme} ${live?ready?"has-scene scene-ready":"has-scene":""} ${className}`} aria-label={theme.startsWith("upload:")?"Competition artwork":`${theme} collectible artwork`} role="img">{live?<div className="artwork-poster">{poster}</div>:poster}{live&&<ArtworkScene theme={theme as "explorer"|"bloom"|"chrome"|"orbit"} onReady={()=>setReady(true)}/>}</div>
+ return <div className={`artwork art-${theme} ${live?ready?"has-scene scene-ready":"has-scene":""} ${className}`} aria-label={theme.startsWith("upload:")||theme.startsWith("art:")?"Competition artwork":`${theme} collectible artwork`} role="img">{live?<div className="artwork-poster">{poster}</div>:poster}{live&&<ArtworkScene theme={theme as "explorer"|"bloom"|"chrome"|"orbit"} onReady={()=>setReady(true)}/>}</div>
 
 }
 
 function UploadedArtwork({assetKey}:{assetKey:string}){const [url,setUrl]=useState("");useEffect(()=>{let active=true,objectURL="";readArtwork(assetKey).then(blob=>{if(blob&&active){objectURL=URL.createObjectURL(blob);setUrl(objectURL)}}).catch(()=>{});return()=>{active=false;if(objectURL)URL.revokeObjectURL(objectURL)}},[assetKey]);return url?<img src={url} alt="Uploaded competition artwork" className="uploaded-artwork"/>:<div className="uploaded-art-placeholder">Artwork preview</div>}
+
+/** Creator artwork in the public competition-art bucket. */
+export const storedArtworkUrl=(path:string)=>`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/competition-art/${path.split("/").map(encodeURIComponent).join("/")}`;
+function StoredArtwork({path}:{path:string}){
+ // eslint-disable-next-line @next/next/no-img-element
+ return /^[a-f0-9-]{36}\/[a-f0-9-]{36}\.(jpg|png|webp)$/.test(path)?<img src={storedArtworkUrl(path)} alt="Competition artwork" className="uploaded-artwork" loading="lazy" decoding="async"/>:<div className="uploaded-art-placeholder">Artwork preview</div>
+}

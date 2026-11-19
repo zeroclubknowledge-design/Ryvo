@@ -162,24 +162,8 @@ function WalletHero({ ref, balances, error, loading, refresh, hidden, onToggleHi
   ref: React.Ref<HTMLElement>; balances: SolanaBalances | null; error: string; loading: boolean; refresh: () => void;
   hidden: boolean; onToggleHidden: () => void; onReceive: () => void;
 }) {
-  const { wallets, wallet, select, connect, disconnect, connected, connecting, publicKey } = useWallet();
-  const hydrated = useHydrated();
-  const [requested, setRequested] = useState(false);
-  const [problem, setProblem] = useState("");
+  const { wallet, disconnect, connected, publicKey } = useWallet();
   const [copied, setCopied] = useState(false);
-
-  // select() only picks the adapter; connect once React has applied it.
-  useEffect(() => {
-    if (!requested || !wallet) return;
-    let active = true;
-    connect()
-      .catch((e: unknown) => { if (active) setProblem(e instanceof Error && e.message ? e.message : "The wallet declined the connection."); })
-      .finally(() => { if (active) setRequested(false); });
-    return () => { active = false; };
-  }, [requested, wallet, connect]);
-
-  const detected = wallets.filter((w) => w.readyState === WalletReadyState.Installed || w.readyState === WalletReadyState.Loadable);
-  const choose = (name: WalletName) => { setProblem(""); select(name); setRequested(true); };
   const address = publicKey?.toBase58() ?? "";
   const copy = async () => {
     try { await navigator.clipboard.writeText(address); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* clipboard blocked */ }
@@ -246,42 +230,70 @@ function WalletHero({ ref, balances, error, loading, refresh, hidden, onToggleHi
       <h2 className="wl-connect-title" id="wl-hero-title">Connect a Solana wallet.</h2>
       <p className="wl-connect-copy">Hold USDC, fund RYVO Credit and receive withdrawals. Connecting never moves funds.</p>
 
-      {!hydrated ? (
-        <div className="wl-options" aria-hidden="true"><div className="wl-option is-placeholder" /></div>
-      ) : detected.length ? (
-        <div className="wl-options">
-          {detected.map((item) => {
-            const busy = (connecting || requested) && wallet?.adapter.name === item.adapter.name;
-            const mobile = item.adapter.name === MOBILE_ADAPTER;
-            return (
-              <button key={item.adapter.name} className="wl-option" disabled={connecting || requested} onClick={() => choose(item.adapter.name)}>
-                {mobile ? (
-                  <span className="wl-option-glyph" aria-hidden="true"><WalletGlyph /></span>
-                ) : (
-                  // Wallet icons are data URIs supplied by the wallet itself.
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.adapter.icon} alt="" width={40} height={40} />
-                )}
-                <span className="wl-option-copy">
-                  <b>{mobile ? "Open my wallet app" : item.adapter.name}</b>
-                  <span>{busy ? "Approve in your wallet…" : mobile ? "Phantom, Solflare, Backpack and more" : "Detected in this browser"}</span>
-                </span>
-                <span className="wl-chevron" aria-hidden="true"><ChevronGlyph /></span>
-              </button>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="wl-no-wallet">
-          <p>No Solana wallet was found here. On a phone, open Ryvo in your wallet app’s browser. On a computer, add a wallet extension and refresh.</p>
-          <div>
-            <a className="wl-chip" href="https://phantom.com/download" target="_blank" rel="noreferrer">Get Phantom ↗</a>
-            <a className="wl-chip" href="https://solflare.com/download" target="_blank" rel="noreferrer">Get Solflare ↗</a>
-          </div>
-        </div>
-      )}
-      {problem && <p className="wl-error" role="alert">{problem}</p>}
+      <WalletConnectOptions />
     </section>
+  );
+}
+
+
+/** Detected Solana wallets as rows; used by the wallet, create and join screens. */
+export function WalletConnectOptions() {
+  const { wallets, wallet, select, connect, connecting } = useWallet();
+  const hydrated = useHydrated();
+  const [requested, setRequested] = useState(false);
+  const [problem, setProblem] = useState("");
+
+  // select() only picks the adapter; connect once React has applied it.
+  useEffect(() => {
+    if (!requested || !wallet) return;
+    let active = true;
+    connect()
+      .catch((e: unknown) => { if (active) setProblem(e instanceof Error && e.message ? e.message : "The wallet declined the connection."); })
+      .finally(() => { if (active) setRequested(false); });
+    return () => { active = false; };
+  }, [requested, wallet, connect]);
+
+  const detected = wallets.filter((w) => w.readyState === WalletReadyState.Installed || w.readyState === WalletReadyState.Loadable);
+  const choose = (name: WalletName) => { setProblem(""); select(name); setRequested(true); };
+
+  return (
+    <>
+        {!hydrated ? (
+          <div className="wl-options" aria-hidden="true"><div className="wl-option is-placeholder" /></div>
+        ) : detected.length ? (
+          <div className="wl-options">
+            {detected.map((item) => {
+              const busy = (connecting || requested) && wallet?.adapter.name === item.adapter.name;
+              const mobile = item.adapter.name === MOBILE_ADAPTER;
+              return (
+                <button key={item.adapter.name} className="wl-option" disabled={connecting || requested} onClick={() => choose(item.adapter.name)}>
+                  {mobile ? (
+                    <span className="wl-option-glyph" aria-hidden="true"><WalletGlyph /></span>
+                  ) : (
+                    // Wallet icons are data URIs supplied by the wallet itself.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={item.adapter.icon} alt="" width={40} height={40} />
+                  )}
+                  <span className="wl-option-copy">
+                    <b>{mobile ? "Open my wallet app" : item.adapter.name}</b>
+                    <span>{busy ? "Approve in your wallet…" : mobile ? "Phantom, Solflare, Backpack and more" : "Detected in this browser"}</span>
+                  </span>
+                  <span className="wl-chevron" aria-hidden="true"><ChevronGlyph /></span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="wl-no-wallet">
+            <p>No Solana wallet was found here. On a phone, open Ryvo in your wallet app’s browser. On a computer, add a wallet extension and refresh.</p>
+            <div>
+              <a className="wl-chip" href="https://phantom.com/download" target="_blank" rel="noreferrer">Get Phantom ↗</a>
+              <a className="wl-chip" href="https://solflare.com/download" target="_blank" rel="noreferrer">Get Solflare ↗</a>
+            </div>
+          </div>
+        )}
+      {problem && <p className="wl-error" role="alert">{problem}</p>}
+    </>
   );
 }
 

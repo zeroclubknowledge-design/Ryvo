@@ -15,6 +15,7 @@ import "./player-profile.css";
 import "./account-editing.css";
 import "./premium.css";
 import "./wallet.css";
+import "./create.css";
 import "./pwa.css";
 import { PwaSetup } from "@/components/pwa-setup";
 const montserrat=localFont({src:"../public/fonts/Montserrat-Variable.ttf",weight:"100 900",display:"block",preload:true,variable:"--font-ryvo",adjustFontFallback:"Arial"});

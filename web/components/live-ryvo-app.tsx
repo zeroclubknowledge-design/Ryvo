@@ -11,6 +11,8 @@ import { BackLink } from "@/components/back-button";
 import { Artwork, Icon } from "@/components/collection-art";
 import { CollectionOpening } from "@/components/collection-opening";
 import { WalletPage } from "@/components/wallet-page";
+import { JoinCompetition } from "@/components/join-competition";
+import { LiveCreate } from "@/components/live-create";
 import { LiquidGlass } from "@/components/premium/liquid-glass";
 import { EditProfile } from "@/components/edit-profile";
 import { MerchantDirectory } from "@/components/merchant-directory";
@@ -276,7 +278,12 @@ export function LiveRyvoApp({
                     <p>
                       {detail.total} pieces · {detail.winners} winner slots
                     </p>
-                    {paymentNote}
+                    <JoinCompetition
+                      competition={detail}
+                      user={user}
+                      joined={Boolean(state?.boards[detail.id])}
+                      onJoined={() => setRetry(value => value + 1)}
+                    />
                   </section>
                 ) : (
                   <Empty
@@ -482,23 +489,12 @@ export function LiveRyvoApp({
                   <div className="play-home-heading">
                     <h1>Launch.</h1>
                   </div>
-                  <p className="subheading create-subheading">Upload your artwork. Set the challenge. Bring your community.</p>
-                  <section className="live-launch-preview">
-                    <div className="live-launch-art">
-                      <Artwork theme="explorer" />
-                    </div>
-                    <div className="live-launch-copy">
-                      <h2>
-                        Make it a board
-                        <br />
-                        worth beating.
-                      </h2>
-                      <p>Choose 10–50 pieces and race your community to the complete picture.</p>
-                      <p>Competition publishing opens when payment verification is available.</p>
-                      {user ? <button className="primary" disabled>Launching opens soon</button> : accountLink}
-                    </div>
-                  </section>
-                  {paymentNote}
+                  <p className="subheading create-subheading">Upload your artwork. Set the rules. Open registration today.</p>
+                  <LiveCreate
+                    user={user}
+                    artist={String(user?.user_metadata.name || user?.user_metadata.username || "Ryvo creator")}
+                    onLaunched={() => setRetry(value => value + 1)}
+                  />
                 </>
               )}
 

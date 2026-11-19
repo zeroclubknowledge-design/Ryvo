@@ -108,3 +108,18 @@ P2P merchants keep their local currency because players pay them by local bank t
 Ryvo is installable: `app/manifest.ts` (standalone, portrait, #050505, opens on Explore, shortcuts to Explore, Boards and Wallet), icons generated from the logo on the black canvas (192, 512, maskable 512, Apple touch 180), and `public/sw.js`. The service worker caches only hashed `/_next/static` files, fonts, icons and `offline.html`; pages always come from the network and fall back to the branded offline screen, and API, Supabase and Solana requests are never intercepted. Bump `VERSION` in `sw.js` when its caching rules change.
 
 `PwaSetup` registers the worker in production and shows a dismissible "Get the Ryvo app" card (above the taskbar on app screens): Chrome, Edge and Samsung Internet use the native install prompt, which installs Ryvo as an Android app; iPhone Safari gets Share → Add to Home Screen instructions. Dismissal is remembered for 14 days per browser.
+
+## Create and join with USDC
+
+Create (`LiveCreate`) is a three-step flow beside a live board preview: Artwork (artwork upload, optional cover, title, story), Rules (10–50 pieces, players, winner slots, $5/$10/$20 entry, 5% or 10% creator share) and Review & pay (entry, projected entries, 20% prize pool, creator share, launch fee = half the share of projected entries). It ends with one "Pay $X & launch" button. Signed-out creators see a sign-in gate. A paid launch opens registration immediately and appears under Your competitions. Artwork goes to the public `competition-art` Supabase bucket in the creator's own folder and renders through the `art:<path>` theme.
+
+The collection page shows a join panel (`JoinCompetition`) with the entry price, the RYVO Credit it issues, places left and a fill meter. It then shows sign in, connect a wallet, or "Pay $X & join". After joining it shows "You're in" with Open your board. Closed or full competitions say so plainly.
+
+Payments go to Ryvo's treasury (`BrPs45Ds…PSPU2`; override with `SOLANA_TREASURY_ADDRESS`). `/api/competitions/pay` works in three steps:
+- **prepare:** the database validates and opens a 15-minute payment, and the server builds a USDC transfer with a one-off reference key. The wallet only signs.
+- **submit:** the signed transaction must match exactly. The server sends it, confirms it, then records the launch or entry, issuing credits, the board and the place.
+- **check:** recovers a missed confirmation by its reference.
+
+A payment that lands after the last place is taken is kept as `refund_due` and never over-fills a competition. Filling the last place starts the one-month round. Run `supabase/migrations/202611190005_usdc_competitions.sql` in the SQL Editor; `npm run test:competitions` checks it in PGlite. The server also needs `SUPABASE_SERVICE_ROLE_KEY`.
+
+Wallets reconnect automatically: the provider remembers the last approved wallet (`localStorage` key `ryvo-wallet`), and Disconnect clears it.

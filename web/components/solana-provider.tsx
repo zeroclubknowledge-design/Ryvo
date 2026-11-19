@@ -9,7 +9,7 @@ import { shortAddress,SOLANA_NETWORK,SOLANA_RPC } from '@/lib/solana-config';
 import { Icon } from '@/components/collection-art';
 
 const adapters:[]=[];
-export function SolanaProvider({children}:{children:ReactNode}){return <ConnectionProvider endpoint={SOLANA_RPC}><WalletProvider wallets={adapters} autoConnect={false}>{children}</WalletProvider></ConnectionProvider>}
+export function SolanaProvider({children}:{children:ReactNode}){return <ConnectionProvider endpoint={SOLANA_RPC}><WalletProvider wallets={adapters} autoConnect localStorageKey="ryvo-wallet">{children}</WalletProvider></ConnectionProvider>}
 export function ConnectWallet({compact=false,signIn=false,next='/explore'}:{compact?:boolean;signIn?:boolean;next?:string}){
  const {wallets,select,wallet,publicKey,connected,connecting,connect,disconnect,signMessage}=useWallet();
  const [requested,setRequested]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');const router=useRouter();
