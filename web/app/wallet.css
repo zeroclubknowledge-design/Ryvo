@@ -213,3 +213,34 @@ a.wl-row:active, button.wl-row:active { transform: scale(.985); }
 .wl-option.is-reconnecting .wl-option-glyph { animation: wl-pulse 1.2s ease-in-out infinite; }
 @keyframes wl-pulse { 50% { opacity: .55; } }
 @media (prefers-reduced-motion: reduce) { .wl-option.is-reconnecting .wl-option-glyph { animation: none; } }
+
+/* ---------- Universal pieces ---------- */
+.up-card { display: grid; gap: 14px; padding: 18px; border-radius: 24px; background: #111211; }
+.up-count { display: flex; align-items: center; gap: 14px; }
+.up-glyph { flex: none; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; background: #60b80024; color: #a8e36a; font-size: 22px; }
+.up-count div { display: grid; gap: 3px; }
+.up-count b { font-size: 16px; font-weight: 800; color: #f5f5f3; }
+.up-count span, .up-muted { font-size: 12.5px; color: #8d9189; margin: 0; }
+.up-actions { display: grid; gap: 8px; }
+.up-action { display: grid; gap: 3px; padding: 14px 16px; border-radius: 18px; background: #191a19; color: #f5f5f3; text-align: left; transition: background-color 140ms ease; }
+.up-action b { font-size: 14px; font-weight: 750; }
+.up-action span { font-size: 12px; color: #8d9189; }
+.up-action:disabled { opacity: .55; cursor: not-allowed; }
+@media (hover: hover) and (pointer: fine) { .up-action:hover:not(:disabled) { background: #202220; } }
+.up-form { display: grid; gap: 12px; }
+.up-confirm { display: grid; gap: 6px; padding: 16px; border-radius: 18px; background: #6338bc24; box-shadow: inset 0 0 0 1.5px #6338bc; }
+.up-confirm b { font-size: 14.5px; font-weight: 750; color: #f5f5f3; }
+.up-confirm>span { font-size: 12px; color: #b4b8b0; }
+.up-confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+.up-listed { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.up-listed li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 14px; background: #ffffff08; font-size: 12.5px; color: #c9cdc4; }
+.up-done { margin: 0; padding: 12px 14px; border-radius: 14px; background: #60b8001f; color: #a8e36a; font-size: 12.5px; }
+.up-market { display: grid; gap: 10px; margin-top: 18px; padding: 20px; border-radius: 24px; background: #111211; }
+.up-market h2 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.03em; color: #f5f5f3; }
+.up-market ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.up-market li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; background: #191a19; }
+.up-market li b { flex: 1; font-size: 15px; font-weight: 800; color: #f5f5f3; }
+.up-market .up-glyph { width: 38px; height: 38px; font-size: 18px; border-radius: 12px; }
+.up-mine { font-size: 12px; color: #8d9189; }
+.up-buy-confirm { display: flex; gap: 6px; }
+.up-buy-confirm .primary, .up-buy-confirm .lc-ghost { min-height: 40px; padding: 0 14px; font-size: 12.5px; }

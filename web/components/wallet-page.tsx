@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 
 import { useSolanaBalances, type SolanaBalances } from "@/components/solana-provider";
+import { UniversalPieces } from "@/components/universal-pieces";
 import { loadCashout } from "@/lib/cashout";
 import { credit, money, type DemoState } from "@/lib/demo";
 import { SOLANA_NETWORK, USDC_SCALE, shortAddress } from "@/lib/solana-config";
@@ -122,6 +123,8 @@ function WalletScreen({ creditBalance, activity, signedIn, tokenCard }: { credit
           {connected ? "Withdrawals open soon" : "Connect a wallet to withdraw"}
         </button>
       </section>
+
+      <UniversalPieces signedIn={signedIn} />
 
       {tokenCard}
 

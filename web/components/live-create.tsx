@@ -9,6 +9,7 @@ import { Artwork, Icon, storedArtworkUrl } from "@/components/collection-art";
 import { WalletConnectOptions } from "@/components/wallet-page";
 import { payCompetition, stageLabel, type PayStage } from "@/lib/competition-pay";
 import { fragmentLayout, money, type Competition } from "@/lib/demo";
+import { entrySplit } from "@/lib/economics";
 import { CREATOR_SHARE, launchFeeBreakdown } from "@/lib/launch-fee";
 import { shortAddress } from "@/lib/solana-config";
 import { supabase } from "@/lib/supabase";
@@ -89,7 +90,8 @@ function CreateFlow({ user, artist, onLaunched, restore }: { user: User | null; 
   const projected = fee * capacity;
   const feeParts = launchFeeBreakdown(capacity, winners, total);
   const launchFee = feeParts.total;
-  const prize = Math.round(projected * 0.2);
+  const split = entrySplit(capacity, winners);
+  const prize = Math.round((projected * split.winners) / 100);
   const creatorEarnings = Math.round((projected * CREATOR_SHARE) / 100);
   const rulesValid = capacity >= 2 && capacity <= 10000 && winners >= 1 && winners <= capacity;
   const layout = useMemo(() => fragmentLayout(total), [total]);
@@ -227,7 +229,7 @@ function CreateFlow({ user, artist, onLaunched, restore }: { user: User | null; 
               <div className="lc-fee-live" aria-live="polite">
                 <span>Launch fee</span>
                 <b>{rulesValid ? money(launchFee) : "—"}</b>
-                <small>Set by players, winner slots and pieces. You earn {CREATOR_SHARE}% of entries.</small>
+                <small>Set by players, winner slots and pieces. Winners share {rulesValid ? split.winners : "10–40"}% of entries; you earn {CREATOR_SHARE}%.</small>
               </div>
               <p className="lc-note"><Icon name="time" size={18} /> The one-month round starts only when every place is filled.</p>
             </div>
@@ -241,9 +243,23 @@ function CreateFlow({ user, artist, onLaunched, restore }: { user: User | null; 
                 <div><dt>Entry fee</dt><dd>{money(fee)} <small>· {(fee * 10).toLocaleString()} r/ issued</small></dd></div>
                 <div><dt>Players · winners</dt><dd>{capacity.toLocaleString()} · {winners.toLocaleString()}</dd></div>
                 <div><dt>Projected entries</dt><dd>{money(projected)}</dd></div>
-                <div><dt>Prize pool · 20%</dt><dd>{money(prize)}</dd></div>
+                <div><dt>Prize pool · {split.winners}%</dt><dd>{money(prize)}</dd></div>
                 <div><dt>Your share · {CREATOR_SHARE}%</dt><dd>{money(creatorEarnings)}</dd></div>
               </dl>
+              <div className="lc-split" aria-label="Where every entry goes">
+                <p className="lc-split-title">Where every entry goes</p>
+                <div className="lc-split-bar" aria-hidden="true">
+                  <i className="is-winners" style={{ flexGrow: split.winners }} /><i className="is-creator" style={{ flexGrow: split.creator }} />
+                  <i className="is-ryvo" style={{ flexGrow: split.ryvo }} />{split.pool > 0 && <i className="is-pool" style={{ flexGrow: split.pool }} />}
+                </div>
+                <ul className="lc-split-legend">
+                  <li><i className="is-winners" />Winners {split.winners}%</li>
+                  <li><i className="is-creator" />You {split.creator}%</li>
+                  <li><i className="is-ryvo" />Ryvo {split.ryvo}%</li>
+                  {split.pool > 0 && <li><i className="is-pool" />Token launch pool {split.pool}%</li>}
+                </ul>
+                <small>More winner slots for your players means a bigger share for winners, up to 40% when half the players can win.</small>
+              </div>
               <dl className="lc-summary lc-fee-breakdown" aria-label="How the launch fee is worked out">
                 <div><dt>Base</dt><dd>{money(feeParts.base)}</dd></div>
                 <div><dt>{capacity.toLocaleString()} players × $0.01</dt><dd>{money(feeParts.playerCost)}</dd></div>

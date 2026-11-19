@@ -10,7 +10,8 @@
     "test:integration": "node scripts/check-live.mjs",
     "test:operations": "node scripts/check-operations.mjs",
     "test:profile": "node scripts/check-profile.mjs",
-    "test:competitions": "node scripts/check-competitions.mjs"
+    "test:competitions": "node scripts/check-competitions.mjs",
+    "test:economy": "node scripts/check-economy.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

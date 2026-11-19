@@ -1,4 +1,5 @@
 "use client";
+import { EconomyPanel } from "@/components/admin-economy";
 import Image from "next/image";
 import { Menu } from "@base-ui/react/menu";
 import Link from "next/link";
@@ -15,7 +16,7 @@ import { credit, localMoney, money } from "@/lib/demo";
 
 export type Portal="merchant"|"admin";
 const merchantNav=[['overview','Overview','explore'],['orders','Orders','boards'],['stock','Credit stock','wallet'],['offer','Your offer','marketplace']] as const;
-const adminNav=[['overview','Overview','explore'],['merchants','Merchants','marketplace'],['orders','Payments','wallet'],['stock','Wholesale','boards'],['competitions','Competitions','spark'],['players','Players','referrals'],['audit','Audit trail','time'],['settings','Settings','profile']] as const;
+const adminNav=[['overview','Overview','explore'],['merchants','Merchants','marketplace'],['orders','Payments','wallet'],['stock','Wholesale','boards'],['competitions','Competitions','spark'],['economy','Economy','wallet'],['players','Players','referrals'],['audit','Audit trail','time'],['settings','Settings','profile']] as const;
 const date=(value:string)=>new Date(value).toLocaleDateString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 export function OperationsApp({portal,section="overview"}:{portal:Portal;section?:string}){
  const [user,setUser]=useState<User|null>(null),[data,setData]=useState<OpsData|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[busy,setBusy]=useState(false),[notice,setNotice]=useState(""),[retry,setRetry]=useState(0);
@@ -66,6 +67,7 @@ export function OperationsWorkbench({portal,section,data,busy,run}:{portal:Porta
  {section==='competitions'&&admin&&<><Search query={query} setQuery={setQuery} label="Search competitions"/><div className="ops-table-wrap"><table><thead><tr><th>Competition</th><th>Registration</th><th>Prize pool</th><th>Visibility</th><th>Action</th></tr></thead><tbody>{data.competitions.filter(c=>match(c.definition.title??c.id)).map(c=><tr key={c.id}><td><b>{c.definition.title??c.id}</b><small>{c.id}</small></td><td>{c.definition.joined??0} / {c.definition.capacity??0}</td><td>{money(c.definition.prize??0)}</td><td><Status status={c.published?'published':'hidden'}/></td><td><button className="secondary" disabled={busy} onClick={()=>run('moderate-competition',{id:c.id,published:!c.published})}>{c.published?'Hide':'Publish'}</button></td></tr>)}</tbody></table></div>{!data.competitions.length&&<OpsEmpty title="The next competition starts with a creator." text="Competition records will appear here for visibility management. Hiding a competition does not alter its balances or deadline."/>}</>}
  {section==='players'&&admin&&<><Search query={query} setQuery={setQuery} label="Search name or email"/><p className="ops-context">Latest 500 registered players. Wallet balances are read-only here.</p><div className="ops-table-wrap"><table><thead><tr><th>Player</th><th>RYVO Credit</th><th>Earnings</th><th>Joined</th></tr></thead><tbody>{data.players.filter(p=>match(`${p.name} ${p.email}`)).map(p=><tr key={p.user_id}><td><b>{p.name}</b><small>{p.email}</small></td><td>{credit(p.credits)}</td><td>{money(p.earnings)}</td><td>{date(p.created_at)}</td></tr>)}</tbody></table></div>{!data.players.length&&<OpsEmpty title="Your community starts here." text="Registered players will appear here after their accounts are created."/>}</>}
  {section==='audit'&&admin&&<section className="ops-panel"><h2>Latest platform actions</h2><p className="ops-context">Latest 200 actions. Records are created by the database and cannot be edited here.</p>{data.audit.length?<ol className="ops-audit">{data.audit.map(a=><li key={a.id}><span><Icon name="check" size={17}/></span><div><b>{a.action.replaceAll('-',' ')}</b><small>{a.actor_name} · {a.subject}</small></div><time>{date(a.created_at)}</time></li>)}</ol>:<OpsEmpty title="A clear trail from the start." text="Merchant approvals, payment confirmations and settings changes will be recorded here."/>}</section>}
+ {section==='economy'&&admin&&<EconomyPanel/>}
  {section==='settings'&&admin&&<SettingsForm data={data} busy={busy} run={run}/>}
  </>;
 }

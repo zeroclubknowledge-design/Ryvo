@@ -130,7 +130,7 @@ export function LandingFaq() {
     ["Do I need to know crypto?", "No. You need a wallet app like Solflare with some USDC in it. Ryvo shows every amount in dollars, and your wallet asks you to approve each payment."],
     ["What is USDC?", "A digital dollar. 1 USDC is designed to always equal $1, so your entry and your winnings don’t rise or fall in value."],
     ["What is RYVO Credit?", "The in-game credit you use to draw pieces and buy from other players. Every entry gives you 1,000 r/ for each $1 you pay. It stays inside Ryvo."],
-    ["How do I win, and how much?", "Be among the first players to complete the board within the month. Each competition’s prize pool is 20% of its entries, shared across its winner slots — you can see the exact pool on every challenge before you join."],
+    ["How do I win, and how much?", "Be among the first players to complete the board within the month. Each competition’s prize pool is 10% to 40% of its entries — the more winner slots it has, the bigger the share — split across those winners. You can see the exact pool on every challenge before you join."],
     ["How are prizes paid?", "Prize shares and sale proceeds are recorded in your Ryvo earnings in USDC. Withdrawals straight to your connected wallet are opening soon."],
     ["What does it cost to create a challenge?", "A one-off launch fee set by the size of your game — from about $1 for a small one. You earn 10% of every entry."],
     ["Is my money safe?", "You keep your own wallet and approve every payment yourself. Ryvo never asks for your recovery phrase — anyone who does is a scammer."],

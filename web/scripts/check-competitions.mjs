@@ -39,7 +39,7 @@ await assert.rejects(() => prepare(player, 'entry', id), /unavailable/, 'Unpaid 
 assert.equal((await settle(launch.id)).status, 'paid');
 assert.equal((await settle(launch.id)).status, 'paid', 'Settling twice is harmless');
 const [comp] = (await db.query('select published,definition from public.competitions where id=$1', [id])).rows;
-assert.equal(comp.published, true); assert.equal(comp.definition.status, 'open'); assert.equal(comp.definition.prize, 400);
+assert.equal(comp.published, true); assert.equal(comp.definition.status, 'open'); assert.equal(comp.definition.prize, 800, '1 winner of 2 players earns the 40% ceiling: $8.00');
 assert.equal(comp.definition.theme, `art:${art}`);
 assert.equal(comp.definition.creatorShare, 10, 'Creators earn a fixed 10% share');
 

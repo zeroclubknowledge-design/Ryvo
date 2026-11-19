@@ -136,3 +136,18 @@ The landing explains, in order: the hero (enter from $5, race to collect every p
 ## Installed-app splash
 
 In the installed app only, signed-in players see a splash: the Ryvo ink-pass logo (the same pink → charcoal → green animation as the loader) over a fluid background of slowly drifting, morphing pink, green and purple glows. It exits by surging the colour outward and opening from the centre into the app (700ms). It plays on a fresh launch (`SPLASH_BOOT` in `<head>` sets `html[data-splash]` before first paint, once per app session) for at least 1.7s and until the page has loaded, capped at 4s, and again on return after 10+ minutes away. Browser tabs, signed-out visitors and reloads within a session skip it. Reduced motion keeps the logo static and fades out.
+
+## Competition economy
+
+Every entry splits four ways (migration 202611190007, mirrored in `web/lib/economics.ts`):
+- **Winners:** 10% + 30% × √(min(winners ÷ players, 50%) ÷ 50%), from 10% to 40%.
+- **Creator:** 10%.
+- **Ryvo:** 50%. Referral rewards are their rate as a percentage of this half.
+- **Token launch pool:** the remainder, 40% minus the winners' share.
+
+Each split is recorded in `ryvo_entry_splits`. Universal pieces can be converted to RYVO tokens, sold to Ryvo or listed in a joined competition's marketplace:
+- **To tokens:** 1 token per piece while 24-hour conversions are at or below the admin target. Above it the rate is target ÷ conversions, with a floor of 0.1.
+- **Sold to Ryvo:** at the admin USD price.
+- **Listed:** bought with RYVO Credit; the seller gets USDC earnings at 1,000 r/ = $1, less 0.5%.
+
+Admin → Economy shows the launch pool, the split, launch fees, refunds due, Universal activity and these settings. Tests: `npm run test:economy`.

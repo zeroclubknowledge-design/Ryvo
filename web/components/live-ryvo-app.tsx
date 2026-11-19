@@ -13,6 +13,7 @@ import { CollectionOpening } from "@/components/collection-opening";
 import { WalletPage } from "@/components/wallet-page";
 import { JoinCompetition } from "@/components/join-competition";
 import { LiveCreate } from "@/components/live-create";
+import { UniversalMarket } from "@/components/universal-pieces";
 import { LiquidGlass } from "@/components/premium/liquid-glass";
 import { EditProfile } from "@/components/edit-profile";
 import { MerchantDirectory } from "@/components/merchant-directory";
@@ -284,6 +285,9 @@ export function LiveRyvoApp({
                       joined={Boolean(state?.boards[detail.id])}
                       onJoined={() => setRetry(value => value + 1)}
                     />
+                    {user && state?.boards[detail.id] && (
+                      <UniversalMarket competitionId={detail.id} onBought={() => setRetry(value => value + 1)} />
+                    )}
                   </section>
                 ) : (
                   <Empty
