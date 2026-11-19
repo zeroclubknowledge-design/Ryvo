@@ -111,7 +111,7 @@ Ryvo is installable: `app/manifest.ts` (standalone, portrait, #050505, opens on 
 
 ## Create and join with USDC
 
-Create (`LiveCreate`) is a three-step flow beside a live board preview: Artwork (artwork upload, optional cover, title, story), Rules (10–50 pieces, players, winner slots, $5/$10/$20 entry, 5% or 10% creator share) and Review & pay (entry, projected entries, 20% prize pool, creator share, launch fee = half the share of projected entries). It ends with one "Pay $X & launch" button. Signed-out creators see a sign-in gate. A paid launch opens registration immediately and appears under Your competitions. Artwork goes to the public `competition-art` Supabase bucket in the creator's own folder and renders through the `art:<path>` theme.
+Create (`LiveCreate`) is a three-step flow beside a live board preview: Artwork (artwork upload, optional cover, title, story), Rules (10–50 pieces, players, winner slots, $5/$10/$20 entry, 5% or 10% creator share) and Review (entry, projected entries, 20% prize pool, creator share, launch fee = half the share of projected entries). It ends with one "Pay $X & launch" button. Signed-out creators see a sign-in gate. A paid launch opens registration immediately and appears under Your competitions. Artwork goes to the public `competition-art` Supabase bucket in the creator's own folder and renders through the `art:<path>` theme.
 
 The collection page shows a join panel (`JoinCompetition`) with the entry price, the RYVO Credit it issues, places left and a fill meter. It then shows sign in, connect a wallet, or "Pay $X & join". After joining it shows "You're in" with Open your board. Closed or full competitions say so plainly.
 
@@ -123,3 +123,5 @@ Payments go to Ryvo's treasury (`BrPs45Ds…PSPU2`; override with `SOLANA_TREASU
 A payment that lands after the last place is taken is kept as `refund_due` and never over-fills a competition. Filling the last place starts the one-month round. Run `supabase/migrations/202611190005_usdc_competitions.sql` in the SQL Editor; `npm run test:competitions` checks it in PGlite. The server also needs `SUPABASE_SERVICE_ROLE_KEY`.
 
 Wallets reconnect automatically: the provider remembers the last approved wallet (`localStorage` key `ryvo-wallet`), and Disconnect clears it.
+
+An unfinished launch is saved per account as you type (`ryvo-create-draft:<user>`: step, text, rules and uploaded artwork paths) for seven days, and restores when Create reopens. A launch that was paid while the app was in the background opens on its success screen. In the installed app, a relaunch at the start URL returns to the last in-app page visited within 30 minutes (`ryvo-resume`; sign-in and landing pages are never resumed).

@@ -5,7 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { Artwork, Icon } from "@/components/collection-art";
+import { Artwork, Icon, storedArtworkUrl } from "@/components/collection-art";
 import { SolanaProvider } from "@/components/solana-provider";
 import { WalletConnectOptions } from "@/components/wallet-page";
 import { payCompetition, stageLabel, type PayStage } from "@/lib/competition-pay";
@@ -20,33 +20,64 @@ const TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png",
 type Image = { path: string; preview: string };
 type Mine = { id: string; definition: Competition; created_at: string };
 
+/* An unfinished launch is saved per account, so leaving the app never loses it. */
+type Draft = {
+  step: number; title: string; story: string; total: number; capacity: number; winners: number; fee: number; share: 5 | 10;
+  artworkPath: string | null; coverPath: string | null; competitionId: string; savedAt: number;
+};
+const DRAFT_TTL = 7 * 24 * 60 * 60 * 1000;
+const draftKey = (uid: string) => `ryvo-create-draft:${uid}`;
+function readDraft(uid: string | undefined): Draft | null {
+  if (!uid || typeof window === "undefined") return null;
+  try {
+    const draft = JSON.parse(localStorage.getItem(draftKey(uid)) || "null") as Draft | null;
+    return draft && Date.now() - draft.savedAt < DRAFT_TTL && /^custom-[a-f0-9-]{36}$/.test(draft.competitionId) ? draft : null;
+  } catch {
+    return null;
+  }
+}
+const clearDraft = (uid: string) => { try { localStorage.removeItem(draftKey(uid)); } catch { /* storage blocked */ } };
+const restoredImage = (path: string | null | undefined): Image | null => (path ? { path, preview: storedArtworkUrl(path) } : null);
+
 export function LiveCreate({ user, artist, onLaunched }: { user: User | null; artist: string; onLaunched: () => void }) {
   return (
     <SolanaProvider>
-      <CreateFlow user={user} artist={artist} onLaunched={onLaunched} />
+      {/* Remount per account so the saved draft loads into the initial state. */}
+      <CreateFlow key={user?.id ?? "signed-out"} user={user} artist={artist} onLaunched={onLaunched} />
     </SolanaProvider>
   );
 }
 
 function CreateFlow({ user, artist, onLaunched }: { user: User | null; artist: string; onLaunched: () => void }) {
   const { publicKey, signTransaction, connected } = useWallet();
-  const [step, setStep] = useState(0);
-  const [artwork, setArtwork] = useState<Image | null>(null);
-  const [cover, setCover] = useState<Image | null>(null);
+  const [saved] = useState(() => readDraft(user?.id));
+  const [step, setStep] = useState(() => Math.min(2, Math.max(0, saved?.step ?? 0)));
+  const [artwork, setArtwork] = useState<Image | null>(() => restoredImage(saved?.artworkPath));
+  const [cover, setCover] = useState<Image | null>(() => restoredImage(saved?.coverPath));
   const [uploading, setUploading] = useState<"" | "artwork" | "cover">("");
-  const [title, setTitle] = useState("");
-  const [story, setStory] = useState("");
-  const [total, setTotal] = useState(12);
-  const [capacity, setCapacity] = useState(100);
-  const [winners, setWinners] = useState(10);
-  const [fee, setFee] = useState(1000);
-  const [share, setShare] = useState<5 | 10>(5);
+  const [title, setTitle] = useState(saved?.title ?? "");
+  const [story, setStory] = useState(saved?.story ?? "");
+  const [total, setTotal] = useState(saved?.total ?? 12);
+  const [capacity, setCapacity] = useState(saved?.capacity ?? 100);
+  const [winners, setWinners] = useState(saved?.winners ?? 10);
+  const [fee, setFee] = useState(saved?.fee ?? 1000);
+  const [share, setShare] = useState<5 | 10>(saved?.share ?? 5);
   const [error, setError] = useState("");
   const [stage, setStage] = useState<PayStage | null>(null);
   const [launched, setLaunched] = useState<string | null>(null);
-  const [competitionId, setCompetitionId] = useState(() => `custom-${crypto.randomUUID()}`);
+  const [competitionId, setCompetitionId] = useState(() => saved?.competitionId ?? `custom-${crypto.randomUUID()}`);
   const [copied, setCopied] = useState(false);
   const mine = useMine(user, launched);
+  // A launch paid while the app was in the background shows as done on return.
+  const done = launched ?? (mine.some((m) => m.id === competitionId) ? competitionId : null);
+
+  useEffect(() => {
+    if (!user) return;
+    if (done) { clearDraft(user.id); return; }
+    if (!artwork && !title && !story) return;
+    const draft: Draft = { step, title, story, total, capacity, winners, fee, share, artworkPath: artwork?.path ?? null, coverPath: cover?.path ?? null, competitionId, savedAt: Date.now() };
+    try { localStorage.setItem(draftKey(user.id), JSON.stringify(draft)); } catch { /* storage full or blocked */ }
+  }, [user, done, step, title, story, total, capacity, winners, fee, share, artwork, cover, competitionId]);
 
   const projected = fee * capacity;
   const launchFee = Math.max(1, Math.round((projected * share) / 200));
@@ -106,6 +137,7 @@ function CreateFlow({ user, artist, onLaunched }: { user: User | null; artist: s
   }
 
   function reset() {
+    if (user) clearDraft(user.id);
     setLaunched(null); setStep(0); setArtwork(null); setCover(null); setTitle(""); setStory(""); setCopied(false);
     setCompetitionId(`custom-${crypto.randomUUID()}`);
   }
@@ -121,16 +153,17 @@ function CreateFlow({ user, artist, onLaunched }: { user: User | null; artist: s
     );
   }
 
-  if (launched) {
-    const link = `${typeof window === "undefined" ? "" : window.location.origin}/collection/${launched}`;
+  if (done) {
+    const launchedDef = mine.find((m) => m.id === done)?.definition;
+    const link = `${typeof window === "undefined" ? "" : window.location.origin}/collection/${done}`;
     return (
       <section className="lc-success" aria-live="polite">
         <span className="lc-success-icon" aria-hidden="true"><Icon name="check" size={30} /></span>
         <p className="eyebrow">LAUNCH FEE PAID</p>
-        <h2>{title} is open to join.</h2>
-        <p>Share it with your community. The one-month round starts when all {capacity.toLocaleString()} places are filled.</p>
+        <h2>{launchedDef?.title ?? title} is open to join.</h2>
+        <p>Share it with your community. The one-month round starts when all {(launchedDef?.capacity ?? capacity).toLocaleString()} places are filled.</p>
         <div className="lc-success-actions">
-          <Link className="primary" href={`/collection/${launched}`}>View competition <Icon name="arrow" /></Link>
+          <Link className="primary" href={`/collection/${done}`}>View competition <Icon name="arrow" /></Link>
           <button className="lc-ghost" onClick={async () => { try { await navigator.clipboard.writeText(link); setCopied(true); } catch { /* blocked */ } }}>{copied ? "Link copied" : "Copy link"}</button>
           <button className="lc-ghost" onClick={reset}>Create another</button>
         </div>
@@ -143,7 +176,7 @@ function CreateFlow({ user, artist, onLaunched }: { user: User | null; artist: s
       <div className="lc-layout">
         <section className="lc-editor" aria-labelledby="lc-step-title">
           <ol className="lc-steps" aria-label="Launch progress">
-            {["Artwork", "Rules", "Review & pay"].map((label, i) => (
+            {["Artwork", "Rules", "Review"].map((label, i) => (
               <li key={label} className={step === i ? "is-current" : step > i ? "is-done" : ""} aria-current={step === i ? "step" : undefined}>
                 <span>{step > i ? <Icon name="check" size={14} /> : i + 1}</span>{label}
               </li>

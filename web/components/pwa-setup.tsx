@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 /** Chrome's install event; not yet in the DOM typings. */
 type InstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: "accepted" | "dismissed" }> };
@@ -28,12 +29,61 @@ function isIosSafari() {
   return ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
 }
 
+/* Android may close a backgrounded app and relaunch it at the manifest's
+   start URL. Remember the last in-app page so a relaunch resumes there. */
+const RESUME_KEY = "ryvo-resume";
+const RESUME_FOR = 30 * 60 * 1000;
+const resumable = (path: string) =>
+  /^\/(explore|boards|board\/[a-z0-9-]+|create|referrals|wallet(\/p2p)?|notifications|profile|collection\/[a-z0-9-]+|merchant|admin)$/.test(path);
+
+function ResumeLastPage() {
+  const pathname = usePathname();
+  const search = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!window.matchMedia("(display-mode: standalone)").matches) return;
+    if (search.get("source") === "pwa") {
+      try {
+        const saved = JSON.parse(localStorage.getItem(RESUME_KEY) || "null") as { path: string; at: number } | null;
+        if (saved && Date.now() - saved.at < RESUME_FOR && resumable(saved.path) && saved.path !== pathname) {
+          router.replace(saved.path);
+          return;
+        }
+      } catch { /* storage blocked */ }
+    }
+    if (resumable(pathname)) {
+      try { localStorage.setItem(RESUME_KEY, JSON.stringify({ path: pathname, at: Date.now() })); } catch { /* storage blocked */ }
+    }
+  }, [pathname, search, router]);
+
+  // Keep the timestamp fresh while the app is open, and on the way out.
+  useEffect(() => {
+    const touch = () => {
+      if (!resumable(location.pathname)) return;
+      try { localStorage.setItem(RESUME_KEY, JSON.stringify({ path: location.pathname, at: Date.now() })); } catch { /* storage blocked */ }
+    };
+    document.addEventListener("visibilitychange", touch);
+    return () => document.removeEventListener("visibilitychange", touch);
+  }, []);
+  return null;
+}
+
+export function PwaSetup() {
+  return (
+    <>
+      <Suspense fallback={null}><ResumeLastPage /></Suspense>
+      <InstallCard />
+    </>
+  );
+}
+
 /**
  * Registers the service worker and offers installation: Chrome/Edge/Samsung
  * get the native install prompt (which installs Ryvo as an Android app),
  * iPhone Safari gets Add to Home Screen instructions.
  */
-export function PwaSetup() {
+function InstallCard() {
   const [prompt, setPrompt] = useState<InstallPromptEvent | null>(null);
   const [mode, setMode] = useState<"hidden" | "install" | "ios">("hidden");
 
