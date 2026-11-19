@@ -126,3 +126,68 @@
   .lx-faq details:not([open]):hover summary span { background: color-mix(in srgb, var(--ryvo-green) 28%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) { .lx-faq details, .lx-faq summary span { transition: none; } }
+
+/* ---------- Practice board puzzle ---------- */
+.lp { display: grid; gap: 18px; margin: 34px 0 6px; padding: 24px; border-radius: 28px; background: #0d0e0d radial-gradient(70% 60% at 100% 0%, color-mix(in srgb, var(--ryvo-green) 14%, transparent), transparent 65%); box-shadow: inset 0 1px 0 #ffffff12; }
+.lp-head .lx-kicker { margin-bottom: 8px; }
+.lp-head h3 { margin: 0; font-size: clamp(26px, 4vw, 36px); font-weight: 850; letter-spacing: -.04em; line-height: 1.05; color: #f5f5f3; }
+.lp-head p:not(.lx-kicker) { margin: 8px 0 0; font-size: 13.5px; line-height: 1.6; color: #a0a29e; }
+.lp-head b { color: #f5f5f3; }
+.lp-stage { position: relative; min-height: 260px; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.lp-board { position: absolute; left: 0; top: 0; border-radius: 18px; overflow: hidden; background: #070807; box-shadow: inset 0 0 0 1px #ffffff14, 0 24px 60px #00000080; }
+.lp-ghost { position: absolute; inset: 0; background-size: cover; opacity: .16; filter: grayscale(.4); }
+.lp-slot { position: absolute; padding: 0; border: 0; background: transparent; box-shadow: inset 0 0 0 1px #ffffff12; cursor: default; }
+.lp-slot:not(:disabled) { cursor: pointer; background: color-mix(in srgb, var(--ryvo-green) 6%, transparent); }
+.lp-slot:not(:disabled):hover, .lp-slot:focus-visible { background: color-mix(in srgb, var(--ryvo-green) 16%, transparent); outline: none; box-shadow: inset 0 0 0 2px var(--ryvo-green); }
+.lp-slot.is-hint { animation: lp-hint 900ms ease-in-out infinite; }
+@keyframes lp-hint { 50% { background: color-mix(in srgb, var(--ryvo-green) 30%, transparent); box-shadow: inset 0 0 0 2px var(--ryvo-green); } }
+
+.lp-piece {
+  position: absolute; left: 0; top: 0; z-index: 2; padding: 0; border: 0; border-radius: 12px; cursor: grab; touch-action: none;
+  box-shadow: 0 14px 30px #000000a6, inset 0 0 0 1px #ffffff30, inset 0 1px 0 #ffffff55;
+  transition: transform 420ms cubic-bezier(.2,.8,.2,1), border-radius 300ms ease, box-shadow 300ms ease;
+  animation: lp-drift var(--lp-drift, 6s) ease-in-out var(--lp-delay, 0s) infinite alternate;
+  will-change: transform;
+}
+.lp-glass { position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(135deg, #ffffff40 0%, #ffffff10 28%, transparent 46%, transparent 70%, #ffffff18 100%);
+  box-shadow: inset 0 -10px 18px #00000040; }
+@keyframes lp-drift { 0% { translate: 0 0; } 50% { translate: 4px -7px; } 100% { translate: -5px 5px; } }
+.lp-piece.is-dragging { z-index: 5; cursor: grabbing; transition: none; animation: none; box-shadow: 0 26px 50px #000000c0, inset 0 0 0 2px var(--ryvo-green); }
+.lp-piece.is-selected { z-index: 4; animation: none; box-shadow: 0 18px 40px #000000b3, 0 0 0 3px var(--ryvo-green); }
+.lp-piece.is-wrong { animation: lp-shake 420ms cubic-bezier(.36,.07,.19,.97); }
+@keyframes lp-shake { 20%, 60% { translate: -7px 0; } 40%, 80% { translate: 7px 0; } }
+.lp-piece.is-placed { z-index: 1; cursor: default; animation: none; border-radius: 0; box-shadow: none; }
+.lp-piece.is-placed .lp-glass { background: linear-gradient(115deg, transparent 40%, #ffffff30 50%, transparent 60%) no-repeat; background-size: 250% 100%; animation: lp-sheen 900ms ease-out both; box-shadow: none; }
+@keyframes lp-sheen { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+.lp-piece:focus-visible { outline: 2px solid #f5f5f3; outline-offset: 3px; }
+
+.lp-win { position: absolute; left: 0; top: 0; z-index: 6; display: grid; place-items: center; padding: 14px; border-radius: 18px;
+  background: radial-gradient(70% 70% at 50% 40%, color-mix(in srgb, var(--ryvo-green) 28%, transparent), #050505cc); animation: lp-win-in 500ms cubic-bezier(.2,.8,.2,1) 250ms both; }
+@keyframes lp-win-in { from { opacity: 0; } }
+.lp-win-card { display: grid; justify-items: center; gap: 8px; max-width: 360px; padding: 20px 18px; border-radius: 22px; text-align: center;
+  background: #111211f2; box-shadow: 0 24px 60px #000000b3, inset 0 1px 0 #ffffff18; animation: lp-card-in 520ms cubic-bezier(.2,.8,.2,1) 380ms both; }
+@keyframes lp-card-in { from { opacity: 0; transform: translateY(14px) scale(.96); } }
+.lp-win-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--ryvo-green); color: var(--ryvo-green-ink); font-size: 12px; font-weight: 800; }
+.lp-win-title { margin: 4px 0 0; font-size: 13px; font-weight: 700; color: #a0a29e; }
+.lp-win-rewards { display: flex; align-items: center; gap: 12px; }
+.lp-win-rewards div { display: grid; gap: 2px; }
+.lp-win-rewards b { font-size: clamp(26px, 5vw, 34px); font-weight: 850; letter-spacing: -.04em; line-height: 1; color: var(--ryvo-green); font-variant-numeric: tabular-nums; }
+.lp-win-rewards div:last-child b { color: var(--ryvo-pink-soft); }
+.lp-win-rewards span { font-size: 11.5px; color: #c9cdc4; }
+.lp-win-rewards i { font-style: normal; font-size: 20px; color: #7d817a; }
+.lp-win-card small { font-size: 11px; line-height: 1.45; color: #8d9189; }
+.lp-win-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 6px; }
+.lp-win-actions .primary { display: inline-flex; align-items: center; gap: 10px; }
+
+.lp-foot { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 6px 14px; }
+.lp-meter { height: 8px; border-radius: 999px; background: #ffffff10; overflow: hidden; }
+.lp-meter i { display: block; height: 100%; border-radius: inherit; background: var(--ryvo-green); transition: width 300ms ease; }
+.lp-count { font-size: 13px; font-weight: 800; color: #f5f5f3; font-variant-numeric: tabular-nums; }
+.lp-reset { font-size: 12px; font-weight: 700; color: #c9cdc4; text-decoration: underline; text-underline-offset: 3px; }
+.lp-message { grid-column: 1 / -1; margin: 0; font-size: 12.5px; color: #8d9189; }
+@media (max-width: 700px) { .lp { padding: 18px; border-radius: 24px; } .lp-win-card { padding: 16px 14px; } }
+@media (prefers-reduced-motion: reduce) {
+  .lp-piece, .lp-piece.is-placed .lp-glass, .lp-slot.is-hint, .lp-win, .lp-win-card { animation: none; }
+  .lp-piece { transition: none; }
+}

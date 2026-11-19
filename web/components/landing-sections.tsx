@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Icon } from "@/components/collection-art";
+import { LandingPuzzle } from "@/components/landing-puzzle";
 
 /* Landing sections that explain money, wallets and Solana in plain words.
    Solana and Solflare are named and linked, never shown with their logos:
@@ -117,6 +118,7 @@ export function StartSteps() {
           <li key={n}><span>{n}</span><h3>{title}</h3><p>{text}</p></li>
         ))}
       </ol>
+      <LandingPuzzle />
       <div className="lx-steps-cta">
         <Link className="primary" href="/explore">Find a challenge <Icon name="arrow" size={18} /></Link>
         <a className="lx-ghost" href={SOLFLARE_DOWNLOAD} target="_blank" rel="noopener noreferrer">Get Solflare ↗</a>

@@ -92,11 +92,11 @@ html[data-splash="out"] .pwa-splash .ryvo-loader-center { animation: pwa-logo-ou
    Outline → one ink pass (pink, charcoal, green; 720ms) → the logo settles →
    "Ryvo" rises in → short hold → exit. Everything waits for the logo image
    (.is-ready), so a slow load never starts the sequence half-drawn.        */
-.pwa-splash .ryvo-loader .ryvo-loader-ink.ryvo-loader-top { animation: pwa-ink-top 720ms linear 240ms both; animation-play-state: paused; }
-.pwa-splash .ryvo-loader .ryvo-loader-ink.ryvo-loader-middle { animation: pwa-ink-middle 720ms linear 240ms both; animation-play-state: paused; }
-.pwa-splash .ryvo-loader .ryvo-loader-ink.ryvo-loader-green { animation: pwa-ink-green 720ms linear 240ms both; animation-play-state: paused; }
-.pwa-splash .ryvo-loader .ryvo-loader-logo { animation: pwa-logo-settle 420ms cubic-bezier(.2,.8,.2,1) 960ms both; animation-play-state: paused; transform-origin: 50% 50%; }
-.pwa-splash .ryvo-loader .ryvo-loader-wordmark { animation: pwa-word-in 460ms cubic-bezier(.2,.8,.2,1) 1080ms both; animation-play-state: paused; }
+.pwa-splash .ryvo-loader .ryvo-loader-ink.ryvo-loader-top { animation: pwa-ink-top 720ms linear 0ms both; animation-play-state: paused; }
+.pwa-splash .ryvo-loader .ryvo-loader-ink.ryvo-loader-middle { animation: pwa-ink-middle 720ms linear 0ms both; animation-play-state: paused; }
+.pwa-splash .ryvo-loader .ryvo-loader-ink.ryvo-loader-green { animation: pwa-ink-green 720ms linear 0ms both; animation-play-state: paused; }
+.pwa-splash .ryvo-loader .ryvo-loader-logo { animation: pwa-logo-settle 420ms cubic-bezier(.2,.8,.2,1) 720ms both; animation-play-state: paused; transform-origin: 50% 50%; }
+.pwa-splash .ryvo-loader .ryvo-loader-wordmark { animation: pwa-word-in 460ms cubic-bezier(.2,.8,.2,1) 840ms both; animation-play-state: paused; }
 .pwa-splash .ryvo-loader.is-ready .ryvo-loader-ink,
 .pwa-splash .ryvo-loader.is-ready .ryvo-loader-logo,
 .pwa-splash .ryvo-loader.is-ready .ryvo-loader-wordmark { animation-play-state: running; }
@@ -108,3 +108,7 @@ html[data-splash="out"] .pwa-splash .ryvo-loader-center { animation: pwa-logo-ou
 @media (prefers-reduced-motion: reduce) {
   .pwa-splash .ryvo-loader .ryvo-loader-ink, .pwa-splash .ryvo-loader .ryvo-loader-logo, .pwa-splash .ryvo-loader .ryvo-loader-wordmark { animation: none; clip-path: inset(0); opacity: 1; }
 }
+
+/* No preview of the logo: the splash starts blank and the ink pass draws it. */
+.pwa-splash .ryvo-loader-outline { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .pwa-splash .ryvo-loader-outline { opacity: 0; } }
