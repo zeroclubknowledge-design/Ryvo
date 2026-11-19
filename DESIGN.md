@@ -91,9 +91,11 @@ Player, merchant and admin pages have no footer; the floating taskbar is the pag
 
 ## Wallet (Solana)
 
-The wallet page leads with Ryvo's own Solana connect panel instead of a generic adapter popup: detected wallets as rows with their icons and a green Connect chip, a plain no-wallet state with Phantom and Solflare links, and on Android the Solana Mobile adapter labelled "Wallet app on this phone". Connected, it shows the wallet, a copyable short address, live USDC (in dollars) and SOL balances, and Disconnect. Connecting never moves funds.
+Modelled on a wallet app's portfolio screen, in Ryvo's palette. The page opens on the balance card, with no artwork banner. Disconnected, the card shows a Ryvo avatar, "Not connected", the network chip, a "Connect a Solana wallet." headline and wallet rows (wallet icon, name, status, chevron). Android's mobile adapter shows a wallet glyph, labelled "Open my wallet app". Connected, the card shows an address-derived avatar, the wallet name with a copyable short address, a ⋮ menu (Receive, Copy address, View on Solscan, Disconnect), the BALANCE eyebrow and a dollar total of USDC plus SOL. An eye toggle hides every amount on the page and is remembered per browser. Long totals step down in size so they never overflow.
 
-Naira is retired from the wallet. RYVO Credit keeps its card with Fund, Swap and P2P; Fund points to wallet connection until on-chain checkout opens, and P2P opens the merchant directory. Available to withdraw reads the USDC cash-out ledger and shows dollars at 1 USDC = $1; nothing is converted from naira. Wallet activity lists RYVO Credit entries only.
+Below it: Move money rows (Add funds opens a Receive sheet with the full address and a network warning, Buy with P2P, and Swap and Fund RYVO Credit marked Soon), Your assets rows (RYVO Credit, USD Coin, Solana with their values), an Available to withdraw card (USDC earnings at 1 USDC = $1), the Token card, then Activity. Rows use #111211 on the canvas with tinted green, pink and purple icon tiles. On desktop, actions and assets sit side by side.
+
+Balances come from `/api/solana/balances`, because Solana's public RPC rejects browser-origin requests with 403. The route reads public chain data server-side, with a 60-second SOL price from Jupiter. Set `SOLANA_RPC_URL` to a dedicated RPC for production traffic. Naira is retired from the wallet; old cash entries in Activity display in dollars.
 
 ## Dollar pricing
 

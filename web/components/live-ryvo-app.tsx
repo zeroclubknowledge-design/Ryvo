@@ -403,7 +403,7 @@ export function LiveRyvoApp({
                   <div className="page-heading">
                     <div>
                       <h1>{initialView === "p2p" ? "Meet your merchants." : "Your wallet."}</h1>
-                      <p className="subheading">Your credit. Your earnings. Your next move.</p>
+                      <p className="subheading">{initialView === "p2p" ? "Your credit. Your earnings. Your next move." : "Your Solana wallet, RYVO Credit and earnings."}</p>
                     </div>
                   </div>
                   {initialView === "p2p" ? (
@@ -413,11 +413,6 @@ export function LiveRyvoApp({
                     </>
                   ) : (
                     <>
-                      <SceneBanner
-                        title="More possibilities in every move."
-                        text="Your wallet, your RYVO Credit and your earnings, in one place."
-                        theme="chrome"
-                      />
                       <WalletPage
                         creditBalance={price}
                         activity={ledger}

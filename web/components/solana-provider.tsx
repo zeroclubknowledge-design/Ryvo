@@ -1,12 +1,11 @@
 "use client";
-import { ConnectionProvider,WalletProvider,useConnection,useWallet } from '@solana/wallet-adapter-react';
+import { ConnectionProvider,WalletProvider,useWallet } from '@solana/wallet-adapter-react';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
-import { PublicKey } from '@solana/web3.js';
 import { Menu } from '@base-ui/react/menu';
 import { useEffect,useState,type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { shortAddress,SOLANA_NETWORK,SOLANA_RPC,USDC_MINT } from '@/lib/solana-config';
+import { shortAddress,SOLANA_NETWORK,SOLANA_RPC } from '@/lib/solana-config';
 import { Icon } from '@/components/collection-art';
 
 const adapters:[]=[];
@@ -19,8 +18,13 @@ export function ConnectWallet({compact=false,signIn=false,next='/explore'}:{comp
  const ready=wallets.filter(w=>w.readyState===WalletReadyState.Installed||w.readyState===WalletReadyState.Loadable);
  return <div className={`solana-connect ${compact?'compact':''}`}><Menu.Root><Menu.Trigger className="wallet-connect-button" disabled={connecting||busy} aria-label={connected?'Connected wallet options':'Connect Solana wallet'}><Icon name="wallet" size={17}/><span>{connecting?'Connecting…':connected&&publicKey?shortAddress(publicKey.toBase58()):'Connect wallet'}</span></Menu.Trigger><Menu.Portal><Menu.Positioner className="ryvo-select-positioner" align="end" sideOffset={12}><Menu.Popup className="solana-wallet-menu"><strong>{connected?'Your Solana wallet':'Choose your wallet'}</strong>{connected?<><p>{publicKey?.toBase58()}</p><Menu.Item className="solana-wallet-option" onClick={()=>void disconnect()}>Disconnect wallet</Menu.Item></>:ready.length?ready.map(item=><Menu.Item key={item.adapter.name} className="solana-wallet-option" onClick={()=>{setError('');select(item.adapter.name);setRequested(true)}}>{item.adapter.name}<Icon name="arrow" size={15}/></Menu.Item>):<div className="solana-wallet-help"><p>No compatible wallet was detected. Open Ryvo inside your wallet’s browser, or install a Solana wallet.</p><a href="https://phantom.com/download" target="_blank" rel="noreferrer">Get Phantom ↗</a><a href="https://solflare.com/download" target="_blank" rel="noreferrer">Get Solflare ↗</a></div>}</Menu.Popup></Menu.Positioner></Menu.Portal></Menu.Root>{signIn&&connected&&<button className="primary wallet-authenticate" disabled={busy||!signMessage} onClick={authenticate}>{busy?'Check your wallet…':'Sign in with this wallet'}<Icon name="arrow" size={17}/></button>}{signIn&&connected&&!signMessage&&<p>This wallet does not support sign-in messages. Choose another wallet.</p>}{error&&<p className="wallet-connect-error" role="alert">{error}</p>}</div>;
 }
+/** Balances come from /api/solana/balances: Solana's public RPC rejects browser-origin requests. */
+export type SolanaBalances={address:string;sol:number;usdcMicro:number;solUsd:number|null};
 export function useSolanaBalances(){
- const {publicKey}=useWallet(),{connection}=useConnection();const [balances,setBalances]=useState<{address:string;sol:number;usdcMicro:number}|null>(null),[error,setError]=useState(''),[revision,setRevision]=useState(0);
- useEffect(()=>{let active=true;if(!publicKey)return;const load=async()=>{try{const [lamports,tokens]=await Promise.all([connection.getBalance(publicKey,'confirmed'),connection.getParsedTokenAccountsByOwner(publicKey,{mint:new PublicKey(USDC_MINT)},'confirmed')]);const amount=tokens.value.reduce((sum,item)=>{const token=item.account.data.parsed.info.tokenAmount;if(token.decimals!==6)throw Error('Unexpected USDC token precision.');return sum+BigInt(token.amount)},BigInt(0));if(amount>BigInt(Number.MAX_SAFE_INTEGER))throw Error('Balance is too large to display safely.');if(active){setBalances({address:publicKey.toBase58(),sol:lamports/1e9,usdcMicro:Number(amount)});setError('')}}catch{if(active){setBalances(null);setError('Unable to read this wallet on Solana. Refresh to try again.')}}};void load();const timer=setInterval(()=>{if(document.visibilityState==='visible')void load()},30000);return()=>{active=false;clearInterval(timer)}},[publicKey,connection,revision]);
- return {balances:publicKey&&balances?.address===publicKey.toBase58()?balances:null,error:publicKey?error:'',refresh:()=>setRevision(v=>v+1),network:SOLANA_NETWORK};
+ const {publicKey}=useWallet();const [balances,setBalances]=useState<SolanaBalances|null>(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[revision,setRevision]=useState(0);
+ useEffect(()=>{if(!publicKey)return;let active=true;const address=publicKey.toBase58();
+  const load=async()=>{if(active)setLoading(true);try{const response=await fetch(`/api/solana/balances?address=${encodeURIComponent(address)}`,{cache:'no-store'});const body=await response.json();if(!response.ok)throw Error(body.error);if(active){setBalances(body as SolanaBalances);setError('')}}catch(e){if(active)setError(e instanceof Error&&e.message?e.message:'Unable to read this wallet right now.')}finally{if(active)setLoading(false)}};
+  void load();const timer=setInterval(()=>{if(document.visibilityState==='visible')void load()},30000);return()=>{active=false;clearInterval(timer)}},[publicKey,revision]);
+ const current=publicKey&&balances?.address===publicKey.toBase58()?balances:null;
+ return {balances:current,error:publicKey?error:'',loading:Boolean(publicKey)&&!current&&!error&&loading,refresh:()=>setRevision(v=>v+1),network:SOLANA_NETWORK};
 }
