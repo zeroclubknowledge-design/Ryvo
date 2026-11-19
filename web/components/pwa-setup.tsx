@@ -4,6 +4,8 @@ import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
+import { rememberReferral } from "@/lib/referral";
+
 /** Chrome's install event; not yet in the DOM typings. */
 type InstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: "accepted" | "dismissed" }> };
 
@@ -70,6 +72,8 @@ function ResumeLastPage() {
 }
 
 export function PwaSetup() {
+  // Invite links can land on any page; remember the inviter for sign-up.
+  useEffect(() => { rememberReferral(location.search); }, []);
   return (
     <>
       <Suspense fallback={null}><ResumeLastPage /></Suspense>

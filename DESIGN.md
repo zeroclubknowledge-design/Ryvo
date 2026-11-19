@@ -151,3 +151,9 @@ Each split is recorded in `ryvo_entry_splits`. Universal pieces can be converted
 - **Listed:** bought with RYVO Credit; the seller gets USDC earnings at 1,000 r/ = $1, less 0.5%.
 
 Admin → Economy shows the launch pool, the split, launch fees, refunds due, Universal activity and these settings. Tests: `npm run test:economy`.
+
+## Referral tracking
+
+Invite links (`/onboarding?ref=<username>`) are remembered on the device for 30 days, from any page, and the first invite wins. Sign-up sends the inviter as `referred_by`. The database links the new account to that player once, at creation (trigger `ryvo_link_referral`, migration 202611190008). Later edits can't move a referral, and self-referrals and unknown usernames are ignored.
+
+Each paid entry by a referred player pays the referrer their rate × Ryvo's 50% share, straight to their USDC earnings, and is recorded on the entry's split. The rate follows the referrer's chosen programme: level from completed boards, or Ryvo's player count. A referral qualifies on the referred player's first paid entry, and every fifth qualifying referral issues a Universal piece. The Invite page shows Signed up, Qualifying and Earned from `ryvo_my_referrals`. Tests: `npm run test:referrals`. Sign-ups through the wallet alone don't carry an invite.

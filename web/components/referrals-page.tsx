@@ -19,6 +19,24 @@ import {
 } from "@/lib/levels";
 import { supabase } from "@/lib/supabase";
 
+/** The player's real referral numbers, from the database. */
+function ReferralStats() {
+  const [stats, setStats] = useState<{ joined: number; qualifying: number; earnedMicro: number } | null>(null);
+  useEffect(() => {
+    let active = true;
+    supabase().rpc("ryvo_my_referrals").then(({ data }) => { if (active && data) setStats(data as { joined: number; qualifying: number; earnedMicro: number }); });
+    return () => { active = false; };
+  }, []);
+  if (!stats) return null;
+  return (
+    <dl className="squad-stats" aria-label="Your referrals">
+      <div><dt>Signed up</dt><dd>{stats.joined.toLocaleString()}</dd></div>
+      <div><dt>Qualifying</dt><dd>{stats.qualifying.toLocaleString()}</dd></div>
+      <div><dt>Earned</dt><dd>{referralMoney(stats.earnedMicro / 1e6)}</dd></div>
+    </dl>
+  );
+}
+
 const referralMoney = (value: number) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -106,7 +124,8 @@ export function ReferralsPage({
     Number.isSafeInteger(referrals) &&
     referrals >= 1 &&
     referrals <= 10000;
-  const reward = valid ? (amount * referrals * rate) / 100 : 0;
+  // Commission is the rate applied to Ryvo's 50% share of each entry.
+  const reward = valid ? (amount * referrals * rate) / 200 : 0;
 
   async function activate(next: ReferralScheme) {
     setActivating(next);
@@ -241,7 +260,7 @@ export function ReferralsPage({
                 <article className="squad-scheme-card squad-choice-card">
                   <p className="eyebrow">LEVEL PROGRAMME</p>
                   <h3>Your level sets your rate.</h3>
-                  <p>Complete boards, reach a level, and earn a bigger share of every referred registration fee.</p>
+                  <p>Complete boards, reach a level, and earn a bigger share of Ryvo’s half of every referred entry.</p>
                   <div className="squad-scheme-list">
                     {levelBands.map(band => (
                       <div key={band.levels} className={level.rate === band.rate ? "is-current" : ""}>
@@ -314,10 +333,11 @@ export function ReferralsPage({
           </h2>
           <p>
             {shown === "population"
-              ? `Commission follows Ryvo’s total player count. You are in the ${populationTier.label.toLowerCase()} phase, so you earn ${rate}% of eligible registration fees from players you refer.`
-              : `Commission follows your level. At level ${level.level} · ${level.name} you earn ${rate}% of eligible registration fees from players you refer.`}
+              ? `Commission follows Ryvo’s total player count. You are in the ${populationTier.label.toLowerCase()} phase, so you earn ${rate}% of Ryvo’s share — ${rate / 2}% of every entry from players you refer.`
+              : `Commission follows your level. At level ${level.level} · ${level.name} you earn ${rate}% of Ryvo’s share — ${rate / 2}% of every entry from players you refer.`}
           </p>
-          <span>Example: an eligible $10 entry → {referralMoney((10 * rate) / 100)} for you.</span>
+          <span>Example: a $10 entry → {referralMoney((10 * rate) / 200)} for you, paid in USDC to your earnings.</span>
+          <ReferralStats />
         </div>
         <div className="squad-hero-art">
           <Image className="squad-ryvo-logo" src="/ryvo-logo.png" alt="" width={220} height={220} />
