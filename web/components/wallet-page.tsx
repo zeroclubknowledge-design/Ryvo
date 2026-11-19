@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 
-import { SolanaProvider, useSolanaBalances, type SolanaBalances } from "@/components/solana-provider";
+import { useSolanaBalances, type SolanaBalances } from "@/components/solana-provider";
 import { loadCashout } from "@/lib/cashout";
 import { credit, money, type DemoState } from "@/lib/demo";
 import { SOLANA_NETWORK, USDC_SCALE, shortAddress } from "@/lib/solana-config";
@@ -41,9 +41,7 @@ function useHiddenBalances() {
 
 export function WalletPage(props: { creditBalance: string; activity: Activity[]; signedIn: boolean; tokenCard?: ReactNode }) {
   return (
-    <SolanaProvider>
-      <WalletScreen {...props} />
-    </SolanaProvider>
+<WalletScreen {...props} />
   );
 }
 
@@ -255,6 +253,21 @@ export function WalletConnectOptions() {
 
   const detected = wallets.filter((w) => w.readyState === WalletReadyState.Installed || w.readyState === WalletReadyState.Loadable);
   const choose = (name: WalletName) => { setProblem(""); select(name); setRequested(true); };
+
+  // The last approved wallet is being restored on its own: don't offer the picker.
+  if (hydrated && connecting && !requested && wallet) {
+    return (
+      <div className="wl-options">
+        <div className="wl-option is-reconnecting" role="status">
+          <span className="wl-option-glyph" aria-hidden="true"><WalletGlyph /></span>
+          <span className="wl-option-copy">
+            <b>Reconnecting your wallet…</b>
+            <span>{wallet.adapter.name === MOBILE_ADAPTER ? "Restoring your wallet app" : `Restoring ${wallet.adapter.name}`}</span>
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -209,3 +209,7 @@ a.wl-row:active, button.wl-row:active { transform: scale(.985); }
   .wl-sheet[open] { animation: none; }
   .wl-skeleton { animation: none; }
 }
+.wl-option.is-reconnecting { cursor: default; }
+.wl-option.is-reconnecting .wl-option-glyph { animation: wl-pulse 1.2s ease-in-out infinite; }
+@keyframes wl-pulse { 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .wl-option.is-reconnecting .wl-option-glyph { animation: none; } }

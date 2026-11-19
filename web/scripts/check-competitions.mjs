@@ -34,13 +34,14 @@ const art = `${creator}/${crypto.randomUUID()}.jpg`;
 const draft = { title: 'Harbour at dusk', description: 'A quiet harbour painted at the last light of day.', artist: 'Ada', fee: 1000, capacity: 2, winners: 1, creatorShare: 5, total: 12, artworkPath: art, coverPath: art };
 await assert.rejects(() => prepare(creator, 'launch', id, { ...draft, artworkPath: `${player}/${crypto.randomUUID()}.jpg` }), /Check your artwork/, 'Artwork must be in the creator’s own folder');
 const launch = await prepare(creator, 'launch', id, draft);
-assert.equal(launch.amountMicro, 500000, 'Launch fee is 2.5% of $10 × 2 players = $0.50');
+assert.equal(launch.amountMicro, 1140000, 'Launch fee: $1 + 2×$0.01 + 1×$0.10 + 24 pieces in play×$0.0005 = $1.132 → $1.14');
 await assert.rejects(() => prepare(player, 'entry', id), /unavailable/, 'Unpaid launches are not joinable');
 assert.equal((await settle(launch.id)).status, 'paid');
 assert.equal((await settle(launch.id)).status, 'paid', 'Settling twice is harmless');
 const [comp] = (await db.query('select published,definition from public.competitions where id=$1', [id])).rows;
 assert.equal(comp.published, true); assert.equal(comp.definition.status, 'open'); assert.equal(comp.definition.prize, 400);
 assert.equal(comp.definition.theme, `art:${art}`);
+assert.equal(comp.definition.creatorShare, 10, 'Creators earn a fixed 10% share');
 
 const entry = await prepare(player, 'entry', id);
 assert.equal(entry.amountMicro, 10000000, '$10 entry is 10 USDC');

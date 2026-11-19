@@ -3,13 +3,13 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
 import { Artwork, Icon, storedArtworkUrl } from "@/components/collection-art";
-import { SolanaProvider } from "@/components/solana-provider";
 import { WalletConnectOptions } from "@/components/wallet-page";
 import { payCompetition, stageLabel, type PayStage } from "@/lib/competition-pay";
 import { fragmentLayout, money, type Competition } from "@/lib/demo";
+import { CREATOR_SHARE, launchFeeBreakdown } from "@/lib/launch-fee";
 import { shortAddress } from "@/lib/solana-config";
 import { supabase } from "@/lib/supabase";
 
@@ -22,7 +22,7 @@ type Mine = { id: string; definition: Competition; created_at: string };
 
 /* An unfinished launch is saved per account, so leaving the app never loses it. */
 type Draft = {
-  step: number; title: string; story: string; total: number; capacity: number; winners: number; fee: number; share: 5 | 10;
+  step: number; title: string; story: string; total: number; capacity: number; winners: number; fee: number;
   artworkPath: string | null; coverPath: string | null; competitionId: string; savedAt: number;
 };
 const DRAFT_TTL = 7 * 24 * 60 * 60 * 1000;
@@ -39,18 +39,23 @@ function readDraft(uid: string | undefined): Draft | null {
 const clearDraft = (uid: string) => { try { localStorage.removeItem(draftKey(uid)); } catch { /* storage blocked */ } };
 const restoredImage = (path: string | null | undefined): Image | null => (path ? { path, preview: storedArtworkUrl(path) } : null);
 
+const noop = () => () => {};
+
 export function LiveCreate({ user, artist, onLaunched }: { user: User | null; artist: string; onLaunched: () => void }) {
+  // The draft lives in this browser, so restore it only after hydration; the
+  // server and the first client render both start from a blank form.
+  const hydrated = useSyncExternalStore(noop, () => true, () => false);
   return (
-    <SolanaProvider>
-      {/* Remount per account so the saved draft loads into the initial state. */}
-      <CreateFlow key={user?.id ?? "signed-out"} user={user} artist={artist} onLaunched={onLaunched} />
-    </SolanaProvider>
+    <CreateFlow
+      key={`${hydrated ? "restored" : "initial"}:${user?.id ?? "signed-out"}`}
+      restore={hydrated} user={user} artist={artist} onLaunched={onLaunched}
+    />
   );
 }
 
-function CreateFlow({ user, artist, onLaunched }: { user: User | null; artist: string; onLaunched: () => void }) {
+function CreateFlow({ user, artist, onLaunched, restore }: { user: User | null; artist: string; onLaunched: () => void; restore: boolean }) {
   const { publicKey, signTransaction, connected } = useWallet();
-  const [saved] = useState(() => readDraft(user?.id));
+  const [saved] = useState(() => (restore ? readDraft(user?.id) : null));
   const [step, setStep] = useState(() => Math.min(2, Math.max(0, saved?.step ?? 0)));
   const [artwork, setArtwork] = useState<Image | null>(() => restoredImage(saved?.artworkPath));
   const [cover, setCover] = useState<Image | null>(() => restoredImage(saved?.coverPath));
@@ -58,10 +63,12 @@ function CreateFlow({ user, artist, onLaunched }: { user: User | null; artist: s
   const [title, setTitle] = useState(saved?.title ?? "");
   const [story, setStory] = useState(saved?.story ?? "");
   const [total, setTotal] = useState(saved?.total ?? 12);
-  const [capacity, setCapacity] = useState(saved?.capacity ?? 100);
-  const [winners, setWinners] = useState(saved?.winners ?? 10);
+  // Number boxes hold what was typed (even empty) and are checked on Continue.
+  const [capacityText, setCapacityText] = useState(String(saved?.capacity ?? 100));
+  const [winnersText, setWinnersText] = useState(String(saved?.winners ?? 10));
+  const capacity = Number(capacityText) || 0;
+  const winners = Number(winnersText) || 0;
   const [fee, setFee] = useState(saved?.fee ?? 1000);
-  const [share, setShare] = useState<5 | 10>(saved?.share ?? 5);
   const [error, setError] = useState("");
   const [stage, setStage] = useState<PayStage | null>(null);
   const [launched, setLaunched] = useState<string | null>(null);
@@ -75,14 +82,16 @@ function CreateFlow({ user, artist, onLaunched }: { user: User | null; artist: s
     if (!user) return;
     if (done) { clearDraft(user.id); return; }
     if (!artwork && !title && !story) return;
-    const draft: Draft = { step, title, story, total, capacity, winners, fee, share, artworkPath: artwork?.path ?? null, coverPath: cover?.path ?? null, competitionId, savedAt: Date.now() };
+    const draft: Draft = { step, title, story, total, capacity, winners, fee, artworkPath: artwork?.path ?? null, coverPath: cover?.path ?? null, competitionId, savedAt: Date.now() };
     try { localStorage.setItem(draftKey(user.id), JSON.stringify(draft)); } catch { /* storage full or blocked */ }
-  }, [user, done, step, title, story, total, capacity, winners, fee, share, artwork, cover, competitionId]);
+  }, [user, done, step, title, story, total, capacity, winners, fee, artwork, cover, competitionId]);
 
   const projected = fee * capacity;
-  const launchFee = Math.max(1, Math.round((projected * share) / 200));
+  const feeParts = launchFeeBreakdown(capacity, winners, total);
+  const launchFee = feeParts.total;
   const prize = Math.round(projected * 0.2);
-  const creatorEarnings = Math.round((projected * share) / 100);
+  const creatorEarnings = Math.round((projected * CREATOR_SHARE) / 100);
+  const rulesValid = capacity >= 2 && capacity <= 10000 && winners >= 1 && winners <= capacity;
   const layout = useMemo(() => fragmentLayout(total), [total]);
 
   async function upload(file: File | undefined, kind: "artwork" | "cover") {
@@ -110,8 +119,8 @@ function CreateFlow({ user, artist, onLaunched }: { user: User | null; artist: s
     if (step === 0 && (!artwork || title.trim().length < 3 || story.trim().length < 20)) {
       return setError("Add your artwork, a title of at least 3 characters and a story of at least 20.");
     }
-    if (step === 1 && (capacity < 2 || capacity > 10000 || winners < 1 || winners > capacity)) {
-      return setError("Use 2–10,000 players and between 1 and that many winner slots.");
+    if (step === 1 && !rulesValid) {
+      return setError(capacity < 2 || capacity > 10000 ? "Enter 2 to 10,000 players." : `Enter 1 to ${capacity.toLocaleString()} winner slots.`);
     }
     setStep(step + 1);
   }
@@ -123,7 +132,7 @@ function CreateFlow({ user, artist, onLaunched }: { user: User | null; artist: s
       const result = await payCompetition(
         {
           kind: "launch", competitionId,
-          draft: { title: title.trim(), description: story.trim(), artist, fee, capacity, winners, creatorShare: share, total, artworkPath: artwork.path, coverPath: (cover ?? artwork).path },
+          draft: { title: title.trim(), description: story.trim(), artist, fee, capacity, winners, creatorShare: CREATOR_SHARE, total, artworkPath: artwork.path, coverPath: (cover ?? artwork).path },
         },
         { publicKey, signTransaction },
         setStage,
@@ -206,8 +215,8 @@ function CreateFlow({ user, artist, onLaunched }: { user: User | null; artist: s
                 <small>More pieces make a longer race.</small>
               </label>
               <div className="lc-pair">
-                <label className="lc-field">Players<input type="number" inputMode="numeric" min={2} max={10000} value={capacity} onChange={(e) => { const next = Math.max(0, Math.floor(Number(e.target.value))); setCapacity(next); if (winners > next) setWinners(Math.max(1, next)); }} /></label>
-                <label className="lc-field">Winner slots<input type="number" inputMode="numeric" min={1} max={capacity} value={winners} onChange={(e) => setWinners(Math.max(0, Math.floor(Number(e.target.value))))} /></label>
+                <label className="lc-field">Players<input type="text" inputMode="numeric" autoComplete="off" placeholder="2–10,000" maxLength={5} value={capacityText} onChange={(e) => setCapacityText(e.target.value.replace(/\D/g, ""))} aria-invalid={capacityText !== "" && (capacity < 2 || capacity > 10000)} /></label>
+                <label className="lc-field">Winner slots<input type="text" inputMode="numeric" autoComplete="off" placeholder={capacity >= 1 ? `1–${capacity.toLocaleString()}` : "1 or more"} maxLength={5} value={winnersText} onChange={(e) => setWinnersText(e.target.value.replace(/\D/g, ""))} aria-invalid={winnersText !== "" && (winners < 1 || winners > capacity)} /></label>
               </div>
               <fieldset className="lc-choice">
                 <legend>Entry fee</legend>
@@ -215,12 +224,11 @@ function CreateFlow({ user, artist, onLaunched }: { user: User | null; artist: s
                   <label key={v} className={fee === v ? "is-on" : ""}><input type="radio" name="fee" checked={fee === v} onChange={() => setFee(v)} /><b>{money(v)}</b><span>{(v * 10).toLocaleString()} r/</span></label>
                 ))}
               </fieldset>
-              <fieldset className="lc-choice">
-                <legend>Your creator share</legend>
-                {([5, 10] as const).map((v) => (
-                  <label key={v} className={share === v ? "is-on" : ""}><input type="radio" name="share" checked={share === v} onChange={() => setShare(v)} /><b>{v}% of entries</b><span>{v / 2}% launch fee</span></label>
-                ))}
-              </fieldset>
+              <div className="lc-fee-live" aria-live="polite">
+                <span>Launch fee</span>
+                <b>{rulesValid ? money(launchFee) : "—"}</b>
+                <small>Set by players, winner slots and pieces. You earn {CREATOR_SHARE}% of entries.</small>
+              </div>
               <p className="lc-note"><Icon name="time" size={18} /> The one-month round starts only when every place is filled.</p>
             </div>
           )}
@@ -234,7 +242,13 @@ function CreateFlow({ user, artist, onLaunched }: { user: User | null; artist: s
                 <div><dt>Players · winners</dt><dd>{capacity.toLocaleString()} · {winners.toLocaleString()}</dd></div>
                 <div><dt>Projected entries</dt><dd>{money(projected)}</dd></div>
                 <div><dt>Prize pool · 20%</dt><dd>{money(prize)}</dd></div>
-                <div><dt>Your share · {share}%</dt><dd>{money(creatorEarnings)}</dd></div>
+                <div><dt>Your share · {CREATOR_SHARE}%</dt><dd>{money(creatorEarnings)}</dd></div>
+              </dl>
+              <dl className="lc-summary lc-fee-breakdown" aria-label="How the launch fee is worked out">
+                <div><dt>Base</dt><dd>{money(feeParts.base)}</dd></div>
+                <div><dt>{capacity.toLocaleString()} players × $0.01</dt><dd>{money(feeParts.playerCost)}</dd></div>
+                <div><dt>{winners.toLocaleString()} winner slots × $0.10</dt><dd>{money(feeParts.winnerCost)}</dd></div>
+                <div><dt>{feeParts.piecesInPlay.toLocaleString()} pieces in play × $0.0005</dt><dd>{money(feeParts.supplyCost)}</dd></div>
                 <div className="is-total"><dt>Launch fee today</dt><dd>{money(launchFee)} <small>USDC</small></dd></div>
               </dl>
               <div className="lc-pay">

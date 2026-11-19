@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { Icon } from "@/components/collection-art";
-import { SolanaProvider } from "@/components/solana-provider";
 import { WalletConnectOptions } from "@/components/wallet-page";
 import { payCompetition, stageLabel, type PayStage } from "@/lib/competition-pay";
 import { money, type Competition } from "@/lib/demo";
@@ -16,9 +15,7 @@ type Props = { competition: Competition; user: User | null; joined: boolean; onJ
 
 export function JoinCompetition(props: Props) {
   return (
-    <SolanaProvider>
-      <JoinPanel {...props} />
-    </SolanaProvider>
+<JoinPanel {...props} />
   );
 }
 
