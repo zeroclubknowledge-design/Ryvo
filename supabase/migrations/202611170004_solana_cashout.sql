@@ -1,6 +1,11 @@
 -- Run after the previous Ryvo migrations. Old naira/credit balances are NOT USDC.
 begin;
 do $$ begin
+ if to_regclass('public.ryvo_merchants') is null or to_regclass('public.ryvo_ops_settings') is null then
+  raise exception 'Run 202611160001_ryvo_foundation.sql and 202611160002_merchant_admin.sql in this Supabase project first.';
+ end if;
+end $$;
+do $$ begin
  if to_regprocedure('public.ryvo_credit_operation_legacy(text,jsonb)') is null then
   alter function public.ryvo_operation(text,jsonb) rename to ryvo_credit_operation_legacy;
  end if;

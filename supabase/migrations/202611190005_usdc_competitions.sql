@@ -6,6 +6,16 @@
 -- Competition money fields stay in cents (the app's legacy unit): $1 = 100.
 begin;
 
+-- Fail with a clear message when this is run on a project missing the earlier migrations.
+do $$ begin
+ if to_regclass('public.competitions') is null or to_regclass('public.wallets') is null then
+  raise exception 'Ryvo base tables are missing in this Supabase project. Check you opened the right project, then run 202611160001_ryvo_foundation.sql first.';
+ end if;
+ if to_regclass('public.ryvo_audit') is null then
+  raise exception 'Run 202611160002_merchant_admin.sql before this migration.';
+ end if;
+end $$;
+
 -- Public artwork for creator competitions: anyone may view, owners upload to their folder.
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
 values('competition-art','competition-art',true,8388608,array['image/jpeg','image/png','image/webp'])
