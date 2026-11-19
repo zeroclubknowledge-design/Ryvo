@@ -16,9 +16,15 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["games", "entertainment"],
     lang: "en",
     dir: "ltr",
+    // Android draws its launch screen from the "any" icons and the home-screen
+    // icon from the "maskable" ones. The "any" icons are a plain canvas-black
+    // tile so the launch screen reveals nothing and flows straight into Ryvo's
+    // own splash, where the ink pass draws the logo. The logo lives in the
+    // maskable icons, which Android uses on the home screen.
     icons: [
-      { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icon-launch-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icon-launch-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icon-maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
       { src: "/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
