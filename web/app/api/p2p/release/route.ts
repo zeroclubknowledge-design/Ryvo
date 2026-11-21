@@ -85,6 +85,7 @@ export async function POST(req: Request) {
     return fail('Invalid request.');
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Release failed.';
-    return fail(/Sign in|not configured|Invalid/.test(message) ? message : 'The release could not be completed. If it went through on Solana, refresh in a moment.', 502);
+    const known = /Sign in|not configured|Invalid/.test(message);
+    return fail(known ? message : 'The release could not be completed. If it went through on Solana, refresh in a moment.', known ? 400 : 502);
   }
 }
