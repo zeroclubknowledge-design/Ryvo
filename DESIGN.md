@@ -117,7 +117,7 @@ The launch fee is set by the size of the game, never chosen by the creator: $1.0
 
 The collection page shows a join panel (`JoinCompetition`) with the entry price, the RYVO Credit it issues, places left and a fill meter. It then shows sign in, connect a wallet, or "Pay $X & join". After joining it shows "You're in" with Open your board. Closed or full competitions say so plainly.
 
-Payments go to Ryvo's treasury (`BrPs45Ds…PSPU2`; override with `SOLANA_TREASURY_ADDRESS`). `/api/competitions/pay` works in three steps:
+Payments go to Ryvo's treasury (`9PnBeTXp…R75mV`; override with `SOLANA_TREASURY_ADDRESS`). `/api/competitions/pay` works in three steps:
 - **prepare:** the database validates and opens a 15-minute payment, and the server builds a USDC transfer with a one-off reference key. The wallet only signs.
 - **submit:** the signed transaction must match exactly. The server sends it, confirms it, then records the launch or entry, issuing credits, the board and the place.
 - **check:** recovers a missed confirmation by its reference.
@@ -174,3 +174,19 @@ The landing page uses all three brand colours together, not one: green for actio
 Inside "Four steps. One complete board." (`LandingPuzzle`), the hero artwork (`/other-side-puzzle.webp`, 960×720) is cut into 12 glass pieces (4 × 3) that drift beside or below a board showing a faint ghost of the picture. Players drag a piece into place, tap a piece and then its spot, or use Enter on a piece and then on a slot. Correct drops snap in with a sheen; wrong drops shake and return, and two misses light up the right spot. Completing the board shows a win card with an example reward from Ryvo's real rules: a $10, 100-player, 10-winner challenge gives a $23.40 prize share (23.4% pool ÷ 10), plus 100 RYVO tokens for early players. It is labelled "Practice board — no real money" and offers Play for real and Play again. Reduced motion stops the drift.
 
 Android builds its launch screen from the manifest's `any` icons, so those are plain canvas-black tiles (`icon-launch-*.png`). The system screen reveals nothing and flows into Ryvo's splash, where the ink pass draws the logo. The logo lives in the `maskable` icons (Android home screen), the favicon and the Apple touch icon. Trade-off: places that use the `any` icon, such as a desktop install, show the plain tile.
+
+## Recommended wallet: Phantom
+
+The landing page's wallet card recommends **Phantom**, in Phantom's own lavender (#ab9ff2) with its ghost mark, linking to phantom.com/download. The set-up steps, the four start steps and the FAQ name Phantom. Solflare and Backpack are mentioned as also working, and the wallet page offers Get Phantom first.
+
+## P2P market (USDC and SOL)
+
+`/wallet/p2p` is an exchange-style P2P desk:
+- **Players:** Buy and Sell tabs (Sell explains that escrow cash-out is coming); USDC, SOL and RYVO Credit (the existing credit market); a currency picker and an amount filter. Ads come only from approved merchants and show orders, 30-day completion, release time, price per coin, available amount, limits and payment method.
+- **Orders:** an order reserves the amount and shows steps (Pay the merchant, Merchant releases, Received), a countdown, bank details with copy buttons and a transfer note, plus I've paid, Cancel and Appeal.
+- **Merchants:** the studio's **USDC & SOL** section posts one ad per coin and currency. Release builds the exact transfer from the merchant's connected wallet to the buyer's (`/api/p2p/release`), and the order completes only after Solana confirms it.
+- **Admin:** **P2P appeals** lets admins cancel an appealed order.
+- **Database:** migration 202611210009 (`ryvo_p2p`); tests in `npm run test:p2p`.
+- **No escrow:** coins aren't held in escrow, so buyers pay first and appeals are the safeguard.
+
+Competition payments go to the treasury `9PnBeTXp…R75mV`.

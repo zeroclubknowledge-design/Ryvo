@@ -17,6 +17,7 @@ import "./premium.css";
 import "./wallet.css";
 import "./create.css";
 import "./landing.css";
+import "./p2p.css";
 import "./pwa.css";
 import { PwaSetup } from "@/components/pwa-setup";
 import { PwaSplash } from "@/components/pwa-splash";

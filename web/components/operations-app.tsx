@@ -1,5 +1,6 @@
 "use client";
 import { EconomyPanel } from "@/components/admin-economy";
+import { MerchantCryptoDesk } from "@/components/merchant-crypto-desk";
 import Image from "next/image";
 import { Menu } from "@base-ui/react/menu";
 import Link from "next/link";
@@ -15,8 +16,8 @@ import { loadOperations, operation, tradeStatus, type Merchant, type OpsData, ty
 import { credit, localMoney, money } from "@/lib/demo";
 
 export type Portal="merchant"|"admin";
-const merchantNav=[['overview','Overview','explore'],['orders','Orders','boards'],['stock','Credit stock','wallet'],['offer','Your offer','marketplace']] as const;
-const adminNav=[['overview','Overview','explore'],['merchants','Merchants','marketplace'],['orders','Payments','wallet'],['stock','Wholesale','boards'],['competitions','Competitions','spark'],['economy','Economy','wallet'],['players','Players','referrals'],['audit','Audit trail','time'],['settings','Settings','profile']] as const;
+const merchantNav=[['overview','Overview','explore'],['orders','Orders','boards'],['crypto','USDC & SOL','wallet'],['stock','Credit stock','spark'],['offer','Your offer','marketplace']] as const;
+const adminNav=[['overview','Overview','explore'],['merchants','Merchants','marketplace'],['orders','Payments','wallet'],['stock','Wholesale','boards'],['competitions','Competitions','spark'],['economy','Economy','wallet'],['p2p','P2P appeals','marketplace'],['players','Players','referrals'],['audit','Audit trail','time'],['settings','Settings','profile']] as const;
 const date=(value:string)=>new Date(value).toLocaleDateString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 export function OperationsApp({portal,section="overview"}:{portal:Portal;section?:string}){
  const [user,setUser]=useState<User|null>(null),[data,setData]=useState<OpsData|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[busy,setBusy]=useState(false),[notice,setNotice]=useState(""),[retry,setRetry]=useState(0);
@@ -68,6 +69,8 @@ export function OperationsWorkbench({portal,section,data,busy,run}:{portal:Porta
  {section==='players'&&admin&&<><Search query={query} setQuery={setQuery} label="Search name or email"/><p className="ops-context">Latest 500 registered players. Wallet balances are read-only here.</p><div className="ops-table-wrap"><table><thead><tr><th>Player</th><th>RYVO Credit</th><th>Earnings</th><th>Joined</th></tr></thead><tbody>{data.players.filter(p=>match(`${p.name} ${p.email}`)).map(p=><tr key={p.user_id}><td><b>{p.name}</b><small>{p.email}</small></td><td>{credit(p.credits)}</td><td>{money(p.earnings)}</td><td>{date(p.created_at)}</td></tr>)}</tbody></table></div>{!data.players.length&&<OpsEmpty title="Your community starts here." text="Registered players will appear here after their accounts are created."/>}</>}
  {section==='audit'&&admin&&<section className="ops-panel"><h2>Latest platform actions</h2><p className="ops-context">Latest 200 actions. Records are created by the database and cannot be edited here.</p>{data.audit.length?<ol className="ops-audit">{data.audit.map(a=><li key={a.id}><span><Icon name="check" size={17}/></span><div><b>{a.action.replaceAll('-',' ')}</b><small>{a.actor_name} · {a.subject}</small></div><time>{date(a.created_at)}</time></li>)}</ol>:<OpsEmpty title="A clear trail from the start." text="Merchant approvals, payment confirmations and settings changes will be recorded here."/>}</section>}
  {section==='economy'&&admin&&<EconomyPanel/>}
+ {section==='p2p'&&admin&&<MerchantCryptoDesk admin/>}
+ {section==='crypto'&&!admin&&merchant&&<MerchantCryptoDesk/>}
  {section==='settings'&&admin&&<SettingsForm data={data} busy={busy} run={run}/>}
  </>;
 }

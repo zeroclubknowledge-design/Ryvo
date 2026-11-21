@@ -12,7 +12,8 @@
     "test:profile": "node scripts/check-profile.mjs",
     "test:competitions": "node scripts/check-competitions.mjs",
     "test:economy": "node scripts/check-economy.mjs",
-    "test:referrals": "node scripts/check-referrals.mjs"
+    "test:referrals": "node scripts/check-referrals.mjs",
+    "test:p2p": "node scripts/check-p2p.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

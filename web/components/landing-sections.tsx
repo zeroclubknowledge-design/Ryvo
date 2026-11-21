@@ -5,10 +5,24 @@ import { Icon } from "@/components/collection-art";
 import { LandingPuzzle } from "@/components/landing-puzzle";
 
 /* Landing sections that explain money, wallets and Solana in plain words.
-   Solana and Solflare are named and linked, never shown with their logos:
-   Ryvo is built on Solana and recommends Solflare, but isn't affiliated. */
+   Solana is named and linked without its logo. The recommended wallet,
+   Phantom, is shown in its own lavender with its ghost mark (nominative use:
+   Ryvo recommends Phantom and links to its official download, without
+   claiming any affiliation). */
 
-const SOLFLARE_DOWNLOAD = "https://solflare.com/download";
+const PHANTOM_DOWNLOAD = "https://phantom.com/download";
+
+/** Phantom’s ghost mark, drawn for the recommendation card. */
+export function PhantomMark({ size = 54 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 128 128" width={size} height={size} aria-hidden="true" focusable="false">
+      <rect width="128" height="128" rx="30" fill="#ab9ff2" />
+      <path fill="#fffdf8" d="M26 86c0-31 18-52 42-52 22 0 36 17 36 38 0 16-11 26-25 26-7 0-11-5-17-5-8 0-12 8-22 8-8 0-14-5-14-15z" />
+      <ellipse cx="66" cy="64" rx="5.5" ry="9" fill="#3c315b" />
+      <ellipse cx="85" cy="64" rx="5.5" ry="9" fill="#3c315b" />
+    </svg>
+  );
+}
 
 const stroke = { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" } as const;
 const Glyph = ({ children }: { children: ReactNode }) => <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">{children}</svg>;
@@ -75,34 +89,34 @@ export function SolanaSection() {
   );
 }
 
-/** Recommends Solflare with its official download page, plus three set-up steps. */
+/** Recommends Phantom with its official download page, plus three set-up steps. */
 function WalletCard() {
   return (
     <aside className="lx-wallet" aria-labelledby="lx-wallet-title">
       <div className="lx-wallet-head">
-        <span className="lx-wallet-icon">{glyphs.wallet}</span>
+        <span className="lx-wallet-icon"><PhantomMark /></span>
         <div>
           <p className="lx-kicker">RECOMMENDED WALLET</p>
-          <h3 id="lx-wallet-title">Solflare</h3>
+          <h3 id="lx-wallet-title">Phantom</h3>
         </div>
       </div>
       <p className="lx-wallet-copy">A free Solana wallet for your phone or browser. It holds your USDC and connects to Ryvo in one tap.</p>
       <ol className="lx-wallet-steps">
-        <li><b>Install Solflare</b><span>On iPhone, Android or as a browser extension.</span></li>
+        <li><b>Install Phantom</b><span>On iPhone, Android or as a browser extension.</span></li>
         <li><b>Add USDC</b><span>Buy it in the app with a card, or receive it from another wallet. Keep a little SOL for fees.</span></li>
-        <li><b>Connect to Ryvo</b><span>Open Ryvo, tap Connect and approve in Solflare.</span></li>
+        <li><b>Connect to Ryvo</b><span>Open Ryvo, tap Connect and approve in Phantom.</span></li>
       </ol>
-      <a className="lx-wallet-cta" href={SOLFLARE_DOWNLOAD} target="_blank" rel="noopener noreferrer">
-        Get Solflare <span aria-hidden="true">↗</span>
+      <a className="lx-wallet-cta" href={PHANTOM_DOWNLOAD} target="_blank" rel="noopener noreferrer">
+        Get Phantom <span aria-hidden="true">↗</span>
       </a>
-      <small>Opens solflare.com. Phantom and Backpack work too.</small>
+      <small>Opens phantom.com. Solflare and Backpack work too.</small>
     </aside>
   );
 }
 
 export function StartSteps() {
   const steps = [
-    ["01", "Get a wallet", "Install Solflare and add a few dollars of USDC. It takes about two minutes."],
+    ["01", "Get a wallet", "Install Phantom and add a few dollars of USDC. It takes about two minutes."],
     ["02", "Pick a challenge", "Choose an artwork and pay its $5, $10 or $20 entry. You get RYVO Credit straight away — 1,000 r/ for every $1."],
     ["03", "Collect and trade", "When every place fills, the race begins. Draw random pieces with your credit and swap extras with other players."],
     ["04", "Finish first, win", "Complete your board within the month to claim a winner slot and a share of the prize pool."],
@@ -121,7 +135,7 @@ export function StartSteps() {
       <LandingPuzzle />
       <div className="lx-steps-cta">
         <Link className="primary" href="/explore">Find a challenge <Icon name="arrow" size={18} /></Link>
-        <a className="lx-ghost" href={SOLFLARE_DOWNLOAD} target="_blank" rel="noopener noreferrer">Get Solflare ↗</a>
+        <a className="lx-ghost" href={PHANTOM_DOWNLOAD} target="_blank" rel="noopener noreferrer">Get Phantom ↗</a>
       </div>
     </section>
   );
@@ -129,7 +143,7 @@ export function StartSteps() {
 
 export function LandingFaq() {
   const faqs: [string, ReactNode][] = [
-    ["Do I need to know crypto?", "No. You need a wallet app like Solflare with some USDC in it. Ryvo shows every amount in dollars, and your wallet asks you to approve each payment."],
+    ["Do I need to know crypto?", "No. You need a wallet app like Phantom with some USDC in it. Ryvo shows every amount in dollars, and your wallet asks you to approve each payment."],
     ["What is USDC?", "A digital dollar. 1 USDC is designed to always equal $1, so your entry and your winnings don’t rise or fall in value."],
     ["What is RYVO Credit?", "The in-game credit you use to draw pieces and buy from other players. Every entry gives you 1,000 r/ for each $1 you pay. It stays inside Ryvo."],
     ["How do I win, and how much?", "Be among the first players to complete the board within the month. Each competition’s prize pool is 10% to 40% of its entries — the more winner slots it has, the bigger the share — split across those winners. You can see the exact pool on every challenge before you join."],

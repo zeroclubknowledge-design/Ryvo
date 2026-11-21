@@ -303,7 +303,7 @@ export function WalletConnectOptions() {
           <div className="wl-no-wallet">
             <p>No Solana wallet was found here. On a phone, open Ryvo in your wallet app’s browser. On a computer, add a wallet extension and refresh.</p>
             <div>
-              <a className="wl-chip" href="https://phantom.com/download" target="_blank" rel="noreferrer">Get Phantom ↗</a>
+              <a className="wl-chip wl-chip-phantom" href="https://phantom.com/download" target="_blank" rel="noreferrer">Get Phantom ↗</a>
               <a className="wl-chip" href="https://solflare.com/download" target="_blank" rel="noreferrer">Get Solflare ↗</a>
             </div>
           </div>

@@ -245,3 +245,4 @@ a.wl-row:active, button.wl-row:active { transform: scale(.985); }
 .up-buy-confirm { display: flex; gap: 6px; }
 .up-buy-confirm .primary, .up-buy-confirm .lc-ghost { min-height: 40px; padding: 0 14px; font-size: 12.5px; }
 .up-listed .wl-chip { flex: none; white-space: nowrap; }
+.wl-chip-phantom { background: #ab9ff2; color: #1c1533; }

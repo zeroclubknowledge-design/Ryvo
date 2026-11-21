@@ -210,16 +210,17 @@
 .lx-solana-copy .lx-kicker { color: var(--ryvo-purple-soft); }
 .lx-solana-copy .lx-kicker .lx-sol-dot { background: var(--ryvo-create); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ryvo-create) 35%, transparent); }
 
-/* Solflare card keeps Solflare's own yellow — it's their brand, not Ryvo's. */
-.lx-wallet { --solflare: #fcd34d; --solflare-ink: #1b1405; }
-.lx-wallet::before { background: radial-gradient(80% 70% at 100% 0%, color-mix(in srgb, var(--solflare) 16%, transparent), transparent 60%), radial-gradient(60% 60% at 0% 100%, color-mix(in srgb, var(--ryvo-create) 18%, transparent), transparent 65%); }
-.lx-wallet-icon { background: var(--solflare); color: var(--solflare-ink); }
-.lx-wallet-head .lx-kicker { color: var(--solflare); }
-.lx-wallet-cta { background: var(--solflare); color: var(--solflare-ink); }
-.lx-step-list li:nth-child(1) span { background: color-mix(in srgb, #fcd34d 15%, transparent); color: #fcd34d; }
+/* The recommended-wallet card wears Phantom's own lavender — their brand, not Ryvo's. */
+.lx-wallet { --phantom: #ab9ff2; --phantom-ink: #1c1533; }
+.lx-wallet::before { background: radial-gradient(80% 70% at 100% 0%, color-mix(in srgb, var(--phantom) 24%, transparent), transparent 60%), radial-gradient(60% 60% at 0% 100%, color-mix(in srgb, var(--ryvo-create) 16%, transparent), transparent 65%); }
+.lx-wallet-icon { width: 54px; height: 54px; padding: 0; background: none; overflow: hidden; border-radius: 16px; }
+.lx-wallet-icon svg { display: block; }
+.lx-wallet-head .lx-kicker { color: var(--phantom); }
+.lx-wallet-cta { background: var(--phantom); color: var(--phantom-ink); }
+.lx-step-list li:nth-child(1) span { background: color-mix(in srgb, #ab9ff2 18%, transparent); color: #ab9ff2; }
 
 /* Four steps: purple → pink → green → green-on-finish. */
-.lx-step-list li:nth-child(1) { box-shadow: inset 0 3px 0 #fcd34d; }
+.lx-step-list li:nth-child(1) { box-shadow: inset 0 3px 0 #ab9ff2; }
 .lx-step-list li:nth-child(2) span { background: color-mix(in srgb, var(--ryvo-pink) 18%, transparent); color: var(--ryvo-pink-soft); }
 .lx-step-list li:nth-child(2) { box-shadow: inset 0 3px 0 var(--ryvo-pink-soft); }
 .lx-step-list li:nth-child(3) span { background: color-mix(in srgb, var(--ryvo-create) 30%, transparent); color: var(--ryvo-purple-soft); }

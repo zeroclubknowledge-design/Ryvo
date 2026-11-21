@@ -11,12 +11,12 @@ import { BackLink } from "@/components/back-button";
 import { Artwork, Icon } from "@/components/collection-art";
 import { CollectionOpening } from "@/components/collection-opening";
 import { WalletPage } from "@/components/wallet-page";
+import { P2PMarket } from "@/components/p2p-market";
 import { JoinCompetition } from "@/components/join-competition";
 import { LiveCreate } from "@/components/live-create";
 import { UniversalMarket } from "@/components/universal-pieces";
 import { LiquidGlass } from "@/components/premium/liquid-glass";
 import { EditProfile } from "@/components/edit-profile";
-import { MerchantDirectory } from "@/components/merchant-directory";
 import { NavigationFeedback } from "@/components/navigation-feedback";
 import { PlayerAvatar, PlayerProfile } from "@/components/player-profile";
 import { ReferralsPage } from "@/components/referrals-page";
@@ -413,14 +413,14 @@ export function LiveRyvoApp({
                 <>
                   <div className="page-heading">
                     <div>
-                      <h1>{initialView === "p2p" ? "Meet your merchants." : "Your wallet."}</h1>
-                      <p className="subheading">{initialView === "p2p" ? "Your credit. Your earnings. Your next move." : "Your Solana wallet, RYVO Credit and earnings."}</p>
+                      <h1>{initialView === "p2p" ? "P2P." : "Your wallet."}</h1>
+                      <p className="subheading">{initialView === "p2p" ? "Buy USDC or SOL from approved merchants, straight to your wallet." : "Your Solana wallet, RYVO Credit and earnings."}</p>
                     </div>
                   </div>
                   {initialView === "p2p" ? (
                     <>
                       <BackLink href="/wallet" ariaLabel="Back to wallet" />
-                      <MerchantDirectory />
+                      <P2PMarket />
                     </>
                   ) : (
                     <>
